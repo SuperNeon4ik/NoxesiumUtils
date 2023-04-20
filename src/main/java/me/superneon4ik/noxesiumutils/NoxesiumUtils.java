@@ -4,18 +4,22 @@ import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandAPIConfig;
 import dev.jorel.commandapi.arguments.BooleanArgument;
+import dev.jorel.commandapi.arguments.EntitySelectorArgument;
 import dev.jorel.commandapi.arguments.MultiLiteralArgument;
+import dev.jorel.commandapi.arguments.PlayerArgument;
 import io.netty.buffer.Unpooled;
 import lombok.Getter;
 import me.superneon4ik.noxesiumutils.listeners.NoxesiumMessageListener;
 import me.superneon4ik.noxesiumutils.modules.FriendlyByteBuf;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public final class NoxesiumUtils extends JavaPlugin {
     public static final String NOXESIUM_CLIENT_INFORMATION_CHANNEL = "noxesium:client_information";
@@ -42,33 +46,45 @@ public final class NoxesiumUtils extends JavaPlugin {
     private void registerCommands() {
         new CommandAPICommand("noxesiumutils")
                 .withPermission("noxesiumutils.commands")
-                .withSubcommand(
-                        new CommandAPICommand("broadcast")
-                                .withSubcommands(
-                                        new CommandAPICommand("disableAutoSpinAttack")
-                                                .withArguments(new BooleanArgument("value"))
-                                                .executes((executor, args) -> {
-                                                    int amount = 0;
-                                                    for (Player player : Bukkit.getOnlinePlayers()) {
-                                                        if (noxesiumPlayers.containsKey(player.getUniqueId())) {
-                                                            if (noxesiumPlayers.get(player.getUniqueId()) >= 1) {
-                                                                sendDisableAutoSpinAttackRule(player, (boolean) args[0]);
-                                                                amount++;
-                                                            }
-                                                        }
-                                                    }
-                                                    executor.sendMessage(ChatColor.GREEN + "Send rules to " + amount + " players.");
-                                                })
-                                )
+                .withSubcommands(
+                    new CommandAPICommand("disableAutoSpinAttack")
+                            .withArguments(new EntitySelectorArgument.ManyPlayers("players"), new BooleanArgument("value"))
+                            .executes((executor, args) -> {
+                                int amount = forNoxesiumPlayers((Collection<Player>) args[0], 1, player -> {
+                                    sendBoolean(player, 0, (boolean) args[1]);
+                                });
+                                executor.sendMessage(ChatColor.GREEN + "Send rules to " + amount + " players.");
+                            }),
+                    new CommandAPICommand("cameraLocked")
+                            .withArguments(new EntitySelectorArgument.ManyPlayers("players"), new BooleanArgument("value"))
+                            .executes((executor, args) -> {
+                                int amount = forNoxesiumPlayers((Collection<Player>) args[0], 2, player -> {
+                                    sendBoolean(player, 4, (boolean) args[1]);
+                                });
+                                executor.sendMessage(ChatColor.GREEN + "Send rules to " + amount + " players.");
+                            })
                 )
                 .register();
     }
 
-    public void sendDisableAutoSpinAttackRule(@NotNull Player player, boolean value) {
+    public int forNoxesiumPlayers(Collection<Player> players, int protocol, Consumer<Player> playerConsumer) {
+        int amount = 0;
+        for (Player player : players) {
+            if (noxesiumPlayers.containsKey(player.getUniqueId())) {
+                if (noxesiumPlayers.get(player.getUniqueId()) >= protocol) {
+                    playerConsumer.accept(player);
+                    amount++;
+                }
+            }
+        }
+        return amount;
+    }
+
+    public void sendBoolean(@NotNull Player player, int index, boolean value) {
         FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
-        byteBuf.writeVarIntArray(new int[] { 0 });
+        byteBuf.writeVarIntArray(new int[] { index });
         byteBuf.writeInt(1);
-        byteBuf.writeInt(0);
+        byteBuf.writeInt(index);
         byteBuf.writeBoolean(value);
 //        getLogger().info(toHexadecimal(byteBuf.array()));
         player.sendPluginMessage(this, NOXESIUM_SERVER_RULE_CHANNEL, byteBuf.array());

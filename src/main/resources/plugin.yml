@@ -1,7 +1,6 @@
 name: NoxesiumUtils
 author: SuperNeon4ik
 description: Interact with Noxesium from the server.
-url: https://github.com/Noxcrew/noxesium
 version: '${project.version}'
 main: me.superneon4ik.noxesiumutils.NoxesiumUtils
 api-version: 1.19

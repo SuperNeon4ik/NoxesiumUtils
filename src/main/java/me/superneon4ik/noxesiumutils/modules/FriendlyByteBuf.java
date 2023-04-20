@@ -38,55 +38,6 @@ public class FriendlyByteBuf extends ByteBuf {
         this.source = byteBuf;
     }
 
-    public static int getVarIntSize(int i) {
-        for(int j = 1; j < 5; ++j) {
-            if ((i & -1 << j * 7) == 0) {
-                return j;
-            }
-        }
-
-        return 5;
-    }
-
-    public static int getVarLongSize(long l) {
-        for(int i = 1; i < 10; ++i) {
-            if ((l & -1L << i * 7) == 0L) {
-                return i;
-            }
-        }
-
-        return 10;
-    }
-
-
-    public <T> void writeOptional(Optional<T> optional, Writer<T> writer) {
-        if (optional.isPresent()) {
-            this.writeBoolean(true);
-            writer.accept(this, optional.get());
-        } else {
-            this.writeBoolean(false);
-        }
-    }
-
-    public <T> Optional<T> readOptional(Reader<T> reader) {
-        return this.readBoolean() ? Optional.of(reader.apply(this)) : Optional.empty();
-    }
-
-    @Nullable
-    public <T> T readNullable(Reader<T> reader) {
-        return this.readBoolean() ? reader.apply(this) : null;
-    }
-
-    public <T> void writeNullable(@Nullable T object, Writer<T> writer) {
-        if (object != null) {
-            this.writeBoolean(true);
-            writer.accept(this, object);
-        } else {
-            this.writeBoolean(false);
-        }
-
-    }
-
     public byte[] readByteArray() {
         return this.readByteArray(this.readableBytes());
     }
@@ -180,18 +131,6 @@ public class FriendlyByteBuf extends ByteBuf {
         }
 
         return ls;
-    }
-
-    @VisibleForTesting
-    public byte[] accessByteBufWithCorrectSize() {
-        int i = this.writerIndex();
-        byte[] bs = new byte[i];
-        this.getBytes(0, (byte[])bs);
-        return bs;
-    }
-
-    public FriendlyByteBuf writeEnum(Enum<?> enum_) {
-        return this.writeVarInt(enum_.ordinal());
     }
 
     public int readVarInt() {
@@ -302,29 +241,6 @@ public class FriendlyByteBuf extends ByteBuf {
 
     private static int getMaxEncodedUtfLength(int i) {
         return i * 3;
-    }
-
-
-    public Date readDate() {
-        return new Date(this.readLong());
-    }
-
-    public FriendlyByteBuf writeDate(Date date) {
-        this.writeLong(date.getTime());
-        return this;
-    }
-
-    public Instant readInstant() {
-        return Instant.ofEpochMilli(this.readLong());
-    }
-
-    public void writeInstant(Instant instant) {
-        this.writeLong(instant.toEpochMilli());
-    }
-
-    public FriendlyByteBuf writePublicKey(PublicKey publicKey) {
-        this.writeByteArray(publicKey.getEncoded());
-        return this;
     }
 
     public BitSet readBitSet() {
@@ -1065,24 +981,6 @@ public class FriendlyByteBuf extends ByteBuf {
 
     public boolean release(int i) {
         return this.source.release(i);
-    }
-
-    @FunctionalInterface
-    public interface Writer<T> extends BiConsumer<FriendlyByteBuf, T> {
-        default Writer<Optional<T>> asOptional() {
-            return (friendlyByteBuf, optional) -> {
-                friendlyByteBuf.writeOptional(optional, this);
-            };
-        }
-    }
-
-    @FunctionalInterface
-    public interface Reader<T> extends Function<FriendlyByteBuf, T> {
-        default Reader<Optional<T>> asOptional() {
-            return (friendlyByteBuf) -> {
-                return friendlyByteBuf.readOptional(this);
-            };
-        }
     }
 }
 

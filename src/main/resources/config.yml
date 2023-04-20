@@ -5,4 +5,4 @@ defaults:
   #globalCanPlaceOn: [] # unsupported. since protocol 1
   #globalCanDestroy: [] # unsupported. since protocol 1
   #heldItemNameOffset: 0 # unsupported. since protocol 2
-  #cameraLocked: false # unsupported. since protocol 2
+  cameraLocked: false # since protocol 2

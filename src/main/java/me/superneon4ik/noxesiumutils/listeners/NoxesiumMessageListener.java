@@ -35,6 +35,9 @@ public class NoxesiumMessageListener implements PluginMessageListener {
                                 valuesBuffer.writeBoolean(NoxesiumUtils.getPlugin().getConfig().getBoolean("defaults.disableAutoSpinAttack", false));
                             }
                         }
+                        if (protocolVersion >= 2) {
+
+                        }
 
                         FriendlyByteBuf finalBuffer = new FriendlyByteBuf(Unpooled.buffer());
                         finalBuffer.writeVarIntArray(modifiedRules);
