@@ -3,10 +3,7 @@ package me.superneon4ik.noxesiumutils;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandAPIConfig;
-import dev.jorel.commandapi.arguments.BooleanArgument;
-import dev.jorel.commandapi.arguments.EntitySelectorArgument;
-import dev.jorel.commandapi.arguments.MultiLiteralArgument;
-import dev.jorel.commandapi.arguments.PlayerArgument;
+import dev.jorel.commandapi.arguments.*;
 import io.netty.buffer.Unpooled;
 import lombok.Getter;
 import me.superneon4ik.noxesiumutils.listeners.NoxesiumMessageListener;
@@ -62,6 +59,22 @@ public final class NoxesiumUtils extends JavaPlugin {
                                     sendBoolean(player, 4, (boolean) args[1]);
                                 });
                                 executor.sendMessage(ChatColor.GREEN + "Send rules to " + amount + " players.");
+                            }),
+                    new CommandAPICommand("globalCanDestroy")
+                            .withArguments(new EntitySelectorArgument.ManyPlayers("players"), new GreedyStringArgument("values"))
+                            .executes((executor, args) -> {
+                                int amount = forNoxesiumPlayers((Collection<Player>) args[0], 1, player -> {
+                                    sendStrings(player, 2, ((String) args[1]).split(" "));
+                                });
+                                executor.sendMessage(ChatColor.GREEN + "Send rules to " + amount + " players.");
+                            }),
+                    new CommandAPICommand("globalCanPlaceOn")
+                            .withArguments(new EntitySelectorArgument.ManyPlayers("players"), new GreedyStringArgument("values"))
+                            .executes((executor, args) -> {
+                                int amount = forNoxesiumPlayers((Collection<Player>) args[0], 1, player -> {
+                                    sendStrings(player, 1, ((String) args[1]).split(" "));
+                                });
+                                executor.sendMessage(ChatColor.GREEN + "Send rules to " + amount + " players.");
                             })
                 )
                 .register();
@@ -87,6 +100,19 @@ public final class NoxesiumUtils extends JavaPlugin {
         byteBuf.writeInt(index);
         byteBuf.writeBoolean(value);
 //        getLogger().info(toHexadecimal(byteBuf.array()));
+        player.sendPluginMessage(this, NOXESIUM_SERVER_RULE_CHANNEL, byteBuf.array());
+    }
+
+    public void sendStrings(@NotNull Player player, int index, String... strings) {
+        FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
+        byteBuf.writeVarIntArray(new int[] { index });
+        byteBuf.writeInt(1);
+        byteBuf.writeInt(index);
+        byteBuf.writeVarInt(strings.length);
+        for (String string : strings) {
+            byteBuf.writeUtf(string);
+        }
+        getLogger().info(toHexadecimal(byteBuf.array()));
         player.sendPluginMessage(this, NOXESIUM_SERVER_RULE_CHANNEL, byteBuf.array());
     }
 
