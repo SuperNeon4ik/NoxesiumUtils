@@ -34,16 +34,46 @@ public class NoxesiumMessageListener implements PluginMessageListener {
                                 valuesBuffer.writeInt(0);
                                 valuesBuffer.writeBoolean(NoxesiumUtils.getPlugin().getConfig().getBoolean("defaults.disableAutoSpinAttack", false));
                             }
+                            // Global Can Place On
+                            if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.globalCanPlaceOn")) {
+                                var blocks = NoxesiumUtils.getPlugin().getConfig().getStringList("defaults.globalCanPlaceOn");
+                                modifiedRules.add(1);
+                                valuesBuffer.writeInt(1);
+                                valuesBuffer.writeVarInt(blocks.size());
+                                for (String string : blocks) {
+                                    valuesBuffer.writeUtf(string);
+                                }
+                            }
+                            // Global Can Destroy
+                            if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.globalCanDestroy")) {
+                                var blocks = NoxesiumUtils.getPlugin().getConfig().getStringList("defaults.globalCanDestroy");
+                                modifiedRules.add(2);
+                                valuesBuffer.writeInt(2);
+                                valuesBuffer.writeVarInt(blocks.size());
+                                for (String string : blocks) {
+                                    valuesBuffer.writeUtf(string);
+                                }
+                            }
                         }
                         if (protocolVersion >= 2) {
-
+                            // Held Item Name Offset
+                            if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.heldItemNameOffset")) {
+                                modifiedRules.add(3);
+                                valuesBuffer.writeInt(3);
+                                valuesBuffer.writeVarInt(NoxesiumUtils.getPlugin().getConfig().getInt("defaults.heldItemNameOffset", 0));
+                            }
+                            // Camera Locked
+                            if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.cameraLocked")) {
+                                modifiedRules.add(4);
+                                valuesBuffer.writeInt(4);
+                                valuesBuffer.writeBoolean(NoxesiumUtils.getPlugin().getConfig().getBoolean("defaults.cameraLocked", false));
+                            }
                         }
 
                         FriendlyByteBuf finalBuffer = new FriendlyByteBuf(Unpooled.buffer());
                         finalBuffer.writeVarIntArray(modifiedRules);
                         finalBuffer.writeInt(modifiedRules.size());
                         finalBuffer.writeBytes(valuesBuffer.array());
-//                        NoxesiumUtils.getPlugin().getLogger().info(NoxesiumUtils.toHexadecimal(finalBuffer.array()));
                         player.sendPluginMessage(NoxesiumUtils.getPlugin(), NoxesiumUtils.NOXESIUM_SERVER_RULE_CHANNEL, finalBuffer.array());
                     }
                 }.runTaskLater(NoxesiumUtils.getPlugin(), 5);
