@@ -15,18 +15,21 @@ public class NoxesiumMessageListener implements PluginMessageListener {
     @Override
     public void onPluginMessageReceived(String channel, @NotNull Player player, byte @NotNull [] message) {
         if (channel.equals(NoxesiumUtils.NOXESIUM_CLIENT_INFORMATION_CHANNEL)) {
+            // Get player's noxesium protocol version.
             FriendlyByteBuf incBuf = new FriendlyByteBuf(Unpooled.copiedBuffer(message));
             int protocolVersion = incBuf.readInt();
             NoxesiumUtils.getPlugin().getLogger().info(player.getName() + " has Noxesium installed. (ProtocolVersion: " + protocolVersion + ")");
             NoxesiumUtils.getNoxesiumPlayers().put(player.getUniqueId(), protocolVersion);
 
             if (NoxesiumUtils.getPlugin().getConfig().getBoolean("sendDefaultsOnJoin", false)) {
+                // Send defaults after a little time, so the client actually registers the packet.
                 new BukkitRunnable() {
                     @Override
                     public void run() {
+                        // Create buffers
                         FriendlyByteBuf valuesBuffer = new FriendlyByteBuf(Unpooled.buffer());
-
                         List<Integer> modifiedRules = new ArrayList<>();
+
                         if (protocolVersion >= 1) {
                             // Tridents
                             if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.disableAutoSpinAttack")) {
@@ -70,10 +73,12 @@ public class NoxesiumMessageListener implements PluginMessageListener {
                             }
                         }
 
+                        // Build the final byte buffer
                         FriendlyByteBuf finalBuffer = new FriendlyByteBuf(Unpooled.buffer());
                         finalBuffer.writeVarIntArray(modifiedRules);
                         finalBuffer.writeInt(modifiedRules.size());
                         finalBuffer.writeBytes(valuesBuffer.array());
+                        // Send packet
                         player.sendPluginMessage(NoxesiumUtils.getPlugin(), NoxesiumUtils.NOXESIUM_SERVER_RULE_CHANNEL, finalBuffer.array());
                     }
                 }.runTaskLater(NoxesiumUtils.getPlugin(), 5);

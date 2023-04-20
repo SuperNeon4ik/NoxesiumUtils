@@ -32,6 +32,8 @@ public final class NoxesiumUtils extends JavaPlugin {
         plugin = this;
         saveDefaultConfig();
         registerCommands();
+
+        // Register plugin messaging channels
         getServer().getMessenger().registerOutgoingPluginChannel(this, NOXESIUM_SERVER_RULE_CHANNEL);
         getServer().getMessenger().registerIncomingPluginChannel(this, NOXESIUM_CLIENT_INFORMATION_CHANNEL, new NoxesiumMessageListener());
     }
@@ -97,6 +99,13 @@ public final class NoxesiumUtils extends JavaPlugin {
                 .register();
     }
 
+    /**
+     * Execute a Consumer for Noxesium players from the Collection.
+     * @param players Collection of players.
+     * @param minProtocol Minimum noxesium protocol version.
+     * @param playerConsumer Consumer. Runs for each Noxesium player.
+     * @return
+     */
     public int forNoxesiumPlayers(Collection<Player> players, int minProtocol, Consumer<Player> playerConsumer) {
         int amount = 0;
         for (Player player : players) {
@@ -138,15 +147,5 @@ public final class NoxesiumUtils extends JavaPlugin {
             byteBuf.writeUtf(string);
         }
         player.sendPluginMessage(this, NOXESIUM_SERVER_RULE_CHANNEL, byteBuf.array());
-    }
-
-    public static String toHexadecimal(byte[] digest){
-        StringBuilder hash = new StringBuilder();
-        for(byte aux : digest) {
-            int b = aux & 0xff;
-            if (Integer.toHexString(b).length() == 1) hash.append("0");
-            hash.append(Integer.toHexString(b));
-        }
-        return hash.toString();
     }
 }

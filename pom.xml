@@ -65,7 +65,6 @@
     </repositories>
 
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/io.netty/netty-buffer -->
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-buffer</artifactId>

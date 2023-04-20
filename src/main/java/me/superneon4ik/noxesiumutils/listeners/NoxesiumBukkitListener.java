@@ -8,6 +8,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 public class NoxesiumBukkitListener implements Listener {
     @EventHandler
     public void on(PlayerQuitEvent event) {
+        // Remove offline player from the noxesium player list
         NoxesiumUtils.getNoxesiumPlayers().remove(event.getPlayer().getUniqueId());
     }
 }
