@@ -104,7 +104,7 @@ public final class NoxesiumUtils extends JavaPlugin {
      * @param players Collection of players.
      * @param minProtocol Minimum noxesium protocol version.
      * @param playerConsumer Consumer. Runs for each Noxesium player.
-     * @return
+     * @return Amount of Noxesium players found.
      */
     public int forNoxesiumPlayers(Collection<Player> players, int minProtocol, Consumer<Player> playerConsumer) {
         int amount = 0;
