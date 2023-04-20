@@ -29,8 +29,4 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: mvn -B package --file pom.xml
-    - name: Create Draft Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: target/NoxesiumUtils-+([0-9]).+([0-9]).jar
-        draft: true
+      
