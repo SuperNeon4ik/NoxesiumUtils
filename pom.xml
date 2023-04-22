@@ -6,7 +6,7 @@
 
     <groupId>me.superneon4ik</groupId>
     <artifactId>NoxesiumUtils</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
     <packaging>jar</packaging>
     <url>https://github.com/SuperNeon4ik/NoxesiumUtils</url>
 
@@ -73,6 +73,11 @@
         <dependency>
             <groupId>dev.jorel</groupId>
             <artifactId>commandapi-shade</artifactId>
+            <version>8.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.jorel</groupId>
+            <artifactId>commandapi-annotations</artifactId>
             <version>8.8.0</version>
         </dependency>
         <dependency>
