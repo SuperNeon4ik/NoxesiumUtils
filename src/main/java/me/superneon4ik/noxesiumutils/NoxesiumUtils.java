@@ -8,6 +8,7 @@ import lombok.Getter;
 import me.superneon4ik.noxesiumutils.listeners.NoxesiumMessageListener;
 import me.superneon4ik.noxesiumutils.modules.NoxesiumServerRuleBuilder;
 import me.superneon4ik.noxesiumutils.objects.PlayerClientSettings;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -149,11 +150,31 @@ public final class NoxesiumUtils extends JavaPlugin {
     }
 
     /**
+     * Execute a Consumer for all Noxesium players online.
+     * @param minProtocol Minimum noxesium protocol version.
+     * @param playerConsumer Consumer (Player, Protocol Version). Runs for each Noxesium player.
+     * @return Number of Noxesium players affected.
+     */
+    public int forNoxesiumPlayers(int minProtocol, BiConsumer<Player, Integer> playerConsumer) {
+        int amount = 0;
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (noxesiumPlayers.containsKey(player.getUniqueId())) {
+                Integer protocolVersion = noxesiumPlayers.get(player.getUniqueId());
+                if (protocolVersion >= minProtocol) {
+                    playerConsumer.accept(player, protocolVersion);
+                    amount++;
+                }
+            }
+        }
+        return amount;
+    }
+
+    /**
      * Execute a Consumer for Noxesium players from the Collection.
      * @param players Collection of players.
      * @param minProtocol Minimum noxesium protocol version.
-     * @param playerConsumer Consumer. Runs for each Noxesium player.
-     * @return Number of Noxesium players found.
+     * @param playerConsumer Consumer (Player, Protocol Version). Runs for each Noxesium player.
+     * @return Number of Noxesium players affected.
      */
     public int forNoxesiumPlayers(Collection<Player> players, int minProtocol, BiConsumer<Player, Integer> playerConsumer) {
         int amount = 0;
