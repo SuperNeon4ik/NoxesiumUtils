@@ -52,5 +52,5 @@ PlayerClientSettings playerClientSettings = NoxesiumUtils.getPlayerClientSetting
 ![image](https://user-images.githubusercontent.com/52915540/233479405-5f7a96b1-8676-4ea9-9328-0988d348b1ed.png)
 
 ### TODO
-[] Option to kick people without Noxesium mod (or sertain Protocol Version of it)
-[] Global value for ServerRules
+- Option to kick people without Noxesium mod (or sertain Protocol Version of it)
+- Global value for ServerRules
