@@ -2,6 +2,9 @@
 ----------------
 Communicate with The [Noxesium](https://github.com/Noxcrew/noxesium) Mod with ease.
 
+Made in Ukraine! Зроблено в Україні! 🇺🇦\
+Support me on [Patreon](https://patreon.com/SuperNeon4ik) ❤️
+
 ### Features
 - Send server rules on join
 - Send server rules to players with commands
