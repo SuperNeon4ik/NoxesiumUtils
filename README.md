@@ -18,6 +18,38 @@ Support me on [Patreon](https://patreon.com/SuperNeon4ik) ❤️
 - Spigot 1.19.2+
 - The plugin won't do anything to players without the mod
 
+### Commands
+**Send Server Rule.** Sends a server rule to a selection of players.
+```html
+/noxesiumutils disableAutoSpinAttack <players: selector> <value: boolean>
+```
+```html
+/noxesiumutils globalCanDestroy <players: selector> <value: item> <value: item> <value: item> ...
+```
+```html
+/noxesiumutils globalCanPlaceOn <players: selector> <value: item> <value: item> <value: item> ...
+```
+```html
+<!-- Since Noxesium Protocol Version 2 -->
+/noxesiumutils heldItemNameOffset <players: selector> <value: number>
+```
+```html
+<!-- Since Noxesium Protocol Version 2 -->
+/noxesiumutils cameraLocked <players: selector> <value: boolean>
+```
+
+**Check player's Noxesium Protocol Version.**
+```html
+/noxesiumutils check <player: player>
+```
+**Reset player's Noxesium Session data.**
+```html
+<!-- Since Noxesium Protocol Version 3 -->
+/noxesiumutils reset <players: selector> <all | cachedPlayerSkulls>
+```
+
+For more detailed information on how everything here works, please refer to the [Noxesium Mod README](https://github.com/Noxcrew/noxesium/#readme)!
+
 ### For Developers
 **Run code for Noxesium players**
 ```java
