@@ -29,4 +29,5 @@ jobs:
       run: mvn -B package --file pom.xml
     - uses: actions/upload-artifact@v3
       with:
-          path: target/NoxesiumUtils-+([0-9]).+([0-9]).jar
+        name: Artifacts
+        path: target/*.jar
