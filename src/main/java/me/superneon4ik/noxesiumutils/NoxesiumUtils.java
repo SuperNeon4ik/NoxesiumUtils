@@ -5,14 +5,17 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandAPIConfig;
 import dev.jorel.commandapi.arguments.*;
 import lombok.Getter;
+import me.superneon4ik.noxesiumutils.listeners.NoxesiumBukkitListener;
 import me.superneon4ik.noxesiumutils.listeners.NoxesiumMessageListener;
 import me.superneon4ik.noxesiumutils.modules.NoxesiumServerRuleBuilder;
+import me.superneon4ik.noxesiumutils.modules.UpdateChecker;
 import me.superneon4ik.noxesiumutils.objects.PlayerClientSettings;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,6 +34,7 @@ public final class NoxesiumUtils extends JavaPlugin {
     @Getter private static NoxesiumUtils plugin;
     @Getter private static final Map<UUID, Integer> noxesiumPlayers = new Hashtable<>();
     @Getter private static final Map<UUID, PlayerClientSettings> noxesiumClientSettings = new Hashtable<>();
+    @Getter private static final UpdateChecker updateChecker = new UpdateChecker("SuperNeon4ik", "NoxesiumUtils");
 
     @Override
     public void onEnable() {
@@ -48,6 +52,17 @@ public final class NoxesiumUtils extends JavaPlugin {
         getServer().getMessenger().registerIncomingPluginChannel(this, NOXESIUM_LEGACY_CLIENT_SETTINGS_CHANNEL, new NoxesiumMessageListener());
         getServer().getMessenger().registerIncomingPluginChannel(this, NOXESIUM_V1_CLIENT_INFORMATION_CHANNEL, new NoxesiumMessageListener());
         getServer().getMessenger().registerIncomingPluginChannel(this, NOXESIUM_V1_CLIENT_SETTINGS_CHANNEL, new NoxesiumMessageListener());
+
+        // Register Bukkit listener
+        getServer().getPluginManager().registerEvents(new NoxesiumBukkitListener(), this);
+
+        // Check for updates
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                updateChecker.sendVersionInfoMessage(getServer().getConsoleSender());
+            }
+        }.runTaskLaterAsynchronously(this, 1);
     }
 
     @Override
@@ -146,6 +161,11 @@ public final class NoxesiumUtils extends JavaPlugin {
                                     }
                                 })
                 )
+                .executes((executor, args) -> {
+                    executor.sendMessage(ChatColor.GREEN + "For help refer to " + ChatColor.YELLOW + "https://github.com/SuperNeon4ik/NoxesiumUtils#readme");
+                    executor.sendMessage(ChatColor.DARK_GRAY + "Checking for updates...");
+                    updateChecker.sendVersionInfoMessage(executor);
+                })
                 .register();
     }
 

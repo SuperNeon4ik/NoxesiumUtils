@@ -6,7 +6,7 @@
 
     <groupId>me.superneon4ik</groupId>
     <artifactId>NoxesiumUtils</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
     <packaging>jar</packaging>
     <url>https://github.com/SuperNeon4ik/NoxesiumUtils</url>
 
@@ -65,6 +65,16 @@
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20220320</version>
+        </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-buffer</artifactId>
