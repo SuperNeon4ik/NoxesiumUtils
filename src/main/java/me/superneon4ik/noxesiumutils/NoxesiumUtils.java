@@ -175,7 +175,7 @@ public final class NoxesiumUtils extends JavaPlugin {
      * @param playerConsumer Consumer (Player, Protocol Version). Runs for each Noxesium player.
      * @return Number of Noxesium players affected.
      */
-    public int forNoxesiumPlayers(int minProtocol, BiConsumer<Player, Integer> playerConsumer) {
+    public static int forNoxesiumPlayers(int minProtocol, BiConsumer<Player, Integer> playerConsumer) {
         int amount = 0;
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (noxesiumPlayers.containsKey(player.getUniqueId())) {
@@ -196,7 +196,7 @@ public final class NoxesiumUtils extends JavaPlugin {
      * @param playerConsumer Consumer (Player, Protocol Version). Runs for each Noxesium player.
      * @return Number of Noxesium players affected.
      */
-    public int forNoxesiumPlayers(Collection<Player> players, int minProtocol, BiConsumer<Player, Integer> playerConsumer) {
+    public static int forNoxesiumPlayers(Collection<Player> players, int minProtocol, BiConsumer<Player, Integer> playerConsumer) {
         int amount = 0;
         for (Player player : players) {
             if (noxesiumPlayers.containsKey(player.getUniqueId())) {
