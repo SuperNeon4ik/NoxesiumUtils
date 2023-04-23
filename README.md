@@ -1,9 +1,12 @@
 # NoxesiumUtils
 ----------------
-Communicate with The [Noxesium](https://github.com/Noxcrew/noxesium) Mod with ease.
+Communicate with the [Noxesium Mod](https://github.com/Noxcrew/noxesium) with ease.
 
 Made in Ukraine! Зроблено в Україні! 🇺🇦\
 Support me on [Patreon](https://patreon.com/SuperNeon4ik) ❤️
+
+### What is Noxesium and why does it need Utils?
+[Noxesium Mod](https://github.com/Noxcrew/noxesium) _(by Noxcrew)_ is a fabric mod with feature additions, bugfixes, and performance improvements. It allows servers to offer a better experience to clients through access to additional features beyond vanilla limitations. However, servers need to have a plugin to communicate with the mod to actually be able to use it's features, and that's where **NoxesiumUtils** comes in. It allows server owners to easily communicate with the mod via commands and can also be used as a dependency for plugin developers.
 
 ### Features
 - Send server rules on join
