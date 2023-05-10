@@ -2,9 +2,12 @@ package me.superneon4ik.noxesiumutils.listeners;
 
 import io.netty.buffer.Unpooled;
 import me.superneon4ik.noxesiumutils.NoxesiumUtils;
+import me.superneon4ik.noxesiumutils.events.NoxesiumPlayerClientInformationEvent;
+import me.superneon4ik.noxesiumutils.events.NoxesiumPlayerJoinEvent;
 import me.superneon4ik.noxesiumutils.modules.FriendlyByteBuf;
 import me.superneon4ik.noxesiumutils.modules.NoxesiumServerRuleBuilder;
 import me.superneon4ik.noxesiumutils.objects.PlayerClientSettings;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -14,16 +17,23 @@ public class NoxesiumMessageListener implements PluginMessageListener {
     @Override
     public void onPluginMessageReceived(String channel, @NotNull Player player, byte @NotNull [] message) {
         if (channel.equals(NoxesiumUtils.NOXESIUM_LEGACY_CLIENT_INFORMATION_CHANNEL) || channel.equals(NoxesiumUtils.NOXESIUM_V1_CLIENT_INFORMATION_CHANNEL)) {
-            // Get player's noxesium protocol version.
+            // Register a byte buffer
             FriendlyByteBuf incBuf = new FriendlyByteBuf(Unpooled.copiedBuffer(message));
 
+            // Get player's noxesium protocol version.
             int protocolVersion;
             if (channel.equals(NoxesiumUtils.NOXESIUM_LEGACY_CLIENT_INFORMATION_CHANNEL)) protocolVersion = incBuf.readInt();
             else protocolVersion = incBuf.readVarInt();
 
+            // Log
             NoxesiumUtils.getPlugin().getLogger().info(player.getName() + " has Noxesium installed. (ProtocolVersion: " + protocolVersion + ")");
             NoxesiumUtils.getNoxesiumPlayers().put(player.getUniqueId(), protocolVersion);
 
+            // Send events
+            NoxesiumPlayerJoinEvent event = new NoxesiumPlayerJoinEvent(player, protocolVersion);
+            Bukkit.getPluginManager().callEvent(event);
+
+            // Send defaults
             if (NoxesiumUtils.getPlugin().getConfig().getBoolean("sendDefaultsOnJoin", false)) {
                 // Send defaults after a little time, so the client actually registers the packet.
                 new BukkitRunnable() {
@@ -69,6 +79,7 @@ public class NoxesiumMessageListener implements PluginMessageListener {
             FriendlyByteBuf incBuf = new FriendlyByteBuf(Unpooled.copiedBuffer(message));
             int protocolVersion = NoxesiumUtils.getPlayerProtocolVersion(player.getUniqueId());
 
+            PlayerClientSettings playerClientSettings = null;
             if (protocolVersion >= 3) {
                 int guiScale = incBuf.readVarInt();
                 double internalGuiScale = incBuf.readDouble();
@@ -78,19 +89,24 @@ public class NoxesiumMessageListener implements PluginMessageListener {
                 boolean touchscreenMode = incBuf.readBoolean();
                 double notificationDisplayTime = incBuf.readDouble();
 
-                var playerClientSettings = new PlayerClientSettings(
+                playerClientSettings = new PlayerClientSettings(
                         guiScale, internalGuiScale, scaledWidth, scaledHeight, enforceUnicode, touchscreenMode, notificationDisplayTime
                 );
-                NoxesiumUtils.getNoxesiumClientSettings().put(player.getUniqueId(), playerClientSettings);
             }
             else if (protocolVersion >= 1) {
                 int guiScale = incBuf.readVarInt();
                 boolean enforceUnicode = incBuf.readBoolean();
-                var playerClientSettings = new PlayerClientSettings(
+                playerClientSettings = new PlayerClientSettings(
                         guiScale, null, null, null, enforceUnicode, null, null
                 );
-                NoxesiumUtils.getNoxesiumClientSettings().put(player.getUniqueId(), playerClientSettings);
             }
+
+            if (playerClientSettings == null) return; // Just in case; this is not supposed to happen, lol.
+            NoxesiumUtils.getNoxesiumClientSettings().put(player.getUniqueId(), playerClientSettings);
+
+            // Send events
+            NoxesiumPlayerClientInformationEvent event = new NoxesiumPlayerClientInformationEvent(player, playerClientSettings);
+            Bukkit.getPluginManager().callEvent(event);
         }
     }
 }
