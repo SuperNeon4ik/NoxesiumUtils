@@ -1,6 +1,7 @@
 package me.superneon4ik.noxesiumutils;
 
 import dev.jorel.commandapi.CommandAPI;
+import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandAPIConfig;
 import dev.jorel.commandapi.arguments.*;
@@ -67,7 +68,7 @@ public final class NoxesiumUtils extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        CommandAPI.onLoad(new CommandAPIConfig());
+        CommandAPI.onLoad(new CommandAPIBukkitConfig(this));
     }
 
     @SuppressWarnings({"unsafe", "unchecked"})
@@ -78,8 +79,8 @@ public final class NoxesiumUtils extends JavaPlugin {
                         new CommandAPICommand("disableAutoSpinAttack")
                                 .withArguments(new EntitySelectorArgument.ManyPlayers("players"), new BooleanArgument("value"))
                                 .executes((executor, args) -> {
-                                    var players = (Collection<Player>) args[0];
-                                    var value = (boolean) args[1];
+                                    var players = (Collection<Player>) args.get(0);
+                                    var value = (boolean) args.get(1);
                                     int amount = forNoxesiumPlayers(players, 1, (player, pv) -> {
                                         sendServerRulesPacket(player, new NoxesiumServerRuleBuilder(pv).add(0, value).build());
                                     });
@@ -92,8 +93,8 @@ public final class NoxesiumUtils extends JavaPlugin {
                                         .buildGreedy()
                                 )
                                 .executes((executor, args) -> {
-                                    var players = (Collection<Player>) args[0];
-                                    var values = ((String) args[1]).split(" ");
+                                    var players = (Collection<Player>) args.get(0);
+                                    var values = ((String) args.get(1)).split(" ");
                                     int amount = forNoxesiumPlayers(players, 1, (player, pv) -> {
                                         sendServerRulesPacket(player, new NoxesiumServerRuleBuilder(pv).add(1, values).build());
                                     });
@@ -106,8 +107,8 @@ public final class NoxesiumUtils extends JavaPlugin {
                                         .buildGreedy()
                                 )
                                 .executes((executor, args) -> {
-                                    var players = (Collection<Player>) args[0];
-                                    var values = ((String) args[1]).split(" ");
+                                    var players = (Collection<Player>) args.get(0);
+                                    var values = ((String) args.get(1)).split(" ");
                                     int amount = forNoxesiumPlayers(players, 1, (player, pv) -> {
                                         sendServerRulesPacket(player, new NoxesiumServerRuleBuilder(pv).add(2, values).build());
                                     });
@@ -116,8 +117,8 @@ public final class NoxesiumUtils extends JavaPlugin {
                         new CommandAPICommand("heldItemNameOffset")
                                 .withArguments(new EntitySelectorArgument.ManyPlayers("players"), new IntegerArgument("value"))
                                 .executes((executor, args) -> {
-                                    var players = (Collection<Player>) args[0];
-                                    int value = (int) args[1];
+                                    var players = (Collection<Player>) args.get(0);
+                                    int value = (int) args.get(1);
                                     int amount = forNoxesiumPlayers(players, 2, (player, pv) -> {
                                         sendServerRulesPacket(player, new NoxesiumServerRuleBuilder(pv).add(3, value).build());
                                     });
@@ -126,8 +127,8 @@ public final class NoxesiumUtils extends JavaPlugin {
                         new CommandAPICommand("cameraLocked")
                                 .withArguments(new EntitySelectorArgument.ManyPlayers("players"), new BooleanArgument("value"))
                                 .executes((executor, args) -> {
-                                    var players = (Collection<Player>) args[0];
-                                    var value = (boolean) args[1];
+                                    var players = (Collection<Player>) args.get(0);
+                                    var value = (boolean) args.get(1);
                                     int amount = forNoxesiumPlayers(players, 2, (player, pv) -> {
                                         sendServerRulesPacket(player, new NoxesiumServerRuleBuilder(pv).add(4, value).build());
                                     });
@@ -136,8 +137,8 @@ public final class NoxesiumUtils extends JavaPlugin {
                         new CommandAPICommand("reset")
                                 .withArguments(new EntitySelectorArgument.ManyPlayers("players"), new MultiLiteralArgument("all", "cachedPlayerSkulls"))
                                 .executes((executor, args) -> {
-                                    var players = (Collection<Player>) args[0];
-                                    var command = (String) args[1];
+                                    var players = (Collection<Player>) args.get(0);
+                                    var command = (String) args.get(1);
 
                                     byte bitmask;
                                     if (command.equals("all")) bitmask = 0x01;
@@ -152,7 +153,7 @@ public final class NoxesiumUtils extends JavaPlugin {
                         new CommandAPICommand("check")
                                 .withArguments(new EntitySelectorArgument.OnePlayer("player"))
                                 .executes((executor, args) -> {
-                                    Player player = (Player) args[0];
+                                    Player player = (Player) args.get(0);
                                     if (noxesiumPlayers.containsKey(player.getUniqueId())) {
                                         executor.sendMessage(ChatColor.GREEN + player.getName() + " has Noxesium installed. " + ChatColor.YELLOW + "(Protocol Version: " + noxesiumPlayers.get(player.getUniqueId()) + ")");
                                     }

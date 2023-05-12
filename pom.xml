@@ -43,6 +43,15 @@
                         </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <minimizeJar>true</minimizeJar>
+                    <relocations>
+                        <relocation>
+                            <pattern>dev.jorel.commandapi</pattern>
+                            <shadedPattern>me.superneon4ik.noxesiumutils.commandapi</shadedPattern>
+                        </relocation>
+                    </relocations>
+                </configuration>
             </plugin>
         </plugins>
         <resources>
@@ -82,13 +91,13 @@
         </dependency>
         <dependency>
             <groupId>dev.jorel</groupId>
-            <artifactId>commandapi-shade</artifactId>
-            <version>8.8.0</version>
+            <artifactId>commandapi-bukkit-shade</artifactId>
+            <version>9.0.1</version>
         </dependency>
         <dependency>
             <groupId>dev.jorel</groupId>
             <artifactId>commandapi-annotations</artifactId>
-            <version>8.8.0</version>
+            <version>9.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>
