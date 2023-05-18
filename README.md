@@ -51,6 +51,31 @@ Support me on [Patreon](https://patreon.com/SuperNeon4ik) ❤️
 For more detailed information on how everything here works, please refer to the [Noxesium Mod README](https://github.com/Noxcrew/noxesium/#readme)!
 
 ### For Developers
+**Adding NoxesiumUtils to your project**
+
+You can easily add NoxesiumUtils to your project from the [Modrinth Maven Repository](https://docs.modrinth.com/docs/tutorials/maven/)!
+```gradle
+repositories {
+  // ...
+  exclusiveContent {
+    forRepository {
+      maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+      }
+    }
+    filter {
+      includeGroup "maven.modrinth"
+    }
+  }
+}
+
+dependencies {
+  // ...
+  compileOnly "maven.modrinth:noxesiumutils:1.4"
+}
+```
+
 **Run code for Noxesium players**
 ```java
 NoxesiumUtils.forNoxesiumPlayers(int minProtocol, BiConsumer<Player, Integer> playerConsumer);
