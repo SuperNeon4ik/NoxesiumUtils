@@ -85,10 +85,33 @@ int protocolVersion = NoxesiumUtils.getPlayerProtocolVersion(player.getUniqueId(
 PlayerClientSettings playerClientSettings = NoxesiumUtils.getPlayerClientSettings(player.getUniqueId());
 ```
 
+**Noxesium events**
+```java
+public class EventListener implements Listener {
+    @EventHandler
+    public void on(NoxesiumPlayerJoinEvent event) {
+        // Received player's noxesium protocol version
+        Player player = event.getPlayer();
+        int protocolVersion = event.getProtocolVersion();
+    }
+
+    @EventHandler
+    public void on(NoxesiumPlayerClientInformationEvent event) {
+        // Received player's client settings
+        Player player = event.getPlayer();
+        PlayerClientSettings playerClientSettings = event.getPlayerClientSettings();
+    }
+}
+```
+
+**Noxesium player skull component builder**
+```java
+Component component = new NoxesiumPlayerSkullBuilder(player.getUniqueID())
+        .setGrayscale(true)
+        .build();
+
+```
+
 ### Screenshots
 ![image](https://user-images.githubusercontent.com/52915540/233479245-01f9fb7e-1d7c-4e98-83ed-ee235e696ff2.png)
 ![image](https://user-images.githubusercontent.com/52915540/233479405-5f7a96b1-8676-4ea9-9328-0988d348b1ed.png)
-
-### TODO
-- Option to kick people without Noxesium mod (or sertain Protocol Version of it)
-- Global value for ServerRules

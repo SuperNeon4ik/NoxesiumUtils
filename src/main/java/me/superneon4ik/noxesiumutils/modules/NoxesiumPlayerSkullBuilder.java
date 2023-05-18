@@ -1,11 +1,13 @@
 package me.superneon4ik.noxesiumutils.modules;
 
+import lombok.Getter;
 import me.superneon4ik.noxesiumutils.NoxesiumUtils;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.chat.ScoreComponent;
 
 import java.util.UUID;
 
+@Getter
 public class NoxesiumPlayerSkullBuilder {
     private UUID uuid;
     private boolean grayscale = false;
