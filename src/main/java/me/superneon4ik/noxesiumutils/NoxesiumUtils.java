@@ -94,9 +94,10 @@ public final class NoxesiumUtils extends JavaPlugin {
                                 )
                                 .executes((executor, args) -> {
                                     var players = (Collection<Player>) args.get(0);
-                                    var values = ((String) args.get(1)).split(" ");
+                                    var materialValues = (List<Material>) args.get(1);
+                                    var stringValues = materialValues.stream().map(v -> "minecraft:" + v.name().toLowerCase()).toList();
                                     int amount = forNoxesiumPlayers(players, 1, (player, pv) -> {
-                                        sendServerRulesPacket(player, new NoxesiumServerRuleBuilder(pv).add(1, values).build());
+                                        sendServerRulesPacket(player, new NoxesiumServerRuleBuilder(pv).add(1, stringValues).build());
                                     });
                                     executor.sendMessage(ChatColor.GREEN + String.valueOf(amount) + " player(s) affected.");
                                 }),
@@ -119,10 +120,9 @@ public final class NoxesiumUtils extends JavaPlugin {
                                 .withArguments(new EntitySelectorArgument.ManyPlayers("players"), new IntegerArgument("value"))
                                 .executes((executor, args) -> {
                                     var players = (Collection<Player>) args.get(0);
-                                    var materialValues = (List<Material>) args.get(1);
-                                    var stringValues = materialValues.stream().map(v -> "minecraft:" + v.name().toLowerCase()).toList();
+                                    int value = (int) args.get(1);
                                     int amount = forNoxesiumPlayers(players, 2, (player, pv) -> {
-                                        sendServerRulesPacket(player, new NoxesiumServerRuleBuilder(pv).add(3, stringValues).build());
+                                        sendServerRulesPacket(player, new NoxesiumServerRuleBuilder(pv).add(3, value).build());
                                     });
                                     executor.sendMessage(ChatColor.GREEN + String.valueOf(amount) + " player(s) affected.");
                                 }),
