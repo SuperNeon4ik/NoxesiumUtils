@@ -3,13 +3,13 @@ package me.superneon4ik.noxesiumutils;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.CommandAPIConfig;
 import dev.jorel.commandapi.arguments.*;
 import lombok.Getter;
 import me.superneon4ik.noxesiumutils.listeners.NoxesiumBukkitListener;
 import me.superneon4ik.noxesiumutils.listeners.NoxesiumMessageListener;
+import me.superneon4ik.noxesiumutils.modules.ModrinthUpdateChecker;
 import me.superneon4ik.noxesiumutils.modules.NoxesiumServerRuleBuilder;
-import me.superneon4ik.noxesiumutils.modules.UpdateChecker;
+import me.superneon4ik.noxesiumutils.modules.GithubUpdateChecker;
 import me.superneon4ik.noxesiumutils.objects.PlayerClientSettings;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -35,7 +35,7 @@ public final class NoxesiumUtils extends JavaPlugin {
     @Getter private static NoxesiumUtils plugin;
     @Getter private static final Map<UUID, Integer> noxesiumPlayers = new Hashtable<>();
     @Getter private static final Map<UUID, PlayerClientSettings> noxesiumClientSettings = new Hashtable<>();
-    @Getter private static final UpdateChecker updateChecker = new UpdateChecker("SuperNeon4ik", "NoxesiumUtils");
+    @Getter private static final ModrinthUpdateChecker updateChecker = new ModrinthUpdateChecker("noxesiumutils");
 
     @Override
     public void onEnable() {
@@ -58,12 +58,7 @@ public final class NoxesiumUtils extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new NoxesiumBukkitListener(), this);
 
         // Check for updates
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                updateChecker.sendVersionInfoMessage(getServer().getConsoleSender());
-            }
-        }.runTaskLaterAsynchronously(this, 1);
+        if (getConfig().getBoolean("checkForUpdates")) updateChecker.beginChecking(5 * 60 * 20);
     }
 
     @Override
@@ -167,7 +162,10 @@ public final class NoxesiumUtils extends JavaPlugin {
                 .executes((executor, args) -> {
                     executor.sendMessage(ChatColor.GREEN + "For help refer to " + ChatColor.YELLOW + "https://github.com/SuperNeon4ik/NoxesiumUtils#readme");
                     executor.sendMessage(ChatColor.DARK_GRAY + "Checking for updates...");
-                    updateChecker.sendVersionInfoMessage(executor);
+                    var future = updateChecker.checkForUpdates();
+                    future.thenAccept(versionStatus -> {
+                        updateChecker.sendVersionMessage(executor, versionStatus);
+                    });
                 })
                 .register();
     }
