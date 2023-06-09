@@ -1,6 +1,9 @@
 # View Protocol documentation and information about the mod here:
 # https://github.com/Noxcrew/noxesium
 
+# If true will check the plugin's version once in a while.
+checkForUpdates: true
+
 # It true will send defaults to Noxesium Players on join.
 sendDefaultsOnJoin: false
 

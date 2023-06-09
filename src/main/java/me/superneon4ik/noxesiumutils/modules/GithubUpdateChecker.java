@@ -9,15 +9,14 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.CompletableFuture;
 
-public class UpdateChecker {
+@Deprecated
+public class GithubUpdateChecker {
     @Getter private final String githubUser;
     @Getter private final String githubRepo;
 
-    public UpdateChecker(String githubUser, String githubRepo) {
+    public GithubUpdateChecker(String githubUser, String githubRepo) {
         this.githubUser = githubUser;
         this.githubRepo = githubRepo;
     }
