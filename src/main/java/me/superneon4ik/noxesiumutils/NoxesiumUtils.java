@@ -132,7 +132,7 @@ public final class NoxesiumUtils extends JavaPlugin {
                                     executor.sendMessage(ChatColor.GREEN + String.valueOf(amount) + " player(s) affected.");
                                 }),
                         new CommandAPICommand("reset")
-                                .withArguments(new EntitySelectorArgument.ManyPlayers("players"), new MultiLiteralArgument("all", "cachedPlayerSkulls"))
+                                .withArguments(new EntitySelectorArgument.ManyPlayers("players"), new MultiLiteralArgument("features", List.of("all", "cachedPlayerSkulls")))
                                 .executes((executor, args) -> {
                                     var players = (Collection<Player>) args.get(0);
                                     var command = (String) args.get(1);
