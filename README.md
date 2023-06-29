@@ -56,26 +56,32 @@ For more detailed information on how everything here works, please refer to the 
 **Adding NoxesiumUtils to your project**
 
 You can easily add NoxesiumUtils to your project from the [Modrinth Maven Repository](https://docs.modrinth.com/docs/tutorials/maven/)!
-```gradle
-repositories {
-  // ...
-  exclusiveContent {
-    forRepository {
-      maven {
-        name = "Modrinth"
-        url = "https://api.modrinth.com/maven"
-      }
-    }
-    filter {
-      includeGroup "maven.modrinth"
-    }
-  }
-}
+### Maven:
+```xml
+<repository>
+    <id>neon-repository-releases</id>
+    <name>Neon Repository</name>
+    <url>https://repo.superneon4ik.me/releases</url>
+</repository>
+```
+```xml
+<dependency>
+    <groupId>me.superneon4ik</groupId>
+    <artifactId>NoxesiumUtils</artifactId>
+    <version>1.4.3</version>
+    <scope>provided</scope>
+</dependency>
+```
 
-dependencies {
-  // ...
-  compileOnly "maven.modrinth:noxesiumutils:1.4"
+### Gradle:
+```gradle
+maven {
+    name "neonRepositoryReleases"
+    url "https://repo.superneon4ik.me/releases"
 }
+```
+```gradle
+compileOnly "me.superneon4ik:NoxesiumUtils:1.4.3"
 ```
 
 **Run code for Noxesium players**
