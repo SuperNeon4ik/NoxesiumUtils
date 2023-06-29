@@ -6,7 +6,7 @@
 
     <groupId>me.superneon4ik</groupId>
     <artifactId>NoxesiumUtils</artifactId>
-    <version>1.4.3</version>
+    <version>1.4.4</version>
     <packaging>jar</packaging>
     <url>https://github.com/SuperNeon4ik/NoxesiumUtils</url>
 
@@ -119,12 +119,12 @@
         <dependency>
             <groupId>dev.jorel</groupId>
             <artifactId>commandapi-bukkit-shade</artifactId>
-            <version>9.0.2</version>
+            <version>9.0.3</version>
         </dependency>
         <dependency>
             <groupId>dev.jorel</groupId>
             <artifactId>commandapi-annotations</artifactId>
-            <version>9.0.2</version>
+            <version>9.0.3</version>
         </dependency>
         <dependency>
             <groupId>io.papermc.paper</groupId>
