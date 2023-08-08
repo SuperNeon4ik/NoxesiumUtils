@@ -86,6 +86,11 @@
 
     <repositories>
         <repository>
+            <id>noxcrew-maven</id>
+            <name>Noxcrew Public Maven Repository</name>
+            <url>https://maven.noxcrew.com/public</url>
+        </repository>
+        <repository>
             <id>papermc-repo</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
@@ -96,6 +101,11 @@
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>com.noxcrew.noxesium</groupId>
+            <artifactId>api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
         <dependency>
             <groupId>com.konghq</groupId>
             <artifactId>unirest-java</artifactId>
