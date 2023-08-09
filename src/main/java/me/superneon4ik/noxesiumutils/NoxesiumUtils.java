@@ -6,17 +6,16 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.*;
 import lombok.Getter;
 import me.superneon4ik.noxesiumutils.listeners.NoxesiumBukkitListener;
+import me.superneon4ik.noxesiumutils.listeners.LegacyNoxesiumMessageListener;
 import me.superneon4ik.noxesiumutils.listeners.NoxesiumMessageListener;
 import me.superneon4ik.noxesiumutils.modules.ModrinthUpdateChecker;
 import me.superneon4ik.noxesiumutils.modules.NoxesiumServerRuleBuilder;
-import me.superneon4ik.noxesiumutils.modules.GithubUpdateChecker;
 import me.superneon4ik.noxesiumutils.objects.PlayerClientSettings;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,18 +23,24 @@ import java.util.*;
 import java.util.function.BiConsumer;
 
 public final class NoxesiumUtils extends JavaPlugin {
+    public static final int SERVER_PROTOCOL_VERSION = 3;
+
+    // legacy
     public static final String NOXESIUM_LEGACY_CLIENT_INFORMATION_CHANNEL = "noxesium:client_information";
     public static final String NOXESIUM_LEGACY_CLIENT_SETTINGS_CHANNEL = "noxesium:client_settings";
     public static final String NOXESIUM_LEGACY_SERVER_RULE_CHANNEL = "noxesium:server_rules";
-    public static final String NOXESIUM_V1_CLIENT_INFORMATION_CHANNEL = "noxesium-v1:client_information";
+
+    // v1
+    public static final String NOXESIUM_V1_CLIENT_INFORMATION_CHANNEL = "noxesium-v1:client_info";
     public static final String NOXESIUM_V1_CLIENT_SETTINGS_CHANNEL = "noxesium-v1:client_settings";
-    public static final String NOXESIUM_V1_SERVER_RULE_CHANNEL = "noxesium-v1:server_rules";
+    public static final String NOXESIUM_V1_SERVER_INFORMATION_CHANNEL = "noxesium-v1:server_info";
+    public static final String NOXESIUM_V1_CHANGE_SERVER_RULES_CHANNEL = "noxesium-v1:change_server_rules";
+    public static final String NOXESIUM_V1_RESET_SERVER_RULES_CHANNEL = "noxesium-v1:reset_server_rules";
     public static final String NOXESIUM_V1_RESET_CHANNEL = "noxesium-v1:reset";
 
     @Getter private static NoxesiumUtils plugin;
-    @Getter private static final Map<UUID, Integer> noxesiumPlayers = new Hashtable<>();
-    @Getter private static final Map<UUID, PlayerClientSettings> noxesiumClientSettings = new Hashtable<>();
     @Getter private static final ModrinthUpdateChecker updateChecker = new ModrinthUpdateChecker("noxesiumutils");
+    @Getter private static final NoxesiumManager manager = new NoxesiumManager();
 
     @Override
     public void onEnable() {
@@ -45,12 +50,14 @@ public final class NoxesiumUtils extends JavaPlugin {
 
         // Register outgoing plugin messaging channels
         getServer().getMessenger().registerOutgoingPluginChannel(this, NOXESIUM_LEGACY_SERVER_RULE_CHANNEL);
-        getServer().getMessenger().registerOutgoingPluginChannel(this, NOXESIUM_V1_SERVER_RULE_CHANNEL);
+        getServer().getMessenger().registerOutgoingPluginChannel(this, NOXESIUM_V1_CHANGE_SERVER_RULES_CHANNEL);
+        getServer().getMessenger().registerOutgoingPluginChannel(this, NOXESIUM_V1_RESET_SERVER_RULES_CHANNEL);
+        getServer().getMessenger().registerOutgoingPluginChannel(this, NOXESIUM_V1_SERVER_INFORMATION_CHANNEL);
         getServer().getMessenger().registerOutgoingPluginChannel(this, NOXESIUM_V1_RESET_CHANNEL);
 
         // Register incoming plugin messaging channels
-        getServer().getMessenger().registerIncomingPluginChannel(this, NOXESIUM_LEGACY_CLIENT_INFORMATION_CHANNEL, new NoxesiumMessageListener());
-        getServer().getMessenger().registerIncomingPluginChannel(this, NOXESIUM_LEGACY_CLIENT_SETTINGS_CHANNEL, new NoxesiumMessageListener());
+        getServer().getMessenger().registerIncomingPluginChannel(this, NOXESIUM_LEGACY_CLIENT_INFORMATION_CHANNEL, new LegacyNoxesiumMessageListener());
+        getServer().getMessenger().registerIncomingPluginChannel(this, NOXESIUM_LEGACY_CLIENT_SETTINGS_CHANNEL, new LegacyNoxesiumMessageListener());
         getServer().getMessenger().registerIncomingPluginChannel(this, NOXESIUM_V1_CLIENT_INFORMATION_CHANNEL, new NoxesiumMessageListener());
         getServer().getMessenger().registerIncomingPluginChannel(this, NOXESIUM_V1_CLIENT_SETTINGS_CHANNEL, new NoxesiumMessageListener());
 
@@ -170,77 +177,77 @@ public final class NoxesiumUtils extends JavaPlugin {
                 .register();
     }
 
-    /**
-     * Execute a Consumer for all Noxesium players online.
-     * @param minProtocol Minimum noxesium protocol version.
-     * @param playerConsumer Consumer (Player, Protocol Version). Runs for each Noxesium player.
-     * @return Number of Noxesium players affected.
-     */
-    public static int forNoxesiumPlayers(int minProtocol, BiConsumer<Player, Integer> playerConsumer) {
-        int amount = 0;
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (noxesiumPlayers.containsKey(player.getUniqueId())) {
-                Integer protocolVersion = noxesiumPlayers.get(player.getUniqueId());
-                if (protocolVersion >= minProtocol) {
-                    playerConsumer.accept(player, protocolVersion);
-                    amount++;
-                }
-            }
-        }
-        return amount;
-    }
-
-    /**
-     * Execute a Consumer for Noxesium players from the Collection.
-     * @param players Collection of players.
-     * @param minProtocol Minimum noxesium protocol version.
-     * @param playerConsumer Consumer (Player, Protocol Version). Runs for each Noxesium player.
-     * @return Number of Noxesium players affected.
-     */
-    public static int forNoxesiumPlayers(Collection<Player> players, int minProtocol, BiConsumer<Player, Integer> playerConsumer) {
-        int amount = 0;
-        for (Player player : players) {
-            if (noxesiumPlayers.containsKey(player.getUniqueId())) {
-                Integer protocolVersion = noxesiumPlayers.get(player.getUniqueId());
-                if (protocolVersion >= minProtocol) {
-                    playerConsumer.accept(player, protocolVersion);
-                    amount++;
-                }
-            }
-        }
-        return amount;
-    }
-
-    /**
-     * Send a server rules packet to a player.
-     * @param player Receiver.
-     * @param packet Bytes.
-     */
-    public static void sendServerRulesPacket(@NotNull Player player, byte[] packet) {
-        var protocolVersion = getPlayerProtocolVersion(player.getUniqueId());
-        if (protocolVersion >= 3) {
-            player.sendPluginMessage(getPlugin(), NOXESIUM_V1_SERVER_RULE_CHANNEL, packet);
-        }
-        else if (protocolVersion >= 1){
-            player.sendPluginMessage(getPlugin(), NOXESIUM_LEGACY_SERVER_RULE_CHANNEL, packet);
-        }
-    }
-
-    /**
-     * Returns player's Noxesium protocol version.
-     * @param uuid UUID of the player.
-     * @return Protocol Version or 0 if not installed.
-     */
-    public static int getPlayerProtocolVersion(UUID uuid) {
-        return noxesiumPlayers.getOrDefault(uuid, 0);
-    }
-
-    /**
-     * Returns player's client settings.
-     * @param uuid UUID of the player.
-     * @return Client settings or NULL if not installed.
-     */
-    public static @Nullable PlayerClientSettings getPlayerClientSettings(UUID uuid) {
-         return noxesiumClientSettings.getOrDefault(uuid, null);
-    }
+//    /**
+//     * Execute a Consumer for all Noxesium players online.
+//     * @param minProtocol Minimum noxesium protocol version.
+//     * @param playerConsumer Consumer (Player, Protocol Version). Runs for each Noxesium player.
+//     * @return Number of Noxesium players affected.
+//     */
+//    public static int forNoxesiumPlayers(int minProtocol, BiConsumer<Player, Integer> playerConsumer) {
+//        int amount = 0;
+//        for (Player player : Bukkit.getOnlinePlayers()) {
+//            if (noxesiumPlayers.containsKey(player.getUniqueId())) {
+//                Integer protocolVersion = noxesiumPlayers.get(player.getUniqueId());
+//                if (protocolVersion >= minProtocol) {
+//                    playerConsumer.accept(player, protocolVersion);
+//                    amount++;
+//                }
+//            }
+//        }
+//        return amount;
+//    }
+//
+//    /**
+//     * Execute a Consumer for Noxesium players from the Collection.
+//     * @param players Collection of players.
+//     * @param minProtocol Minimum noxesium protocol version.
+//     * @param playerConsumer Consumer (Player, Protocol Version). Runs for each Noxesium player.
+//     * @return Number of Noxesium players affected.
+//     */
+//    public static int forNoxesiumPlayers(Collection<Player> players, int minProtocol, BiConsumer<Player, Integer> playerConsumer) {
+//        int amount = 0;
+//        for (Player player : players) {
+//            if (noxesiumPlayers.containsKey(player.getUniqueId())) {
+//                Integer protocolVersion = noxesiumPlayers.get(player.getUniqueId());
+//                if (protocolVersion >= minProtocol) {
+//                    playerConsumer.accept(player, protocolVersion);
+//                    amount++;
+//                }
+//            }
+//        }
+//        return amount;
+//    }
+//
+//    /**
+//     * Send a server rules packet to a player.
+//     * @param player Receiver.
+//     * @param packet Bytes.
+//     */
+//    public static void sendServerRulesPacket(@NotNull Player player, byte[] packet) {
+//        var protocolVersion = getPlayerProtocolVersion(player.getUniqueId());
+//        if (protocolVersion >= 3) {
+//            player.sendPluginMessage(getPlugin(), NOXESIUM_V1_SERVER_RULE_CHANNEL, packet);
+//        }
+//        else if (protocolVersion >= 1){
+//            player.sendPluginMessage(getPlugin(), NOXESIUM_LEGACY_SERVER_RULE_CHANNEL, packet);
+//        }
+//    }
+//
+//    /**
+//     * Returns player's Noxesium protocol version.
+//     * @param uuid UUID of the player.
+//     * @return Protocol Version or 0 if not installed.
+//     */
+//    public static int getPlayerProtocolVersion(UUID uuid) {
+//        return noxesiumPlayers.getOrDefault(uuid, 0);
+//    }
+//
+//    /**
+//     * Returns player's client settings.
+//     * @param uuid UUID of the player.
+//     * @return Client settings or NULL if not installed.
+//     */
+//    public static @Nullable PlayerClientSettings getPlayerClientSettings(UUID uuid) {
+//         return noxesiumClientSettings.getOrDefault(uuid, null);
+//    }
 }
