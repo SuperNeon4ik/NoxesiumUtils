@@ -12,6 +12,9 @@ public class LegacyServerboundClientInformationPacket extends LegacyServerboundN
 
     @Override
     public void receive(Player player, FriendlyByteBuf buffer) {
-        NoxesiumUtils.getManager().registerClient(player.getUniqueId(), buffer.readInt());
+        int protocolVersion = buffer.readInt();
+        NoxesiumUtils.getManager().registerClient(player.getUniqueId(), protocolVersion);
+        NoxesiumUtils.getPlugin().getLogger().info(String.format(
+                "%s has Noxesium installed. (ProtocolVersion: %d/legacy)", player.getName(), protocolVersion));
     }
 }

@@ -11,6 +11,9 @@ public class ServerboundClientInformationPacket extends ServerboundNoxesiumPacke
 
     @Override
     public void receive(Player player, int version, FriendlyByteBuf buffer) {
-        NoxesiumUtils.getManager().registerClient(player.getUniqueId(), buffer.readVarInt());
+        int protocolVersion = buffer.readVarInt();
+        NoxesiumUtils.getManager().registerClient(player.getUniqueId(), protocolVersion);
+        NoxesiumUtils.getPlugin().getLogger().info(String.format(
+                "%s has Noxesium installed. (ProtocolVersion: %d/v1)", player.getName(), protocolVersion));
     }
 }
