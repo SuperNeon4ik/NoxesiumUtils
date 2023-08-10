@@ -1,5 +1,6 @@
 package me.superneon4ik.noxesiumutils;
 
+import com.noxcrew.noxesium.api.protocol.rule.ServerRuleIndices;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import dev.jorel.commandapi.CommandAPICommand;
@@ -10,6 +11,7 @@ import me.superneon4ik.noxesiumutils.listeners.LegacyNoxesiumMessageListener;
 import me.superneon4ik.noxesiumutils.listeners.NoxesiumMessageListener;
 import me.superneon4ik.noxesiumutils.modules.ModrinthUpdateChecker;
 import me.superneon4ik.noxesiumutils.modules.NoxesiumServerRuleBuilder;
+import me.superneon4ik.noxesiumutils.network.clientbound.ClientboundChangeServerRulesPacket;
 import me.superneon4ik.noxesiumutils.objects.PlayerClientSettings;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -20,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
 public final class NoxesiumUtils extends JavaPlugin {
@@ -75,33 +78,32 @@ public final class NoxesiumUtils extends JavaPlugin {
 
     @SuppressWarnings({"unsafe", "unchecked"})
     private void registerCommands() {
+        CommandAPI.registerCommand(NoxesiumUtilsCommand.class);
         new CommandAPICommand("noxesiumutils")
                 .withPermission("noxesiumutils.commands")
                 .withSubcommands(
-                        new CommandAPICommand("disableAutoSpinAttack")
-                                .withArguments(new EntitySelectorArgument.ManyPlayers("players"), new BooleanArgument("value"))
-                                .executes((executor, args) -> {
-                                    var players = (Collection<Player>) args.get(0);
-                                    var value = (boolean) args.get(1);
-                                    int amount = forNoxesiumPlayers(players, 1, (player, pv) -> {
-                                        sendServerRulesPacket(player, new NoxesiumServerRuleBuilder(pv).add(0, value).build());
-                                    });
-                                    executor.sendMessage(ChatColor.GREEN + String.valueOf(amount) + " player(s) affected.");
-                                }),
                         new CommandAPICommand("globalCanPlaceOn")
                                 .withArguments(new EntitySelectorArgument.ManyPlayers("players"), new ListArgumentBuilder<Material>("values")
                                         .withList(List.of(Material.values()))
                                         .withMapper(material -> "minecraft:" + material.name().toLowerCase())
                                         .buildGreedy()
                                 )
-                                .executes((executor, args) -> {
+                                .executes((sender, args) -> {
                                     var players = (Collection<Player>) args.get(0);
                                     var materialValues = (List<Material>) args.get(1);
+                                    assert materialValues != null && players != null;
                                     var stringValues = materialValues.stream().map(v -> "minecraft:" + v.name().toLowerCase()).toList();
-                                    int amount = forNoxesiumPlayers(players, 1, (player, pv) -> {
-                                        sendServerRulesPacket(player, new NoxesiumServerRuleBuilder(pv).add(1, stringValues).build());
+
+                                    AtomicInteger updates = new AtomicInteger();
+                                    players.stream().filter(x -> NoxesiumUtils.getManager().isUsingNoxesium(x, 2)).forEach(player -> {
+                                        var rule = NoxesiumUtils.getManager().<List<String>>getServerRule(player, ServerRuleIndices.GLOBAL_CAN_PLACE_ON);
+                                        if (rule == null) return;
+                                        rule.setValue(stringValues);
+                                        if (new ClientboundChangeServerRulesPacket<>(List.of(rule)).send(player)) {
+                                            updates.getAndIncrement();
+                                        }
                                     });
-                                    executor.sendMessage(ChatColor.GREEN + String.valueOf(amount) + " player(s) affected.");
+                                    sender.sendMessage(ChatColor.GREEN + String.valueOf(updates.get()) + " player(s) affected.");
                                 }),
                         new CommandAPICommand("globalCanDestroy")
                                 .withArguments(new EntitySelectorArgument.ManyPlayers("players"), new ListArgumentBuilder<Material>("values")
@@ -109,71 +111,24 @@ public final class NoxesiumUtils extends JavaPlugin {
                                         .withMapper(material -> "minecraft:" + material.name().toLowerCase())
                                         .buildGreedy()
                                 )
-                                .executes((executor, args) -> {
+                                .executes((sender, args) -> {
                                     var players = (Collection<Player>) args.get(0);
                                     var materialValues = (List<Material>) args.get(1);
+                                    assert materialValues != null && players != null;
                                     var stringValues = materialValues.stream().map(v -> "minecraft:" + v.name().toLowerCase()).toList();
-                                    int amount = forNoxesiumPlayers(players, 1, (player, pv) -> {
-                                        sendServerRulesPacket(player, new NoxesiumServerRuleBuilder(pv).add(2, stringValues).build());
-                                    });
-                                    executor.sendMessage(ChatColor.GREEN + String.valueOf(amount) + " player(s) affected.");
-                                }),
-                        new CommandAPICommand("heldItemNameOffset")
-                                .withArguments(new EntitySelectorArgument.ManyPlayers("players"), new IntegerArgument("value"))
-                                .executes((executor, args) -> {
-                                    var players = (Collection<Player>) args.get(0);
-                                    int value = (int) args.get(1);
-                                    int amount = forNoxesiumPlayers(players, 2, (player, pv) -> {
-                                        sendServerRulesPacket(player, new NoxesiumServerRuleBuilder(pv).add(3, value).build());
-                                    });
-                                    executor.sendMessage(ChatColor.GREEN + String.valueOf(amount) + " player(s) affected.");
-                                }),
-                        new CommandAPICommand("cameraLocked")
-                                .withArguments(new EntitySelectorArgument.ManyPlayers("players"), new BooleanArgument("value"))
-                                .executes((executor, args) -> {
-                                    var players = (Collection<Player>) args.get(0);
-                                    var value = (boolean) args.get(1);
-                                    int amount = forNoxesiumPlayers(players, 2, (player, pv) -> {
-                                        sendServerRulesPacket(player, new NoxesiumServerRuleBuilder(pv).add(4, value).build());
-                                    });
-                                    executor.sendMessage(ChatColor.GREEN + String.valueOf(amount) + " player(s) affected.");
-                                }),
-                        new CommandAPICommand("reset")
-                                .withArguments(new EntitySelectorArgument.ManyPlayers("players"), new MultiLiteralArgument("features", List.of("all", "cachedPlayerSkulls")))
-                                .executes((executor, args) -> {
-                                    var players = (Collection<Player>) args.get(0);
-                                    var command = (String) args.get(1);
 
-                                    byte bitmask;
-                                    if (command.equals("all")) bitmask = 0x01;
-                                    else if (command.equals("cachedPlayerSkulls")) bitmask = 0x02;
-                                    else bitmask = 0x00;
-
-                                    int amount = forNoxesiumPlayers(players, 3, (player, pv) -> {
-                                        player.sendPluginMessage(this, NOXESIUM_V1_RESET_CHANNEL, new byte[] { bitmask });
+                                    AtomicInteger updates = new AtomicInteger();
+                                    players.stream().filter(x -> NoxesiumUtils.getManager().isUsingNoxesium(x, 2)).forEach(player -> {
+                                        var rule = NoxesiumUtils.getManager().<List<String>>getServerRule(player, ServerRuleIndices.GLOBAL_CAN_DESTROY);
+                                        if (rule == null) return;
+                                        rule.setValue(stringValues);
+                                        if (new ClientboundChangeServerRulesPacket<>(List.of(rule)).send(player)) {
+                                            updates.getAndIncrement();
+                                        }
                                     });
-                                    executor.sendMessage(ChatColor.GREEN + String.valueOf(amount) + " player(s) affected.");
-                                }),
-                        new CommandAPICommand("check")
-                                .withArguments(new EntitySelectorArgument.OnePlayer("player"))
-                                .executes((executor, args) -> {
-                                    Player player = (Player) args.get(0);
-                                    if (noxesiumPlayers.containsKey(player.getUniqueId())) {
-                                        executor.sendMessage(ChatColor.GREEN + player.getName() + " has Noxesium installed. " + ChatColor.YELLOW + "(Protocol Version: " + noxesiumPlayers.get(player.getUniqueId()) + ")");
-                                    }
-                                    else {
-                                        executor.sendMessage(ChatColor.RED + player.getName() + " doesn't have Noxesium installed.");
-                                    }
+                                    sender.sendMessage(ChatColor.GREEN + String.valueOf(updates.get()) + " player(s) affected.");
                                 })
                 )
-                .executes((executor, args) -> {
-                    executor.sendMessage(ChatColor.GREEN + "For help refer to " + ChatColor.YELLOW + "https://github.com/SuperNeon4ik/NoxesiumUtils#readme");
-                    executor.sendMessage(ChatColor.DARK_GRAY + "Checking for updates...");
-                    var future = updateChecker.checkForUpdates();
-                    future.thenAccept(versionStatus -> {
-                        updateChecker.sendVersionMessage(executor, versionStatus);
-                    });
-                })
                 .register();
     }
 

@@ -7,7 +7,7 @@ public class ClientboundServerInformationPacket extends ClientboundNoxesiumPacke
     private final int maxProtocolVersion;
 
     public ClientboundServerInformationPacket(int maxProtocolVersion) {
-        super(NoxesiumUtils.NOXESIUM_V1_SERVER_INFORMATION_CHANNEL, 1);
+        super(NoxesiumUtils.NOXESIUM_V1_SERVER_INFORMATION_CHANNEL, null, 1);
         this.maxProtocolVersion = maxProtocolVersion;
     }
 

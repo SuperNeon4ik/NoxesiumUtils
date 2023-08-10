@@ -8,7 +8,7 @@ public class ClientboundResetPacket extends ClientboundNoxesiumPacket {
 
     private final ResetFlag[] flags;
     public ClientboundResetPacket(ResetFlag... flags) {
-        super(NoxesiumUtils.NOXESIUM_V1_RESET_CHANNEL, 1);
+        super(NoxesiumUtils.NOXESIUM_V1_RESET_CHANNEL, null, 1);
         this.flags = flags;
     }
 

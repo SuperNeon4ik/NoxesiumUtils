@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 public class LegacyNoxesiumMessageListener implements PluginMessageListener {
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte @NotNull [] message) {
+        NoxesiumUtils.getPlugin().getLogger().info(String.format("%s sent a packet over %s", player.getName(), channel));
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.copiedBuffer(message));
         NoxesiumPackets.handleLegacy(player, channel, buffer);
 //        if (channel.equals(NoxesiumUtils.NOXESIUM_LEGACY_CLIENT_INFORMATION_CHANNEL) || channel.equals(NoxesiumUtils.NOXESIUM_V1_CLIENT_INFORMATION_CHANNEL)) {

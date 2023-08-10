@@ -13,8 +13,7 @@ public class NoxesiumBukkitListener implements Listener {
     @EventHandler
     public void on(PlayerQuitEvent event) {
         // Remove offline player from the cached values
-        NoxesiumUtils.getNoxesiumPlayers().remove(event.getPlayer().getUniqueId());
-        NoxesiumUtils.getNoxesiumClientSettings().remove(event.getPlayer().getUniqueId());
+        NoxesiumUtils.getManager().unregisterClient(event.getPlayer().getUniqueId());
     }
 
     @EventHandler

@@ -4,6 +4,7 @@ import com.noxcrew.noxesium.api.protocol.ClientSettings;
 import com.noxcrew.noxesium.api.protocol.NoxesiumServerManager;
 import com.noxcrew.noxesium.api.protocol.rule.ServerRule;
 import me.superneon4ik.noxesiumutils.feature.rule.ServerRules;
+import me.superneon4ik.noxesiumutils.modules.FriendlyByteBuf;
 import me.superneon4ik.noxesiumutils.objects.ClientData;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -17,8 +18,11 @@ public class NoxesiumManager implements NoxesiumServerManager<Player> {
     private final Map<UUID, ClientData> clients = new HashMap<>();
 
     @Override
-    public @Nullable <T> ServerRule<T, ?> getServerRule(Player player, int i) {
-        throw new RuntimeException("Not implemented.");
+    @SuppressWarnings({"unsafe", "unchecked"})
+    public @Nullable <T> ServerRule<T, FriendlyByteBuf> getServerRule(Player player, int i) {
+        if (!clients.containsKey(player.getUniqueId())) return null;
+        var client = clients.get(player.getUniqueId());
+        return (ServerRule<T, FriendlyByteBuf>) client.serverRuleMap.getOrDefault(i, ServerRules.get(i));
     }
 
     @Override
@@ -56,5 +60,14 @@ public class NoxesiumManager implements NoxesiumServerManager<Player> {
     public void updateClientSettings(UUID uuid, ClientSettings clientSettings) {
         if (clients.containsKey(uuid))
             clients.get(uuid).clientSettings = clientSettings;
+    }
+
+    public boolean isUsingNoxesium(Player player, int minVersion) {
+        Integer version = this.getProtocolVersion(player);
+        if (version == null) {
+            return false;
+        } else {
+            return version >= minVersion;
+        }
     }
 }

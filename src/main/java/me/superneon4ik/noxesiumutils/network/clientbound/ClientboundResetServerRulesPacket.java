@@ -8,7 +8,7 @@ public class ClientboundResetServerRulesPacket extends ClientboundNoxesiumPacket
 
     private final IntList indices;
     public ClientboundResetServerRulesPacket(IntList indices) {
-        super(NoxesiumUtils.NOXESIUM_V1_RESET_SERVER_RULES_CHANNEL, 1);
+        super(NoxesiumUtils.NOXESIUM_V1_RESET_SERVER_RULES_CHANNEL, null,1);
         this.indices = indices;
     }
 
