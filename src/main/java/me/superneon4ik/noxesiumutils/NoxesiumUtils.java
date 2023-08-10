@@ -7,19 +7,28 @@ import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.EntitySelectorArgument;
 import dev.jorel.commandapi.arguments.ListArgumentBuilder;
+import dev.jorel.commandapi.arguments.MultiLiteralArgument;
+import dev.jorel.commandapi.arguments.PlayerArgument;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import lombok.Getter;
+import me.superneon4ik.noxesiumutils.enums.ResetFlag;
 import me.superneon4ik.noxesiumutils.feature.rule.ClientboundServerRule;
+import me.superneon4ik.noxesiumutils.feature.rule.ServerRules;
 import me.superneon4ik.noxesiumutils.listeners.LegacyNoxesiumMessageListener;
 import me.superneon4ik.noxesiumutils.listeners.NoxesiumBukkitListener;
 import me.superneon4ik.noxesiumutils.listeners.NoxesiumMessageListener;
 import me.superneon4ik.noxesiumutils.modules.ModrinthUpdateChecker;
 import me.superneon4ik.noxesiumutils.network.clientbound.ClientboundChangeServerRulesPacket;
+import me.superneon4ik.noxesiumutils.network.clientbound.ClientboundResetPacket;
+import me.superneon4ik.noxesiumutils.network.clientbound.ClientboundResetServerRulesPacket;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -95,7 +104,7 @@ public final class NoxesiumUtils extends JavaPlugin {
                                     var stringValues = materialValues.stream().map(v -> "minecraft:" + v.name().toLowerCase()).toList();
 
                                     AtomicInteger updates = new AtomicInteger();
-                                    players.stream().filter(x -> NoxesiumUtils.getManager().isUsingNoxesium(x, 2)).forEach(player -> {
+                                    players.stream().filter(x -> NoxesiumUtils.getManager().isUsingNoxesium(x, NoxesiumFeature.ANY)).forEach(player -> {
                                         var rule = NoxesiumUtils.getManager().<List<String>>getServerRule(player, ServerRuleIndices.GLOBAL_CAN_PLACE_ON);
                                         if (rule == null) return;
                                         rule.setValue(stringValues);
@@ -118,11 +127,43 @@ public final class NoxesiumUtils extends JavaPlugin {
                                     var stringValues = materialValues.stream().map(v -> "minecraft:" + v.name().toLowerCase()).toList();
 
                                     AtomicInteger updates = new AtomicInteger();
-                                    players.stream().filter(x -> NoxesiumUtils.getManager().isUsingNoxesium(x, 2)).forEach(player -> {
+                                    players.stream().filter(x -> NoxesiumUtils.getManager().isUsingNoxesium(x, NoxesiumFeature.ANY)).forEach(player -> {
                                         var rule = NoxesiumUtils.getManager().<List<String>>getServerRule(player, ServerRuleIndices.GLOBAL_CAN_DESTROY);
                                         if (rule == null) return;
                                         rule.setValue(stringValues);
                                         if (new ClientboundChangeServerRulesPacket(List.of(rule)).send(player)) {
+                                            updates.getAndIncrement();
+                                        }
+                                    });
+                                    sender.sendMessage(ChatColor.GREEN + String.valueOf(updates.get()) + " player(s) affected.");
+                                }),
+                        new CommandAPICommand("resetServerRules")
+                                .withArguments(new EntitySelectorArgument.ManyPlayers("players"))
+                                .executes((sender, args) -> {
+                                    var players = (Collection<Player>) args.get(0);
+                                    assert players != null;
+
+                                    IntList indices = IntList.of(Arrays.stream(ServerRules.SERVER_RULES)
+                                            .mapToInt(ClientboundServerRule::getIndex).toArray());
+                                    AtomicInteger updates = new AtomicInteger();
+                                    players.stream().filter(x -> NoxesiumUtils.getManager().isUsingNoxesium(x, NoxesiumFeature.API_V1)).forEach(player -> {
+                                        if (new ClientboundResetServerRulesPacket(indices).send(player)) {
+                                            updates.getAndIncrement();
+                                        }
+                                    });
+                                    sender.sendMessage(ChatColor.GREEN + String.valueOf(updates.get()) + " player(s) affected.");
+                                }),
+                        new CommandAPICommand("reset")
+                                .withArguments(new EntitySelectorArgument.ManyPlayers("players"),
+                                        new MultiLiteralArgument("flags", Arrays.stream(ResetFlag.values()).map(Enum::name).toList()))
+                                .executes((sender, args) -> {
+                                    var players = (Collection<Player>) args.get(0);
+                                    var flag = ResetFlag.valueOf((String) args.get(1));
+                                    assert players != null;
+
+                                    AtomicInteger updates = new AtomicInteger();
+                                    players.stream().filter(x -> NoxesiumUtils.getManager().isUsingNoxesium(x, NoxesiumFeature.API_V1)).forEach(player -> {
+                                        if (new ClientboundResetPacket(flag).send(player)) {
                                             updates.getAndIncrement();
                                         }
                                     });

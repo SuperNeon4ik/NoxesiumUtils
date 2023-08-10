@@ -1,5 +1,7 @@
 package me.superneon4ik.noxesiumutils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.noxcrew.noxesium.api.protocol.NoxesiumFeature;
 import com.noxcrew.noxesium.api.protocol.rule.ServerRuleIndices;
 import dev.jorel.commandapi.annotations.Command;
@@ -10,6 +12,9 @@ import dev.jorel.commandapi.annotations.arguments.ABooleanArgument;
 import dev.jorel.commandapi.annotations.arguments.AEntitySelectorArgument;
 import dev.jorel.commandapi.annotations.arguments.AIntegerArgument;
 import me.superneon4ik.noxesiumutils.network.clientbound.ClientboundChangeServerRulesPacket;
+import me.superneon4ik.noxesiumutils.network.clientbound.ClientboundResetServerRulesPacket;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -104,5 +109,20 @@ public class NoxesiumUtilsCommand {
             }
         });
         sender.sendMessage(ChatColor.GREEN + String.valueOf(updates.get()) + " player(s) affected.");
+    }
+
+    @Subcommand("clientSettings")
+    public static void clientSettings(CommandSender sender,
+                                      @AEntitySelectorArgument.OnePlayer Player player) {
+        var clientSettings = NoxesiumUtils.getManager().getClientSettings(player);
+        if (clientSettings == null) {
+            sender.sendMessage(Component.text(String.format("%s doesn't have Noxesium installed or didn't yet provide their settings.",
+                    player.getName()), NamedTextColor.RED));
+            return;
+        }
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String json = gson.toJson(clientSettings);
+        sender.sendMessage(json);
     }
 }

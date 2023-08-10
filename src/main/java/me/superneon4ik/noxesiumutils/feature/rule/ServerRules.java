@@ -16,7 +16,7 @@ public class ServerRules {
     public static ClientboundServerRule<Boolean> CAMERA_LOCKED = new BooleanServerRule(ServerRuleIndices.CAMERA_LOCKED, false);
     public static ClientboundServerRule<Boolean> ENABLE_CUSTOM_MUSIC = new BooleanServerRule(ServerRuleIndices.ENABLE_CUSTOM_MUSIC, false);
 
-    private static final ClientboundServerRule<?>[] SERVER_RULES = new ClientboundServerRule[] {
+    public static final ClientboundServerRule<?>[] SERVER_RULES = new ClientboundServerRule[] {
         DISABLE_SPIN_ATTACK_COLLISIONS,
         GLOBAL_CAN_PLACE_ON,
         GLOBAL_CAN_DESTROY,
