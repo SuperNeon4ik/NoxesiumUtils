@@ -5,7 +5,7 @@ Communicate with the [Noxesium Mod](https://github.com/Noxcrew/noxesium) with ea
 Made in Ukraine! Зроблено в Україні! 🇺🇦\
 Support me on [Patreon](https://patreon.com/SuperNeon4ik) ❤️
 
-> :warning: With **Noxesium release 1.0.0** there wee massive changes in the API, which forced me to almost
+> :warning: With **Noxesium release 1.0.0** there were massive changes in the API, which forced me to almost
 > completely rewrite my code, so if you ever depended on NoxesiumUtils, please go over the changes.
 
 ### What is Noxesium and why does it need Utils?
@@ -15,6 +15,7 @@ Support me on [Patreon](https://patreon.com/SuperNeon4ik) ❤️
 - Send server rules on join
 - Send server rules to players with commands
 - Check player's client settings.
+- There is a little more to it, lol.
 - Maybe more soon 🤔
 
 ### Requirements
@@ -54,12 +55,13 @@ Support me on [Patreon](https://patreon.com/SuperNeon4ik) ❤️
 #### Check player's Noxesium Protocol Version.
 ```html
 /noxesiumutils check <player: player>
+/noxesiumutils check <players: selector>
 ```
 #### Check player's settings.
 **Note:** Players with protocol version less than 3 will have most of their settings set to zeros.
 ```html
 <!-- Since Noxesium Protocol Version 3 -->
-/noxesiumutils clientSettings <player: selector>
+/noxesiumutils clientSettings <player: player>
 ```
 
 For more detailed information on how everything here works, please refer to the [Noxesium Mod README](https://github.com/Noxcrew/noxesium/#readme)!
@@ -159,3 +161,4 @@ public class EventListener implements Listener {
 ### Screenshots
 ![image](https://user-images.githubusercontent.com/52915540/233479245-01f9fb7e-1d7c-4e98-83ed-ee235e696ff2.png)
 ![image](https://user-images.githubusercontent.com/52915540/233479405-5f7a96b1-8676-4ea9-9328-0988d348b1ed.png)
+![зображення](https://github.com/SuperNeon4ik/NoxesiumUtils/assets/52915540/08710e28-619d-4fb7-9d38-2b41240c96c1)
