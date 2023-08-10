@@ -1,17 +1,10 @@
 package me.superneon4ik.noxesiumutils.listeners;
 
 import io.netty.buffer.Unpooled;
-import me.superneon4ik.noxesiumutils.NoxesiumUtils;
-import me.superneon4ik.noxesiumutils.events.NoxesiumPlayerClientInformationEvent;
-import me.superneon4ik.noxesiumutils.events.NoxesiumPlayerJoinEvent;
 import me.superneon4ik.noxesiumutils.modules.FriendlyByteBuf;
-import me.superneon4ik.noxesiumutils.modules.NoxesiumServerRuleBuilder;
 import me.superneon4ik.noxesiumutils.network.NoxesiumPackets;
-import me.superneon4ik.noxesiumutils.objects.PlayerClientSettings;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 public class LegacyNoxesiumMessageListener implements PluginMessageListener {

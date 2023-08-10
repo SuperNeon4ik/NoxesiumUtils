@@ -2,8 +2,9 @@ package me.superneon4ik.noxesiumutils.network.serverbound;
 
 import com.noxcrew.noxesium.api.protocol.ClientSettings;
 import me.superneon4ik.noxesiumutils.NoxesiumUtils;
+import me.superneon4ik.noxesiumutils.events.NoxesiumPlayerClientSettingsEvent;
 import me.superneon4ik.noxesiumutils.modules.FriendlyByteBuf;
-import me.superneon4ik.noxesiumutils.objects.PlayerClientSettings;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class LegacyServerboundClientSettingsPacket extends LegacyServerboundNoxesiumPacket {
@@ -26,5 +27,8 @@ public class LegacyServerboundClientSettingsPacket extends LegacyServerboundNoxe
                 0
         );
         NoxesiumUtils.getManager().updateClientSettings(player.getUniqueId(), clientSettings);
+
+        NoxesiumPlayerClientSettingsEvent event = new NoxesiumPlayerClientSettingsEvent(player, clientSettings);
+        Bukkit.getPluginManager().callEvent(event);
     }
 }

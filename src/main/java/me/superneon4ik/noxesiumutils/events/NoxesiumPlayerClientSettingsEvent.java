@@ -1,20 +1,20 @@
 package me.superneon4ik.noxesiumutils.events;
 
+import com.noxcrew.noxesium.api.protocol.ClientSettings;
 import lombok.Getter;
-import me.superneon4ik.noxesiumutils.objects.PlayerClientSettings;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class NoxesiumPlayerClientInformationEvent extends Event {
+public class NoxesiumPlayerClientSettingsEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
     @Getter private final Player player;
-    @Getter private final PlayerClientSettings playerClientSettings;
+    @Getter private final ClientSettings clientSettings;
 
-    public NoxesiumPlayerClientInformationEvent(Player player, PlayerClientSettings playerClientSettings) {
+    public NoxesiumPlayerClientSettingsEvent(Player player, ClientSettings clientSettings) {
         this.player = player;
-        this.playerClientSettings = playerClientSettings;
+        this.clientSettings = clientSettings;
     }
 
     public @NotNull HandlerList getHandlers() {
