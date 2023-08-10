@@ -1,16 +1,20 @@
 package me.superneon4ik.noxesiumutils;
 
 import com.noxcrew.noxesium.api.protocol.ClientSettings;
+import com.noxcrew.noxesium.api.protocol.NoxesiumFeature;
 import com.noxcrew.noxesium.api.protocol.NoxesiumServerManager;
 import me.superneon4ik.noxesiumutils.feature.rule.ClientboundServerRule;
 import me.superneon4ik.noxesiumutils.feature.rule.ServerRules;
 import me.superneon4ik.noxesiumutils.objects.ClientData;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class NoxesiumManager implements NoxesiumServerManager<Player> {
 
@@ -61,12 +65,11 @@ public class NoxesiumManager implements NoxesiumServerManager<Player> {
             clients.get(uuid).clientSettings = clientSettings;
     }
 
-    public boolean isUsingNoxesium(Player player, int minVersion) {
-        Integer version = this.getProtocolVersion(player);
-        if (version == null) {
-            return false;
-        } else {
-            return version >= minVersion;
-        }
+    public void forNoxesiumPlayers(NoxesiumFeature minProtocol, Consumer<Player> action) {
+        Bukkit.getOnlinePlayers().stream().filter(x -> NoxesiumUtils.getManager().isUsingNoxesium(x, minProtocol)).forEach(action);
+    }
+
+    public void forNoxesiumPlayers(Collection<Player> players, NoxesiumFeature minProtocol, Consumer<Player> action) {
+        players.stream().filter(x -> NoxesiumUtils.getManager().isUsingNoxesium(x, minProtocol)).forEach(action);
     }
 }

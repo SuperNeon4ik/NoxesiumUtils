@@ -12,7 +12,6 @@ import dev.jorel.commandapi.annotations.arguments.ABooleanArgument;
 import dev.jorel.commandapi.annotations.arguments.AEntitySelectorArgument;
 import dev.jorel.commandapi.annotations.arguments.AIntegerArgument;
 import me.superneon4ik.noxesiumutils.network.clientbound.ClientboundChangeServerRulesPacket;
-import me.superneon4ik.noxesiumutils.network.clientbound.ClientboundResetServerRulesPacket;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.ChatColor;

@@ -8,8 +8,6 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.EntitySelectorArgument;
 import dev.jorel.commandapi.arguments.ListArgumentBuilder;
 import dev.jorel.commandapi.arguments.MultiLiteralArgument;
-import dev.jorel.commandapi.arguments.PlayerArgument;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import lombok.Getter;
 import me.superneon4ik.noxesiumutils.enums.ResetFlag;
@@ -78,6 +76,7 @@ public final class NoxesiumUtils extends JavaPlugin {
 
         // Check for updates
         if (getConfig().getBoolean("checkForUpdates")) updateChecker.beginChecking(5 * 60 * 20);
+
     }
 
     @Override

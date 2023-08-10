@@ -5,13 +5,16 @@ Communicate with the [Noxesium Mod](https://github.com/Noxcrew/noxesium) with ea
 Made in Ukraine! Зроблено в Україні! 🇺🇦\
 Support me on [Patreon](https://patreon.com/SuperNeon4ik) ❤️
 
+> :warning: With **Noxesium release 1.0.0** there wee massive changes in the API, which forced me to almost
+> completely rewrite my code, so if you ever depended on NoxesiumUtils, please go over the changes.
+
 ### What is Noxesium and why does it need Utils?
 [Noxesium Mod](https://github.com/Noxcrew/noxesium) _(by Noxcrew)_ is a fabric mod with feature additions, bugfixes, and performance improvements. It allows servers to offer a better experience to clients through access to additional features beyond vanilla limitations. However, servers need to have a plugin to communicate with the mod to actually be able to use it's features, and that's where **NoxesiumUtils** comes in. It allows server owners to easily communicate with the mod via commands and can also be used as a dependency for plugin developers.
 
 ### Features
 - Send server rules on join
 - Send server rules to players with commands
-- *(For developers)* Check player's client settings.
+- Check player's client settings.
 - Maybe more soon 🤔
 
 ### Requirements
@@ -38,14 +41,25 @@ Support me on [Patreon](https://patreon.com/SuperNeon4ik) ❤️
 /noxesiumutils cameraLocked <players: selector> <value: boolean>
 ```
 
-**Check player's Noxesium Protocol Version.**
+#### Reset stuff
+```html
+<!-- Since Noxesium Protocol Version 3 -->
+/noxesiumutils resetServerRules <players: selector>
+```
+```html
+<!-- Since Noxesium Protocol Version 3 -->
+/noxesiumutils reset <players: selector> <ALL_SERVER_RULES|CACHED_PLAYER_HEADS>
+```
+
+#### Check player's Noxesium Protocol Version.
 ```html
 /noxesiumutils check <player: player>
 ```
-**Reset player's Noxesium Session data.**
+#### Check player's settings.
+**Note:** Players with protocol version less than 3 will have most of their settings set to zeros.
 ```html
 <!-- Since Noxesium Protocol Version 3 -->
-/noxesiumutils reset <players: selector> <all | cachedPlayerSkulls>
+/noxesiumutils clientSettings <player: selector>
 ```
 
 For more detailed information on how everything here works, please refer to the [Noxesium Mod README](https://github.com/Noxcrew/noxesium/#readme)!
@@ -61,13 +75,23 @@ You can easily add NoxesiumUtils to your project from the [Modrinth Maven Reposi
     <name>Neon Repository</name>
     <url>https://repo.superneon4ik.me/releases</url>
 </repository>
+<repository>
+    <id>noxcrew-maven</id>
+    <name>Noxcrew Public Maven Repository</name>
+    <url>https://maven.noxcrew.com/releases</url>
+</repository>
 ```
 ```xml
 <dependency>
     <groupId>me.superneon4ik</groupId>
     <artifactId>NoxesiumUtils</artifactId>
-    <version>1.4.3</version>
+    <version>1.5.0</version>
     <scope>provided</scope>
+</dependency>
+<dependency>
+    <groupId>com.noxcrew.noxesium</groupId>
+    <artifactId>api</artifactId>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -77,43 +101,40 @@ maven {
     name "neonRepositoryReleases"
     url "https://repo.superneon4ik.me/releases"
 }
+maven {
+    name "noxcrewMaven"
+    url "https://maven.noxcrew.com/releases"
+}
 ```
 ```gradle
-compileOnly "me.superneon4ik:NoxesiumUtils:1.4.3"
+implementation "me.superneon4ik:NoxesiumUtils:1.5.0"
+implementation "com.noxcrew.noxesium:api:1.0.0"
 ```
 
 **Run code for Noxesium players**
 ```java
-NoxesiumUtils.forNoxesiumPlayers(int minProtocol, BiConsumer<Player, Integer> playerConsumer);
-NoxesiumUtils.forNoxesiumPlayers(Collection<Player> players, int minProtocol, BiConsumer<Player, Integer> playerConsumer);
+NoxesiumUtils.getManager().forNoxesiumPlayers(NoxesiumFeature minProtocol, Consumer<Player> action);
+NoxesiumUtils.getManager().forNoxesiumPlayers(Collection<Player> players, NoxesiumFeature minProtocol, Consumer<Player> action);
 ```
 ```java
-NoxesiumUtils.forNoxesiumPlayers(1, (player, protocolVersion) -> {
-  player.sendMessage("Your Noxesium Protocol Version is " + protocolVersion);
-});
+NoxesiumUtils.getManager().forNoxesiumPlayers(NoxesiumFeature.ANY, p -> p.sendMessage(Component.text("Hello!")));
 ```
 
-**Build a ServerRules packet**
+**Send Server Rules**
 ```java
-byte[] packet = new NoxesiumServerRuleBuilder(1)
-  .add(0, true) // Disable Auto Spin Attack
-  .add(3, 10) // Set Held Item Name Offset to 10
-  .build(); // Build the packet
-```
-
-**Send ServerRules packet**
-```java
-NoxesiumUtils.sendServerRulesPacket(Player player, byte[] packet);
+var rule = NoxesiumUtils.getManager().<Boolean>getServerRule(player, ServerRuleIndices.DISABLE_SPIN_ATTACK_COLLISIONS);
+rule.setValue(true);
+new ClientboundChangeServerRulesPacket(List.of(rule)).send(player);
 ```
 
 **Get player's protocol version**
 ```java
-int protocolVersion = NoxesiumUtils.getPlayerProtocolVersion(player.getUniqueId());
+int protocolVersion = NoxesiumUtils.getManager().getProtocolVersion(player);
 ```
 
 **Get player's client settings**
 ```java
-PlayerClientSettings playerClientSettings = NoxesiumUtils.getPlayerClientSettings(player.getUniqueId());
+ClientSettings clientSettings = NoxesiumUtils.getManager().getClientSettings(player);
 ```
 
 **Noxesium events**
@@ -127,20 +148,12 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    public void on(NoxesiumPlayerClientInformationEvent event) {
+    public void on(NoxesiumPlayerClientSettingsEvent event) {
         // Received player's client settings
         Player player = event.getPlayer();
-        PlayerClientSettings playerClientSettings = event.getPlayerClientSettings();
+        ClientSettings clientSettings = event.getClientSettings();
     }
 }
-```
-
-**Noxesium player skull component builder**
-```java
-Component component = new NoxesiumPlayerSkullBuilder(player.getUniqueID())
-        .setGrayscale(true)
-        .build();
-
 ```
 
 ### Screenshots
