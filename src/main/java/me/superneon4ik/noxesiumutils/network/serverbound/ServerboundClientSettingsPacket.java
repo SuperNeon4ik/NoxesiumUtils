@@ -13,7 +13,7 @@ public class ServerboundClientSettingsPacket extends ServerboundNoxesiumPacket {
 
     @Override
     public void receive(Player player, int version, FriendlyByteBuf buffer) {
-        ClientSettings settings = new ClientSettings(
+        ClientSettings clientSettings = new ClientSettings(
                 buffer.readVarInt(),
                 buffer.readDouble(),
                 buffer.readVarInt(),
@@ -22,6 +22,7 @@ public class ServerboundClientSettingsPacket extends ServerboundNoxesiumPacket {
                 buffer.readBoolean(),
                 buffer.readDouble()
         );
-        // TODO: Apply to player
+
+        NoxesiumUtils.getManager().updateClientSettings(player.getUniqueId(), clientSettings);
     }
 }

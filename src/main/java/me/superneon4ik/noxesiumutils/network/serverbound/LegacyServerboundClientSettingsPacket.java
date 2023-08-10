@@ -25,6 +25,6 @@ public class LegacyServerboundClientSettingsPacket extends LegacyServerboundNoxe
                 false,
                 0
         );
-        // TODO: Update player
+        NoxesiumUtils.getManager().updateClientSettings(player.getUniqueId(), clientSettings);
     }
 }
