@@ -1,4 +1,4 @@
-package me.superneon4ik.noxesiumutils.network.serverbound;
+package me.superneon4ik.noxesiumutils.network.serverbound.v1;
 
 import com.noxcrew.noxesium.api.protocol.ClientSettings;
 import me.superneon4ik.noxesiumutils.NoxesiumUtils;

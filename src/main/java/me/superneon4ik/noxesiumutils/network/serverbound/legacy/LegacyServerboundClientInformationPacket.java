@@ -1,4 +1,4 @@
-package me.superneon4ik.noxesiumutils.network.serverbound;
+package me.superneon4ik.noxesiumutils.network.serverbound.legacy;
 
 import me.superneon4ik.noxesiumutils.NoxesiumUtils;
 import me.superneon4ik.noxesiumutils.events.NoxesiumPlayerJoinEvent;
@@ -21,5 +21,7 @@ public class LegacyServerboundClientInformationPacket extends LegacyServerboundN
 
         NoxesiumPlayerJoinEvent event = new NoxesiumPlayerJoinEvent(player, protocolVersion);
         Bukkit.getPluginManager().callEvent(event);
+
+        NoxesiumUtils.getPlugin().sendLoginServerRules(player);
     }
 }

@@ -67,7 +67,7 @@ public class NoxesiumUtilsCommand {
             var rule = NoxesiumUtils.getManager().<Boolean>getServerRule(player, ServerRuleIndices.DISABLE_SPIN_ATTACK_COLLISIONS);
             if (rule == null) return;
             rule.setValue(value);
-            if (new ClientboundChangeServerRulesPacket<>(List.of(rule)).send(player)) {
+            if (new ClientboundChangeServerRulesPacket(List.of(rule)).send(player)) {
                 updates.getAndIncrement();
             }
         });
@@ -79,11 +79,11 @@ public class NoxesiumUtilsCommand {
                                           @AEntitySelectorArgument.ManyPlayers Collection<Player> players,
                                           @AIntegerArgument int value) {
         AtomicInteger updates = new AtomicInteger();
-        players.stream().filter(x -> NoxesiumUtils.getManager().isUsingNoxesium(x, NoxesiumFeature.ANY)).forEach(player -> {
+        players.stream().filter(x -> NoxesiumUtils.getManager().isUsingNoxesium(x, NoxesiumFeature.PLAYER_HEADS)).forEach(player -> {
             var rule = NoxesiumUtils.getManager().<Integer>getServerRule(player, ServerRuleIndices.HELD_ITEM_NAME_OFFSET);
             if (rule == null) return;
             rule.setValue(value);
-            if (new ClientboundChangeServerRulesPacket<>(List.of(rule)).send(player)) {
+            if (new ClientboundChangeServerRulesPacket(List.of(rule)).send(player)) {
                 updates.getAndIncrement();
             }
         });
@@ -95,11 +95,11 @@ public class NoxesiumUtilsCommand {
                                     @AEntitySelectorArgument.ManyPlayers Collection<Player> players,
                                     @ABooleanArgument boolean value) {
         AtomicInteger updates = new AtomicInteger();
-        players.stream().filter(x -> NoxesiumUtils.getManager().isUsingNoxesium(x, 2)).forEach(player -> {
+        players.stream().filter(x -> NoxesiumUtils.getManager().isUsingNoxesium(x, NoxesiumFeature.PLAYER_HEADS)).forEach(player -> {
             var rule = NoxesiumUtils.getManager().<Boolean>getServerRule(player, ServerRuleIndices.CAMERA_LOCKED);
             if (rule == null) return;
             rule.setValue(value);
-            if (new ClientboundChangeServerRulesPacket<>(List.of(rule)).send(player)) {
+            if (new ClientboundChangeServerRulesPacket(List.of(rule)).send(player)) {
                 updates.getAndIncrement();
             }
         });

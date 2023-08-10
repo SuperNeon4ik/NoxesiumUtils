@@ -7,10 +7,10 @@ import me.superneon4ik.noxesiumutils.modules.FriendlyByteBuf;
 
 import java.util.List;
 
-public class ClientboundChangeServerRulesPacket<T> extends ClientboundNoxesiumPacket {
+public class ClientboundChangeServerRulesPacket extends ClientboundNoxesiumPacket {
 
-    private final List<ServerRule<T, FriendlyByteBuf>> serverRules;
-    public ClientboundChangeServerRulesPacket(List<ServerRule<T, FriendlyByteBuf>> serverRules) {
+    private final List<ClientboundServerRule<?>> serverRules;
+    public ClientboundChangeServerRulesPacket(List<ClientboundServerRule<?>> serverRules) {
         super(NoxesiumUtils.NOXESIUM_V1_CHANGE_SERVER_RULES_CHANNEL, NoxesiumUtils.NOXESIUM_LEGACY_SERVER_RULE_CHANNEL, 1);
         this.serverRules = serverRules;
     }
@@ -20,7 +20,7 @@ public class ClientboundChangeServerRulesPacket<T> extends ClientboundNoxesiumPa
         buffer.writeVarInt(serverRules.size());
         for (var serverRule : serverRules) {
             buffer.writeVarInt(serverRule.getIndex());
-            serverRule.write(serverRule.getValue(), buffer);
+            serverRule.write(buffer);
         }
     }
 
@@ -30,7 +30,7 @@ public class ClientboundChangeServerRulesPacket<T> extends ClientboundNoxesiumPa
         buffer.writeInt(serverRules.size());
         for (var serverRule : serverRules) {
             buffer.writeInt(serverRule.getIndex());
-            serverRule.write(serverRule.getValue(), buffer);
+            serverRule.write(buffer);
         }
     }
 }

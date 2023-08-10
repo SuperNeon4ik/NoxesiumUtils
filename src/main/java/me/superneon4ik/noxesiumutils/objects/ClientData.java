@@ -2,8 +2,6 @@ package me.superneon4ik.noxesiumutils.objects;
 
 import com.noxcrew.noxesium.api.protocol.ClientSettings;
 import com.noxcrew.noxesium.api.protocol.rule.ServerRule;
-import me.superneon4ik.noxesiumutils.feature.rule.ClientboundServerRule;
-import me.superneon4ik.noxesiumutils.feature.rule.ServerRules;
 import me.superneon4ik.noxesiumutils.modules.FriendlyByteBuf;
 
 import java.util.HashMap;

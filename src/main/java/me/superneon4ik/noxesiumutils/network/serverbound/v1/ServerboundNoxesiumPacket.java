@@ -1,4 +1,4 @@
-package me.superneon4ik.noxesiumutils.network.serverbound;
+package me.superneon4ik.noxesiumutils.network.serverbound.v1;
 
 import me.superneon4ik.noxesiumutils.modules.FriendlyByteBuf;
 import me.superneon4ik.noxesiumutils.network.NoxesiumPacket;

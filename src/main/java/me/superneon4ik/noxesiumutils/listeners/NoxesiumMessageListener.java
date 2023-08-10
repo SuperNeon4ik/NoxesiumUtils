@@ -1,7 +1,6 @@
 package me.superneon4ik.noxesiumutils.listeners;
 
 import io.netty.buffer.Unpooled;
-import me.superneon4ik.noxesiumutils.NoxesiumUtils;
 import me.superneon4ik.noxesiumutils.modules.FriendlyByteBuf;
 import me.superneon4ik.noxesiumutils.network.NoxesiumPackets;
 import org.bukkit.entity.Player;

@@ -1,29 +1,29 @@
 package me.superneon4ik.noxesiumutils;
 
+import com.noxcrew.noxesium.api.protocol.NoxesiumFeature;
 import com.noxcrew.noxesium.api.protocol.rule.ServerRuleIndices;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.*;
+import dev.jorel.commandapi.arguments.EntitySelectorArgument;
+import dev.jorel.commandapi.arguments.ListArgumentBuilder;
 import lombok.Getter;
-import me.superneon4ik.noxesiumutils.listeners.NoxesiumBukkitListener;
+import me.superneon4ik.noxesiumutils.feature.rule.ClientboundServerRule;
 import me.superneon4ik.noxesiumutils.listeners.LegacyNoxesiumMessageListener;
+import me.superneon4ik.noxesiumutils.listeners.NoxesiumBukkitListener;
 import me.superneon4ik.noxesiumutils.listeners.NoxesiumMessageListener;
 import me.superneon4ik.noxesiumutils.modules.ModrinthUpdateChecker;
-import me.superneon4ik.noxesiumutils.modules.NoxesiumServerRuleBuilder;
 import me.superneon4ik.noxesiumutils.network.clientbound.ClientboundChangeServerRulesPacket;
-import me.superneon4ik.noxesiumutils.objects.PlayerClientSettings;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
 
 public final class NoxesiumUtils extends JavaPlugin {
     public static final int SERVER_PROTOCOL_VERSION = 3;
@@ -99,7 +99,7 @@ public final class NoxesiumUtils extends JavaPlugin {
                                         var rule = NoxesiumUtils.getManager().<List<String>>getServerRule(player, ServerRuleIndices.GLOBAL_CAN_PLACE_ON);
                                         if (rule == null) return;
                                         rule.setValue(stringValues);
-                                        if (new ClientboundChangeServerRulesPacket<>(List.of(rule)).send(player)) {
+                                        if (new ClientboundChangeServerRulesPacket(List.of(rule)).send(player)) {
                                             updates.getAndIncrement();
                                         }
                                     });
@@ -122,7 +122,7 @@ public final class NoxesiumUtils extends JavaPlugin {
                                         var rule = NoxesiumUtils.getManager().<List<String>>getServerRule(player, ServerRuleIndices.GLOBAL_CAN_DESTROY);
                                         if (rule == null) return;
                                         rule.setValue(stringValues);
-                                        if (new ClientboundChangeServerRulesPacket<>(List.of(rule)).send(player)) {
+                                        if (new ClientboundChangeServerRulesPacket(List.of(rule)).send(player)) {
                                             updates.getAndIncrement();
                                         }
                                     });
@@ -132,77 +132,69 @@ public final class NoxesiumUtils extends JavaPlugin {
                 .register();
     }
 
-//    /**
-//     * Execute a Consumer for all Noxesium players online.
-//     * @param minProtocol Minimum noxesium protocol version.
-//     * @param playerConsumer Consumer (Player, Protocol Version). Runs for each Noxesium player.
-//     * @return Number of Noxesium players affected.
-//     */
-//    public static int forNoxesiumPlayers(int minProtocol, BiConsumer<Player, Integer> playerConsumer) {
-//        int amount = 0;
-//        for (Player player : Bukkit.getOnlinePlayers()) {
-//            if (noxesiumPlayers.containsKey(player.getUniqueId())) {
-//                Integer protocolVersion = noxesiumPlayers.get(player.getUniqueId());
-//                if (protocolVersion >= minProtocol) {
-//                    playerConsumer.accept(player, protocolVersion);
-//                    amount++;
-//                }
-//            }
-//        }
-//        return amount;
-//    }
-//
-//    /**
-//     * Execute a Consumer for Noxesium players from the Collection.
-//     * @param players Collection of players.
-//     * @param minProtocol Minimum noxesium protocol version.
-//     * @param playerConsumer Consumer (Player, Protocol Version). Runs for each Noxesium player.
-//     * @return Number of Noxesium players affected.
-//     */
-//    public static int forNoxesiumPlayers(Collection<Player> players, int minProtocol, BiConsumer<Player, Integer> playerConsumer) {
-//        int amount = 0;
-//        for (Player player : players) {
-//            if (noxesiumPlayers.containsKey(player.getUniqueId())) {
-//                Integer protocolVersion = noxesiumPlayers.get(player.getUniqueId());
-//                if (protocolVersion >= minProtocol) {
-//                    playerConsumer.accept(player, protocolVersion);
-//                    amount++;
-//                }
-//            }
-//        }
-//        return amount;
-//    }
-//
-//    /**
-//     * Send a server rules packet to a player.
-//     * @param player Receiver.
-//     * @param packet Bytes.
-//     */
-//    public static void sendServerRulesPacket(@NotNull Player player, byte[] packet) {
-//        var protocolVersion = getPlayerProtocolVersion(player.getUniqueId());
-//        if (protocolVersion >= 3) {
-//            player.sendPluginMessage(getPlugin(), NOXESIUM_V1_SERVER_RULE_CHANNEL, packet);
-//        }
-//        else if (protocolVersion >= 1){
-//            player.sendPluginMessage(getPlugin(), NOXESIUM_LEGACY_SERVER_RULE_CHANNEL, packet);
-//        }
-//    }
-//
-//    /**
-//     * Returns player's Noxesium protocol version.
-//     * @param uuid UUID of the player.
-//     * @return Protocol Version or 0 if not installed.
-//     */
-//    public static int getPlayerProtocolVersion(UUID uuid) {
-//        return noxesiumPlayers.getOrDefault(uuid, 0);
-//    }
-//
-//    /**
-//     * Returns player's client settings.
-//     * @param uuid UUID of the player.
-//     * @return Client settings or NULL if not installed.
-//     */
-//    public static @Nullable PlayerClientSettings getPlayerClientSettings(UUID uuid) {
-//         return noxesiumClientSettings.getOrDefault(uuid, null);
-//    }
+    public void sendLoginServerRules(Player player) {
+        // Send defaults
+        if (NoxesiumUtils.getPlugin().getConfig().getBoolean("sendDefaultsOnJoin", false)) {
+            // Send defaults after a little time, so the client actually registers the packet.
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    // Create builder
+                    var protocolVersion = getManager().getProtocolVersion(player);
+                    LinkedList<ClientboundServerRule<?>> rules = new LinkedList<>();
+                    if (protocolVersion >= NoxesiumFeature.ANY.getMinProtocolVersion()) {
+                        // Tridents
+                        if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.disableAutoSpinAttack")) {
+                            var value = NoxesiumUtils.getPlugin().getConfig().getBoolean("defaults.disableAutoSpinAttack", false);
+                            var rule = getManager().getServerRule(player, ServerRuleIndices.DISABLE_SPIN_ATTACK_COLLISIONS);
+                            if (rule != null) {
+                                rule.setValue(value);
+                                rules.add(rule);
+                            }
+                        }
+                        // Global Can Place On
+                        if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.globalCanPlaceOn")) {
+                            var blocks = NoxesiumUtils.getPlugin().getConfig().getStringList("defaults.globalCanPlaceOn");
+                            var rule = getManager().getServerRule(player, ServerRuleIndices.GLOBAL_CAN_PLACE_ON);
+                            if (rule != null) {
+                                rule.setValue(blocks);
+                                rules.add(rule);
+                            }
+                        }
+                        // Global Can Destroy
+                        if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.globalCanDestroy")) {
+                            var blocks = NoxesiumUtils.getPlugin().getConfig().getStringList("defaults.globalCanDestroy");
+                            var rule = getManager().getServerRule(player, ServerRuleIndices.GLOBAL_CAN_DESTROY);
+                            if (rule != null) {
+                                rule.setValue(blocks);
+                                rules.add(rule);
+                            }
+                        }
+                    }
+                    if (protocolVersion >= 2) {
+                        // Held Item Name Offset
+                        if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.heldItemNameOffset")) {
+                            var value = NoxesiumUtils.getPlugin().getConfig().getInt("defaults.heldItemNameOffset", 0);
+                            var rule = getManager().getServerRule(player, ServerRuleIndices.HELD_ITEM_NAME_OFFSET);
+                            if (rule != null) {
+                                rule.setValue(value);
+                                rules.add(rule);
+                            }
+                        }
+                        // Camera Locked
+                        if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.cameraLocked")) {
+                            var value = NoxesiumUtils.getPlugin().getConfig().getBoolean("defaults.cameraLocked", false);
+                            var rule = getManager().getServerRule(player, ServerRuleIndices.CAMERA_LOCKED);
+                            if (rule != null) {
+                                rule.setValue(value);
+                                rules.add(rule);
+                            }
+                        }
+                    }
+                    // Send packet
+                    new ClientboundChangeServerRulesPacket(rules).send(player);
+                }
+            }.runTaskLater(NoxesiumUtils.getPlugin(), 5);
+        }
+    }
 }

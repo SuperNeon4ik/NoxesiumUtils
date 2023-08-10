@@ -1,4 +1,4 @@
-package me.superneon4ik.noxesiumutils.network.serverbound;
+package me.superneon4ik.noxesiumutils.network.serverbound.legacy;
 
 import me.superneon4ik.noxesiumutils.modules.FriendlyByteBuf;
 import org.bukkit.entity.Player;

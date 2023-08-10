@@ -1,8 +1,8 @@
 package me.superneon4ik.noxesiumutils.modules;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.Gson;
-import io.netty.buffer.*;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.util.ByteProcessor;
 
 import javax.annotation.Nullable;
@@ -16,11 +16,9 @@ import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.ScatteringByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.security.PublicKey;
-import java.time.Instant;
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
+import java.util.BitSet;
+import java.util.List;
+import java.util.UUID;
 
 public class FriendlyByteBuf extends ByteBuf {
     private static final int MAX_VARINT_SIZE = 5;

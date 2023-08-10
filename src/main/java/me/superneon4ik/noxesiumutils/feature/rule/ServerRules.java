@@ -1,11 +1,9 @@
 package me.superneon4ik.noxesiumutils.feature.rule;
 
-import com.noxcrew.noxesium.api.protocol.rule.ServerRule;
 import com.noxcrew.noxesium.api.protocol.rule.ServerRuleIndices;
 import me.superneon4ik.noxesiumutils.feature.rule.impl.AdventureModeCheckServerRule;
 import me.superneon4ik.noxesiumutils.feature.rule.impl.BooleanServerRule;
 import me.superneon4ik.noxesiumutils.feature.rule.impl.IntegerServerRule;
-import me.superneon4ik.noxesiumutils.modules.FriendlyByteBuf;
 
 import java.util.Arrays;
 import java.util.List;

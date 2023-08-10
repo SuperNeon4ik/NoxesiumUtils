@@ -1,7 +1,12 @@
 package me.superneon4ik.noxesiumutils.network;
 
 import me.superneon4ik.noxesiumutils.modules.FriendlyByteBuf;
-import me.superneon4ik.noxesiumutils.network.serverbound.*;
+import me.superneon4ik.noxesiumutils.network.serverbound.legacy.LegacyServerboundClientInformationPacket;
+import me.superneon4ik.noxesiumutils.network.serverbound.legacy.LegacyServerboundClientSettingsPacket;
+import me.superneon4ik.noxesiumutils.network.serverbound.legacy.LegacyServerboundNoxesiumPacket;
+import me.superneon4ik.noxesiumutils.network.serverbound.v1.ServerboundClientInformationPacket;
+import me.superneon4ik.noxesiumutils.network.serverbound.v1.ServerboundClientSettingsPacket;
+import me.superneon4ik.noxesiumutils.network.serverbound.v1.ServerboundNoxesiumPacket;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
