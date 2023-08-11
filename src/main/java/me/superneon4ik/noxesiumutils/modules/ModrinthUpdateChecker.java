@@ -112,7 +112,7 @@ public class ModrinthUpdateChecker {
                     ChatColor.YELLOW + "Support me: " + ChatColor.WHITE + "https://www.patreon.com/superneon4ik");
             case OUTDATED -> sender.sendMessage(ChatColor.RED + "You are running an outdated version! The latest release is v" + latestKnownVersion +
                     ". " + ChatColor.YELLOW + "Download here: " + ChatColor.WHITE + "https://modrinth.com/plugin/noxesiumutils");
-            case DEVELOPMENT -> sender.sendMessage(ChatColor.LIGHT_PURPLE + "You are running unknown (development) version! Woah!");
+            case DEVELOPMENT -> sender.sendMessage(ChatColor.LIGHT_PURPLE + "You are running an unknown (development) version! Woah!");
         }
     }
 

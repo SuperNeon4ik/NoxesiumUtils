@@ -7,10 +7,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 
-public class NoxesiumMessageListener implements PluginMessageListener {
+public class LegacyNoxesiumMessageListener implements PluginMessageListener {
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte @NotNull [] message) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.copiedBuffer(message));
-        NoxesiumPackets.handle(player, channel, buffer);
+        NoxesiumPackets.handleLegacy(player, channel, buffer);
     }
 }
