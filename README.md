@@ -80,7 +80,7 @@ You can easily add NoxesiumUtils to your project from the [Modrinth Maven Reposi
 <repository>
     <id>noxcrew-maven</id>
     <name>Noxcrew Public Maven Repository</name>
-    <url>https://maven.noxcrew.com/releases</url>
+    <url>https://maven.noxcrew.com/public</url>
 </repository>
 ```
 ```xml
