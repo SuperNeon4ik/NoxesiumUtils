@@ -2,6 +2,12 @@
 ----------------
 Communicate with the [Noxesium Mod](https://github.com/Noxcrew/noxesium) with ease.
 
+![Modrinth Game Versions](https://img.shields.io/modrinth/game-versions/noxesiumutils?style=for-the-badge)
+![Modrinth Downloads](https://img.shields.io/modrinth/dt/noxesiumutils?style=for-the-badge)
+![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/SuperNeon4ik/NoxesiumUtils/maven.yml?style=for-the-badge)
+![GitHub commits since latest release (by SemVer including pre-releases)](https://img.shields.io/github/commits-since/SuperNeon4ik/NoxesiumUtils/latest?style=for-the-badge)
+
+
 Made in Ukraine! Зроблено в Україні! 🇺🇦\
 Support me on [Patreon](https://patreon.com/SuperNeon4ik) ❤️
 
