@@ -5,7 +5,8 @@ Communicate with the [Noxesium Mod](https://github.com/Noxcrew/noxesium) with ea
 Made in Ukraine! Зроблено в Україні! 🇺🇦\
 Support me on [Patreon](https://patreon.com/SuperNeon4ik) ❤️
 
-> :warning: With **Noxesium release 1.0.0** there were massive changes in the API, which forced me to almost
+> **Warning**
+> With **Noxesium release 1.0.0** there were massive changes in the API, which forced me to almost
 > completely rewrite my code, so if you ever depended on NoxesiumUtils, please go over the changes.
 
 ### What is Noxesium and why does it need Utils?
