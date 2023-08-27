@@ -211,7 +211,7 @@ public final class NoxesiumUtils extends JavaPlugin {
                             }
                         }
                     }
-                    if (protocolVersion >= 2) {
+                    if (protocolVersion >= NoxesiumFeature.PLAYER_HEADS.getMinProtocolVersion()) {
                         // Held Item Name Offset
                         if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.heldItemNameOffset")) {
                             var value = NoxesiumUtils.getPlugin().getConfig().getInt("defaults.heldItemNameOffset", 0);
@@ -231,6 +231,18 @@ public final class NoxesiumUtils extends JavaPlugin {
                             }
                         }
                     }
+                    if (protocolVersion >= NoxesiumFeature.MUSIC_SERVER_RULE.getMinProtocolVersion()) {
+                        // Enable Custom Music
+                        if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.enableCustomMusic")) {
+                            var value = NoxesiumUtils.getPlugin().getConfig().getBoolean("defaults.enableCustomMusic", false);
+                            var rule = getManager().getServerRule(player, ServerRuleIndices.ENABLE_CUSTOM_MUSIC);
+                            if (rule != null) {
+                                rule.setValue(value);
+                                rules.add(rule);
+                            }
+                        }
+                    }
+
                     // Send packet
                     new ClientboundChangeServerRulesPacket(rules).send(player);
                 }
