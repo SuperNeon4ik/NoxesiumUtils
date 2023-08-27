@@ -47,6 +47,10 @@ Support me on [Patreon](https://patreon.com/SuperNeon4ik) ❤️
 <!-- Since Noxesium Protocol Version 2 -->
 /noxesiumutils cameraLocked <players: selector> <value: boolean>
 ```
+```html
+<!-- Since Noxesium Protocol Version 3 -->
+/noxesiumutils enableCustomMusic <players: selector> <value: boolean>
+```
 
 #### Reset stuff
 ```html
@@ -71,6 +75,47 @@ Support me on [Patreon](https://patreon.com/SuperNeon4ik) ❤️
 ```
 
 For more detailed information on how everything here works, please refer to the [Noxesium Mod README](https://github.com/Noxcrew/noxesium/#readme)!
+
+### Config
+The default config looks like this. 
+Right now it only contains a setting to send server rules to a player on join.
+```yaml
+# View Protocol documentation and information about the mod here:
+# https://github.com/Noxcrew/noxesium
+
+# If true will check the plugin's version once in a while.
+checkForUpdates: true
+
+# It true will send defaults to Noxesium Players on join.
+sendDefaultsOnJoin: false
+
+# Comment out the line if you don't want to send that rule.
+defaults:
+  #disableAutoSpinAttack: false # since protocol 1
+  #globalCanPlaceOn: [] # since protocol 1
+  #globalCanDestroy: [] # since protocol 1
+  #heldItemNameOffset: 0 # since protocol 2
+  #cameraLocked: false # since protocol 2
+  #enableCustomMusic: false # since protocol 3
+```
+For example, the following config will automatically send the players `disableAutoSpinAttack = true` on join.
+```yaml
+# If true will check the plugin's version once in a while.
+checkForUpdates: true
+
+# It true will send defaults to Noxesium Players on join.
+sendDefaultsOnJoin: true # Remember to turn this on, when you are using this feature
+
+# Comment out the line if you don't want to send that rule.
+defaults:
+  disableAutoSpinAttack: true # since protocol 1
+  #globalCanPlaceOn: [] # since protocol 1
+  #globalCanDestroy: [] # since protocol 1
+  #heldItemNameOffset: 0 # since protocol 2
+  #cameraLocked: false # since protocol 2
+  #enableCustomMusic: false # since protocol 3
+```
+
 
 ### For Developers
 **Adding NoxesiumUtils to your project**
@@ -99,7 +144,7 @@ You can easily add NoxesiumUtils to your project from the [Modrinth Maven Reposi
 <dependency>
     <groupId>com.noxcrew.noxesium</groupId>
     <artifactId>api</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
@@ -111,12 +156,12 @@ maven {
 }
 maven {
     name "noxcrewMaven"
-    url "https://maven.noxcrew.com/releases"
+    url "https://maven.noxcrew.com/public"
 }
 ```
 ```gradle
 implementation "me.superneon4ik:NoxesiumUtils:1.5.0"
-implementation "com.noxcrew.noxesium:api:1.0.0"
+implementation "com.noxcrew.noxesium:api:1.0.2"
 ```
 
 **Run code for Noxesium players**

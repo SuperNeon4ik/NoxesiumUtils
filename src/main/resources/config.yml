@@ -10,8 +10,8 @@ sendDefaultsOnJoin: false
 # Comment out the line if you don't want to send that rule.
 defaults:
   #disableAutoSpinAttack: false # since protocol 1
-  #globalCanPlaceOn: [] # unsupported. since protocol 1
-  #globalCanDestroy: [] # unsupported. since protocol 1
-  #heldItemNameOffset: 0 # unsupported. since protocol 2
+  #globalCanPlaceOn: [] # since protocol 1
+  #globalCanDestroy: [] # since protocol 1
+  #heldItemNameOffset: 0 # since protocol 2
   #cameraLocked: false # since protocol 2
   #enableCustomMusic: false # since protocol 3
