@@ -110,6 +110,22 @@ public class NoxesiumUtilsCommand {
         sender.sendMessage(ChatColor.GREEN + String.valueOf(updates.get()) + " player(s) affected.");
     }
 
+    @Subcommand("enableCustomMusic")
+    public static void enableCustomMusic(CommandSender sender,
+                                    @AEntitySelectorArgument.ManyPlayers Collection<Player> players,
+                                    @ABooleanArgument boolean value) {
+        AtomicInteger updates = new AtomicInteger();
+        players.stream().filter(x -> NoxesiumUtils.getManager().isUsingNoxesium(x, NoxesiumFeature.MUSIC_SERVER_RULE)).forEach(player -> {
+            var rule = NoxesiumUtils.getManager().<Boolean>getServerRule(player, ServerRuleIndices.ENABLE_CUSTOM_MUSIC);
+            if (rule == null) return;
+            rule.setValue(value);
+            if (new ClientboundChangeServerRulesPacket(List.of(rule)).send(player)) {
+                updates.getAndIncrement();
+            }
+        });
+        sender.sendMessage(ChatColor.GREEN + String.valueOf(updates.get()) + " player(s) affected.");
+    }
+
     @Subcommand("clientSettings")
     public static void clientSettings(CommandSender sender,
                                       @AEntitySelectorArgument.OnePlayer Player player) {
