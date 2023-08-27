@@ -1,5 +1,4 @@
 # NoxesiumUtils
-----------------
 Communicate with the [Noxesium Mod](https://github.com/Noxcrew/noxesium) with ease.
 
 ![Modrinth Game Versions](https://img.shields.io/modrinth/game-versions/noxesiumutils?style=for-the-badge)
