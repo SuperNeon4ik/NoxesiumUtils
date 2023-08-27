@@ -154,7 +154,7 @@ public final class NoxesiumUtils extends JavaPlugin {
                                 }),
                         new CommandAPICommand("reset")
                                 .withArguments(new EntitySelectorArgument.ManyPlayers("players"),
-                                        new MultiLiteralArgument("flags", Arrays.stream(ResetFlag.values()).map(Enum::name).toList()))
+                                        new MultiLiteralArgument("flags", Arrays.stream(ResetFlag.values()).map(Enum::name).toArray(String[]::new)))
                                 .executes((sender, args) -> {
                                     var players = (Collection<Player>) args.get(0);
                                     var flag = ResetFlag.valueOf((String) args.get(1));
