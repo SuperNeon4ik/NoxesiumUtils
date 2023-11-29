@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class NoxesiumUtils extends JavaPlugin {
-    public static final int SERVER_PROTOCOL_VERSION = 3;
+    public static final int SERVER_PROTOCOL_VERSION = 4;
 
     // legacy
     public static final String NOXESIUM_LEGACY_CLIENT_INFORMATION_CHANNEL = "noxesium:client_information";
