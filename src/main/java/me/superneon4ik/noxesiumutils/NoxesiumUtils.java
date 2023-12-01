@@ -242,6 +242,16 @@ public final class NoxesiumUtils extends JavaPlugin {
                             }
                         }
                     }
+                    if (protocolVersion >= NoxesiumFeature.BOAT_COLLISIONS_RULE.getMinProtocolVersion()) {
+                        if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.disableBoatCollision")) {
+                            var value = NoxesiumUtils.getPlugin().getConfig().getBoolean("defaults.disableBoatCollision", false);
+                            var rule = getManager().getServerRule(player, ServerRuleIndices.DISABLE_BOAT_COLLISIONS);
+                            if (rule != null) {
+                                rule.setValue(value);
+                                rules.add(rule);
+                            }
+                        }
+                    }
 
                     // Send packet
                     new ClientboundChangeServerRulesPacket(rules).send(player);
