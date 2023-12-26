@@ -15,3 +15,4 @@ defaults:
   #heldItemNameOffset: 0 # since protocol 2
   #cameraLocked: false # since protocol 2
   #enableCustomMusic: false # since protocol 3
+  #disableBoatCollision: false # since protocol 4

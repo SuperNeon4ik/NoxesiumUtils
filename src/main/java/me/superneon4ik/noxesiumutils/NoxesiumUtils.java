@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class NoxesiumUtils extends JavaPlugin {
-    public static final int SERVER_PROTOCOL_VERSION = 3;
+    public static final int SERVER_PROTOCOL_VERSION = 4;
 
     // legacy
     public static final String NOXESIUM_LEGACY_CLIENT_INFORMATION_CHANNEL = "noxesium:client_information";
@@ -236,6 +236,16 @@ public final class NoxesiumUtils extends JavaPlugin {
                         if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.enableCustomMusic")) {
                             var value = NoxesiumUtils.getPlugin().getConfig().getBoolean("defaults.enableCustomMusic", false);
                             var rule = getManager().getServerRule(player, ServerRuleIndices.ENABLE_CUSTOM_MUSIC);
+                            if (rule != null) {
+                                rule.setValue(value);
+                                rules.add(rule);
+                            }
+                        }
+                    }
+                    if (protocolVersion >= NoxesiumFeature.BOAT_COLLISIONS_RULE.getMinProtocolVersion()) {
+                        if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.disableBoatCollision")) {
+                            var value = NoxesiumUtils.getPlugin().getConfig().getBoolean("defaults.disableBoatCollision", false);
+                            var rule = getManager().getServerRule(player, ServerRuleIndices.DISABLE_BOAT_COLLISIONS);
                             if (rule != null) {
                                 rule.setValue(value);
                                 rules.add(rule);

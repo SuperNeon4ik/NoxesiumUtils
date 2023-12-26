@@ -15,6 +15,7 @@ public class ServerRules {
     public static ClientboundServerRule<Integer> HELD_ITEM_NAME_OFFSET = new IntegerServerRule(ServerRuleIndices.HELD_ITEM_NAME_OFFSET, 0);
     public static ClientboundServerRule<Boolean> CAMERA_LOCKED = new BooleanServerRule(ServerRuleIndices.CAMERA_LOCKED, false);
     public static ClientboundServerRule<Boolean> ENABLE_CUSTOM_MUSIC = new BooleanServerRule(ServerRuleIndices.ENABLE_CUSTOM_MUSIC, false);
+    public static ClientboundServerRule<Boolean> BOAT_COLLISIONS_RULE = new BooleanServerRule(ServerRuleIndices.DISABLE_BOAT_COLLISIONS, false);
 
     public static final ClientboundServerRule<?>[] SERVER_RULES = new ClientboundServerRule[] {
         DISABLE_SPIN_ATTACK_COLLISIONS,
@@ -22,7 +23,8 @@ public class ServerRules {
         GLOBAL_CAN_DESTROY,
         HELD_ITEM_NAME_OFFSET,
         CAMERA_LOCKED,
-        ENABLE_CUSTOM_MUSIC
+        ENABLE_CUSTOM_MUSIC,
+        BOAT_COLLISIONS_RULE
     };
 
     public static ClientboundServerRule<?> get(int i) {
