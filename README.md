@@ -138,7 +138,7 @@ You can easily add NoxesiumUtils to your project from the [Modrinth Maven Reposi
 <dependency>
     <groupId>me.superneon4ik</groupId>
     <artifactId>NoxesiumUtils</artifactId>
-    <version>1.5.0</version>
+    <version>1.6.0</version>
     <scope>provided</scope>
 </dependency>
 <dependency>
@@ -160,7 +160,7 @@ maven {
 }
 ```
 ```gradle
-implementation "me.superneon4ik:NoxesiumUtils:1.5.0"
+implementation "me.superneon4ik:NoxesiumUtils:1.6.0"
 implementation "com.noxcrew.noxesium:api:1.0.2"
 ```
 
