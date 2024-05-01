@@ -25,7 +25,7 @@ Support me on [Patreon](https://patreon.com/SuperNeon4ik) ❤️
 - Maybe more soon 🤔
 
 ### Requirements
-- Spigot 1.19.2+
+- Spigot/Paper 1.20+
 - The plugin won't do anything to players without the mod
 
 ### Commands
@@ -48,8 +48,16 @@ Support me on [Patreon](https://patreon.com/SuperNeon4ik) ❤️
 /noxesiumutils cameraLocked <players: selector> <value: boolean>
 ```
 ```html
+<!-- Since Noxesium Protocol Version 5 -->
+/noxesiumutils disableBoatCollision <players: selector> <value: boolean>
+```
+```html
 <!-- Since Noxesium Protocol Version 3 -->
 /noxesiumutils enableCustomMusic <players: selector> <value: boolean>
+```
+```html
+<!-- Since Noxesium Protocol Version 8 -->
+/noxesiumutils disableUiOptimizations <players: selector> <value: boolean>
 ```
 
 #### Reset stuff
@@ -91,12 +99,14 @@ sendDefaultsOnJoin: false
 
 # Comment out the line if you don't want to send that rule.
 defaults:
-  #disableAutoSpinAttack: false # since protocol 1
-  #globalCanPlaceOn: [] # since protocol 1
-  #globalCanDestroy: [] # since protocol 1
-  #heldItemNameOffset: 0 # since protocol 2
-  #cameraLocked: false # since protocol 2
-  #enableCustomMusic: false # since protocol 3
+#disableAutoSpinAttack: false # since protocol 1
+#globalCanPlaceOn: [] # since protocol 1
+#globalCanDestroy: [] # since protocol 1
+#heldItemNameOffset: 0 # since protocol 2
+#cameraLocked: false # since protocol 2
+#enableCustomMusic: false # since protocol 3
+#disableBoatCollision: false # since protocol 4
+#disableUiOptimizations: false # since protocol 8
 ```
 For example, the following config will automatically send the players `disableAutoSpinAttack = true` on join.
 ```yaml
@@ -138,13 +148,13 @@ You can easily add NoxesiumUtils to your project from the [Modrinth Maven Reposi
 <dependency>
     <groupId>me.superneon4ik</groupId>
     <artifactId>NoxesiumUtils</artifactId>
-    <version>1.6.0</version>
+    <version>1.7.0</version>
     <scope>provided</scope>
 </dependency>
 <dependency>
     <groupId>com.noxcrew.noxesium</groupId>
     <artifactId>api</artifactId>
-    <version>1.0.2</version>
+    <version>1.2.2</version>
 </dependency>
 ```
 
@@ -160,8 +170,8 @@ maven {
 }
 ```
 ```gradle
-implementation "me.superneon4ik:NoxesiumUtils:1.6.0"
-implementation "com.noxcrew.noxesium:api:1.0.2"
+implementation "me.superneon4ik:NoxesiumUtils:1.7.0"
+implementation "com.noxcrew.noxesium:api:1.2.2"
 ```
 
 **Run code for Noxesium players**
@@ -210,6 +220,6 @@ public class EventListener implements Listener {
 ```
 
 ### Screenshots
-![image](https://user-images.githubusercontent.com/52915540/233479245-01f9fb7e-1d7c-4e98-83ed-ee235e696ff2.png)
-![image](https://user-images.githubusercontent.com/52915540/233479405-5f7a96b1-8676-4ea9-9328-0988d348b1ed.png)
-![зображення](https://github.com/SuperNeon4ik/NoxesiumUtils/assets/52915540/08710e28-619d-4fb7-9d38-2b41240c96c1)
+![image 1](https://user-images.githubusercontent.com/52915540/233479245-01f9fb7e-1d7c-4e98-83ed-ee235e696ff2.png)
+![image 2](https://user-images.githubusercontent.com/52915540/233479405-5f7a96b1-8676-4ea9-9328-0988d348b1ed.png)
+![image 3](https://github.com/SuperNeon4ik/NoxesiumUtils/assets/52915540/08710e28-619d-4fb7-9d38-2b41240c96c1)
