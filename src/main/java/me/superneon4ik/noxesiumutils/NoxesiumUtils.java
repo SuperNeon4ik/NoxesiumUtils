@@ -247,6 +247,16 @@ public final class NoxesiumUtils extends JavaPlugin {
                             }
                         }
                     }
+                    if (protocolVersion >= NoxesiumFeature.DISABLE_OPTIMIZED_UI_SERVER_RULE.getMinProtocolVersion()) {
+                        if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.disableUiOptimizations")) {
+                            var value = NoxesiumUtils.getPlugin().getConfig().getBoolean("defaults.disableUiOptimizations", false);
+                            var rule = getManager().getServerRule(player, ServerRuleIndices.DISABLE_UI_OPTIMIZATIONS);
+                            if (rule != null) {
+                                rule.setValue(value);
+                                rules.add(rule);
+                            }
+                        }
+                    }
 
                     // Send packet
                     new ClientboundChangeServerRulesPacket(rules).send(player);

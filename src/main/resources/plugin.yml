@@ -3,7 +3,7 @@ author: SuperNeon4ik
 description: Communicate with Noxesium with ease.
 version: '${project.version}'
 main: me.superneon4ik.noxesiumutils.NoxesiumUtils
-api-version: 1.19
+api-version: 1.20
 website: https://github.com/SuperNeon4ik/NoxesiumUtils
 
 permissions:

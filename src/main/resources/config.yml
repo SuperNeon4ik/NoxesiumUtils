@@ -16,3 +16,4 @@ defaults:
   #cameraLocked: false # since protocol 2
   #enableCustomMusic: false # since protocol 3
   #disableBoatCollision: false # since protocol 4
+  #disableUiOptimizations: false # since protocol 8

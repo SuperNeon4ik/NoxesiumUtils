@@ -15,16 +15,20 @@ public class ServerRules {
     public static ClientboundServerRule<Integer> HELD_ITEM_NAME_OFFSET = new IntegerServerRule(ServerRuleIndices.HELD_ITEM_NAME_OFFSET, 0);
     public static ClientboundServerRule<Boolean> CAMERA_LOCKED = new BooleanServerRule(ServerRuleIndices.CAMERA_LOCKED, false);
     public static ClientboundServerRule<Boolean> ENABLE_CUSTOM_MUSIC = new BooleanServerRule(ServerRuleIndices.ENABLE_CUSTOM_MUSIC, false);
-    public static ClientboundServerRule<Boolean> BOAT_COLLISIONS_RULE = new BooleanServerRule(ServerRuleIndices.DISABLE_BOAT_COLLISIONS, false);
+    public static ClientboundServerRule<Boolean> DISABLE_BOAT_COLLISIONS = new BooleanServerRule(ServerRuleIndices.DISABLE_BOAT_COLLISIONS, false);
+    //public static ClientboundServerRule<ItemStack> HAND_ITEM_OVERRIDE;
+    public static ClientboundServerRule<Boolean> DISABLE_UI_OPTIMIZATIONS  = new BooleanServerRule(ServerRuleIndices.DISABLE_UI_OPTIMIZATIONS, false);
 
     public static final ClientboundServerRule<?>[] SERVER_RULES = new ClientboundServerRule[] {
-        DISABLE_SPIN_ATTACK_COLLISIONS,
-        GLOBAL_CAN_PLACE_ON,
-        GLOBAL_CAN_DESTROY,
-        HELD_ITEM_NAME_OFFSET,
-        CAMERA_LOCKED,
-        ENABLE_CUSTOM_MUSIC,
-        BOAT_COLLISIONS_RULE
+            DISABLE_SPIN_ATTACK_COLLISIONS,
+            GLOBAL_CAN_PLACE_ON,
+            GLOBAL_CAN_DESTROY,
+            HELD_ITEM_NAME_OFFSET,
+            CAMERA_LOCKED,
+            ENABLE_CUSTOM_MUSIC,
+            DISABLE_BOAT_COLLISIONS,
+            //HAND_ITEM_OVERRIDE,
+             DISABLE_UI_OPTIMIZATIONS
     };
 
     public static ClientboundServerRule<?> get(int i) {
