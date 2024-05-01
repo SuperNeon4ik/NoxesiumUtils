@@ -79,11 +79,6 @@ public final class NoxesiumUtils extends JavaPlugin {
 
     }
 
-    @Override
-    public void onLoad() {
-        CommandAPI.onLoad(new CommandAPIBukkitConfig(this));
-    }
-
     @SuppressWarnings({"unsafe", "unchecked"})
     private void registerCommands() {
         CommandAPI.registerCommand(NoxesiumUtilsCommand.class);

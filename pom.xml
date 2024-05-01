@@ -132,7 +132,7 @@
         </dependency>
         <dependency>
             <groupId>dev.jorel</groupId>
-            <artifactId>commandapi-bukkit-shade</artifactId>
+            <artifactId>commandapi-bukkit-core</artifactId>
             <version>9.4.0</version>
         </dependency>
         <dependency>
@@ -149,7 +149,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.26</version>
+            <version>1.18.32</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
