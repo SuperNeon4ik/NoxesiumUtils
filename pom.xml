@@ -47,15 +47,6 @@
                                 </goals>
                             </execution>
                         </executions>
-                        <configuration>
-                            <minimizeJar>true</minimizeJar>
-                            <relocations>
-                                <relocation>
-                                    <pattern>dev.jorel.commandapi</pattern>
-                                    <shadedPattern>me.superneon4ik.noxesiumutils.commandapi</shadedPattern>
-                                </relocation>
-                            </relocations>
-                        </configuration>
                     </plugin>
                 </plugins>
                 <resources>
@@ -102,6 +93,11 @@
             <id>apache-maven</id>
             <url>https://repo.maven.apache.org/maven2/</url>
         </repository>
+        <repository>
+            <id>minecraft-libraries</id>
+            <name>Minecraft Libraries</name>
+            <url>https://libraries.minecraft.net</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -134,11 +130,13 @@
             <groupId>dev.jorel</groupId>
             <artifactId>commandapi-bukkit-core</artifactId>
             <version>9.4.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>dev.jorel</groupId>
             <artifactId>commandapi-annotations</artifactId>
             <version>9.4.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.papermc.paper</groupId>
@@ -157,6 +155,11 @@
             <artifactId>annotations</artifactId>
             <version>24.1.0</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.mojang</groupId>
+            <artifactId>datafixerupper</artifactId>
+            <version>1.0.20</version>
         </dependency>
     </dependencies>
 

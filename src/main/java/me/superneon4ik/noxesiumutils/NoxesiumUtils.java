@@ -3,7 +3,6 @@ package me.superneon4ik.noxesiumutils;
 import com.noxcrew.noxesium.api.protocol.NoxesiumFeature;
 import com.noxcrew.noxesium.api.protocol.rule.ServerRuleIndices;
 import dev.jorel.commandapi.CommandAPI;
-import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.EntitySelectorArgument;
 import dev.jorel.commandapi.arguments.ListArgumentBuilder;
@@ -16,6 +15,8 @@ import me.superneon4ik.noxesiumutils.feature.rule.ServerRules;
 import me.superneon4ik.noxesiumutils.listeners.LegacyNoxesiumMessageListener;
 import me.superneon4ik.noxesiumutils.listeners.NoxesiumBukkitListener;
 import me.superneon4ik.noxesiumutils.listeners.NoxesiumMessageListener;
+import me.superneon4ik.noxesiumutils.modules.Deobfuscator;
+import me.superneon4ik.noxesiumutils.modules.FriendlyByteBufRef;
 import me.superneon4ik.noxesiumutils.modules.ModrinthUpdateChecker;
 import me.superneon4ik.noxesiumutils.network.clientbound.ClientboundChangeServerRulesPacket;
 import me.superneon4ik.noxesiumutils.network.clientbound.ClientboundResetPacket;
@@ -33,7 +34,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class NoxesiumUtils extends JavaPlugin {
-    public static final int SERVER_PROTOCOL_VERSION = 4;
+    public static final int SERVER_PROTOCOL_VERSION = 8;
 
     // legacy
     public static final String NOXESIUM_LEGACY_CLIENT_INFORMATION_CHANNEL = "noxesium:client_information";
@@ -49,6 +50,8 @@ public final class NoxesiumUtils extends JavaPlugin {
     public static final String NOXESIUM_V1_RESET_CHANNEL = "noxesium-v1:reset";
 
     @Getter private static NoxesiumUtils plugin;
+    @Getter private static Deobfuscator deobfuscator;
+    @Getter private static FriendlyByteBufRef friendlyByteBufRef;
     @Getter private static final ModrinthUpdateChecker updateChecker = new ModrinthUpdateChecker("noxesiumutils");
     @Getter private static final NoxesiumManager manager = new NoxesiumManager();
 
@@ -57,6 +60,9 @@ public final class NoxesiumUtils extends JavaPlugin {
         plugin = this;
         saveDefaultConfig();
         registerCommands();
+
+        deobfuscator = new Deobfuscator(getLogger(), List.of("net/minecraft/network/FriendlyByteBuf"));
+        friendlyByteBufRef = new FriendlyByteBufRef(getLogger(), deobfuscator);
 
         // Register outgoing plugin messaging channels
         getServer().getMessenger().registerOutgoingPluginChannel(this, NOXESIUM_LEGACY_SERVER_RULE_CHANNEL);
@@ -76,7 +82,6 @@ public final class NoxesiumUtils extends JavaPlugin {
 
         // Check for updates
         if (getConfig().getBoolean("checkForUpdates")) updateChecker.beginChecking(5 * 60 * 20);
-
     }
 
     @SuppressWarnings({"unsafe", "unchecked"})

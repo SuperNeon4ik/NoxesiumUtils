@@ -9,3 +9,6 @@ website: https://github.com/SuperNeon4ik/NoxesiumUtils
 permissions:
   noxesiumutils.commands:
     description: Access the /noxesiumutils command.
+
+depend:
+  - CommandAPI
