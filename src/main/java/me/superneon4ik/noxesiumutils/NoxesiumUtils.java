@@ -1,75 +1,43 @@
 package me.superneon4ik.noxesiumutils;
 
-import com.noxcrew.noxesium.api.protocol.NoxesiumFeature;
 import com.noxcrew.noxesium.api.protocol.rule.ServerRuleIndices;
+import com.noxcrew.noxesium.paper.api.NoxesiumManager;
+import com.noxcrew.noxesium.paper.api.rule.ServerRules;
 import dev.jorel.commandapi.CommandAPI;
-import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.arguments.BooleanArgument;
 import dev.jorel.commandapi.arguments.EntitySelectorArgument;
-import dev.jorel.commandapi.arguments.ListArgumentBuilder;
-import dev.jorel.commandapi.arguments.MultiLiteralArgument;
-import it.unimi.dsi.fastutil.ints.IntList;
+import dev.jorel.commandapi.arguments.IntegerArgument;
 import lombok.Getter;
-import me.superneon4ik.noxesiumutils.enums.ResetFlag;
-import me.superneon4ik.noxesiumutils.feature.rule.ClientboundServerRule;
-import me.superneon4ik.noxesiumutils.feature.rule.ServerRules;
-import me.superneon4ik.noxesiumutils.listeners.LegacyNoxesiumMessageListener;
 import me.superneon4ik.noxesiumutils.listeners.NoxesiumBukkitListener;
-import me.superneon4ik.noxesiumutils.listeners.NoxesiumMessageListener;
 import me.superneon4ik.noxesiumutils.modules.ModrinthUpdateChecker;
-import me.superneon4ik.noxesiumutils.network.clientbound.ClientboundChangeServerRulesPacket;
-import me.superneon4ik.noxesiumutils.network.clientbound.ClientboundResetPacket;
-import me.superneon4ik.noxesiumutils.network.clientbound.ClientboundResetServerRulesPacket;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class NoxesiumUtils extends JavaPlugin {
-    public static final int SERVER_PROTOCOL_VERSION = 4;
-
-    // legacy
-    public static final String NOXESIUM_LEGACY_CLIENT_INFORMATION_CHANNEL = "noxesium:client_information";
-    public static final String NOXESIUM_LEGACY_CLIENT_SETTINGS_CHANNEL = "noxesium:client_settings";
-    public static final String NOXESIUM_LEGACY_SERVER_RULE_CHANNEL = "noxesium:server_rules";
-
-    // v1
-    public static final String NOXESIUM_V1_CLIENT_INFORMATION_CHANNEL = "noxesium-v1:client_info";
-    public static final String NOXESIUM_V1_CLIENT_SETTINGS_CHANNEL = "noxesium-v1:client_settings";
-    public static final String NOXESIUM_V1_SERVER_INFORMATION_CHANNEL = "noxesium-v1:server_info";
-    public static final String NOXESIUM_V1_CHANGE_SERVER_RULES_CHANNEL = "noxesium-v1:change_server_rules";
-    public static final String NOXESIUM_V1_RESET_SERVER_RULES_CHANNEL = "noxesium-v1:reset_server_rules";
-    public static final String NOXESIUM_V1_RESET_CHANNEL = "noxesium-v1:reset";
-
     @Getter private static NoxesiumUtils plugin;
     @Getter private static final ModrinthUpdateChecker updateChecker = new ModrinthUpdateChecker("noxesiumutils");
-    @Getter private static final NoxesiumManager manager = new NoxesiumManager();
+    @Getter private static NoxesiumManager manager;
+    @Getter private static ServerRules serverRules;
 
     @Override
     public void onEnable() {
         plugin = this;
         saveDefaultConfig();
+        
+        manager = new NoxesiumManager(this, LoggerFactory.getLogger("NoxesiumPaperManager"));
+        manager.register();
+        serverRules = new ServerRules(manager);
+
         registerCommands();
-
-        // Register outgoing plugin messaging channels
-        getServer().getMessenger().registerOutgoingPluginChannel(this, NOXESIUM_LEGACY_SERVER_RULE_CHANNEL);
-        getServer().getMessenger().registerOutgoingPluginChannel(this, NOXESIUM_V1_CHANGE_SERVER_RULES_CHANNEL);
-        getServer().getMessenger().registerOutgoingPluginChannel(this, NOXESIUM_V1_RESET_SERVER_RULES_CHANNEL);
-        getServer().getMessenger().registerOutgoingPluginChannel(this, NOXESIUM_V1_SERVER_INFORMATION_CHANNEL);
-        getServer().getMessenger().registerOutgoingPluginChannel(this, NOXESIUM_V1_RESET_CHANNEL);
-
-        // Register incoming plugin messaging channels
-        getServer().getMessenger().registerIncomingPluginChannel(this, NOXESIUM_LEGACY_CLIENT_INFORMATION_CHANNEL, new LegacyNoxesiumMessageListener());
-        getServer().getMessenger().registerIncomingPluginChannel(this, NOXESIUM_LEGACY_CLIENT_SETTINGS_CHANNEL, new LegacyNoxesiumMessageListener());
-        getServer().getMessenger().registerIncomingPluginChannel(this, NOXESIUM_V1_CLIENT_INFORMATION_CHANNEL, new NoxesiumMessageListener());
-        getServer().getMessenger().registerIncomingPluginChannel(this, NOXESIUM_V1_CLIENT_SETTINGS_CHANNEL, new NoxesiumMessageListener());
 
         // Register Bukkit listener
         getServer().getPluginManager().registerEvents(new NoxesiumBukkitListener(), this);
@@ -80,96 +48,81 @@ public final class NoxesiumUtils extends JavaPlugin {
     }
 
     @Override
-    public void onLoad() {
-        CommandAPI.onLoad(new CommandAPIBukkitConfig(this));
+    public void onDisable() {
+        manager.unregister();
     }
 
     @SuppressWarnings({"unsafe", "unchecked"})
     private void registerCommands() {
         CommandAPI.registerCommand(NoxesiumUtilsCommand.class);
+
+        final Map<String, Integer> booleanServerRules = new HashMap<>() {{
+            put("disableSpinAttackCollisions", ServerRuleIndices.DISABLE_SPIN_ATTACK_COLLISIONS);
+            put("cameraLocked", ServerRuleIndices.CAMERA_LOCKED);
+            put("disableVanillaMusic", ServerRuleIndices.DISABLE_VANILLA_MUSIC);
+            put("disableBoatCollisions", ServerRuleIndices.DISABLE_BOAT_COLLISIONS);
+            put("disableUiOptimizations", ServerRuleIndices.DISABLE_UI_OPTIMIZATIONS);
+            put("showMapInUi", ServerRuleIndices.SHOW_MAP_IN_UI);
+            put("disableDeferredChunkUpdates", ServerRuleIndices.DISABLE_DEFERRED_CHUNK_UPDATES);
+            put("disableMapUi", ServerRuleIndices.DISABLE_MAP_UI);
+
+            // TODO: Implement Noxcrew's recommendations before enabling
+            // https://github.com/Noxcrew/noxesium/blob/4b3f93fe6886eac60dbfffa6cb125e1e5a31886a/api/src/main/java/com/noxcrew/noxesium/api/protocol/rule/ServerRuleIndices.java#L85
+             put("enableSmootherClientTrident", ServerRuleIndices.ENABLE_SMOOTHER_CLIENT_TRIDENT); 
+        }};
+
+        final Map<String, Integer> integerServerRules = new HashMap<>() {{
+            put("heldItemNameOffset", ServerRuleIndices.HELD_ITEM_NAME_OFFSET);
+            put("riptideCoyoteTime", ServerRuleIndices.RIPTIDE_COYOTE_TIME);
+        }};
+        
+        List<CommandAPICommand> subcommands = new LinkedList<>();
+        booleanServerRules.forEach((String name, Integer index) -> {
+            var command = new CommandAPICommand(name)
+                    .withArguments(
+                            new EntitySelectorArgument.ManyPlayers("players"),
+                            new BooleanArgument("value")
+                    )
+                    .executes((sender, args) -> {
+                        var players = (Collection<Player>) args.get("players");
+                        var value = args.get("value");
+                        updateServerRule(sender, players, index, value);
+                    });
+            
+            subcommands.add(command);
+        });
+
+        integerServerRules.forEach((String name, Integer index) -> {
+            var command = new CommandAPICommand(name)
+                    .withArguments(
+                            new EntitySelectorArgument.ManyPlayers("players"),
+                            new IntegerArgument("value")
+                    )
+                    .executes((sender, args) -> {
+                        var players = (Collection<Player>) args.get("players");
+                        var value = args.get("value");
+                        updateServerRule(sender, players, index, value);                        
+                    });
+
+            subcommands.add(command);
+        });
+
         new CommandAPICommand("noxesiumutils")
                 .withPermission("noxesiumutils.commands")
-                .withSubcommands(
-                        new CommandAPICommand("globalCanPlaceOn")
-                                .withArguments(new EntitySelectorArgument.ManyPlayers("players"), new ListArgumentBuilder<Material>("values")
-                                        .withList(List.of(Material.values()))
-                                        .withMapper(material -> "minecraft:" + material.name().toLowerCase())
-                                        .buildGreedy()
-                                )
-                                .executes((sender, args) -> {
-                                    var players = (Collection<Player>) args.get(0);
-                                    var materialValues = (List<Material>) args.get(1);
-                                    assert materialValues != null && players != null;
-                                    var stringValues = materialValues.stream().map(v -> "minecraft:" + v.name().toLowerCase()).toList();
+                .withSubcommands(subcommands.toArray(new CommandAPICommand[0]))
+                .register(this);
+    }
+    
+    private void updateServerRule(CommandSender sender, Collection<Player> players, Integer index, Object value) {
+        if (players == null) return;
+        AtomicInteger updates = new AtomicInteger();
+        players.forEach(player -> {
+            var rule = NoxesiumUtils.getManager().getServerRule(player, index);
+            rule.setValue(value);
+            updates.getAndIncrement();
+        });
 
-                                    AtomicInteger updates = new AtomicInteger();
-                                    players.stream().filter(x -> NoxesiumUtils.getManager().isUsingNoxesium(x, NoxesiumFeature.ANY)).forEach(player -> {
-                                        var rule = NoxesiumUtils.getManager().<List<String>>getServerRule(player, ServerRuleIndices.GLOBAL_CAN_PLACE_ON);
-                                        if (rule == null) return;
-                                        rule.setValue(stringValues);
-                                        if (new ClientboundChangeServerRulesPacket(List.of(rule)).send(player)) {
-                                            updates.getAndIncrement();
-                                        }
-                                    });
-                                    sender.sendMessage(ChatColor.GREEN + String.valueOf(updates.get()) + " player(s) affected.");
-                                }),
-                        new CommandAPICommand("globalCanDestroy")
-                                .withArguments(new EntitySelectorArgument.ManyPlayers("players"), new ListArgumentBuilder<Material>("values")
-                                        .withList(List.of(Material.values()))
-                                        .withMapper(material -> "minecraft:" + material.name().toLowerCase())
-                                        .buildGreedy()
-                                )
-                                .executes((sender, args) -> {
-                                    var players = (Collection<Player>) args.get(0);
-                                    var materialValues = (List<Material>) args.get(1);
-                                    assert materialValues != null && players != null;
-                                    var stringValues = materialValues.stream().map(v -> "minecraft:" + v.name().toLowerCase()).toList();
-
-                                    AtomicInteger updates = new AtomicInteger();
-                                    players.stream().filter(x -> NoxesiumUtils.getManager().isUsingNoxesium(x, NoxesiumFeature.ANY)).forEach(player -> {
-                                        var rule = NoxesiumUtils.getManager().<List<String>>getServerRule(player, ServerRuleIndices.GLOBAL_CAN_DESTROY);
-                                        if (rule == null) return;
-                                        rule.setValue(stringValues);
-                                        if (new ClientboundChangeServerRulesPacket(List.of(rule)).send(player)) {
-                                            updates.getAndIncrement();
-                                        }
-                                    });
-                                    sender.sendMessage(ChatColor.GREEN + String.valueOf(updates.get()) + " player(s) affected.");
-                                }),
-                        new CommandAPICommand("resetServerRules")
-                                .withArguments(new EntitySelectorArgument.ManyPlayers("players"))
-                                .executes((sender, args) -> {
-                                    var players = (Collection<Player>) args.get(0);
-                                    assert players != null;
-
-                                    IntList indices = IntList.of(Arrays.stream(ServerRules.SERVER_RULES)
-                                            .mapToInt(ClientboundServerRule::getIndex).toArray());
-                                    AtomicInteger updates = new AtomicInteger();
-                                    players.stream().filter(x -> NoxesiumUtils.getManager().isUsingNoxesium(x, NoxesiumFeature.API_V1)).forEach(player -> {
-                                        if (new ClientboundResetServerRulesPacket(indices).send(player)) {
-                                            updates.getAndIncrement();
-                                        }
-                                    });
-                                    sender.sendMessage(ChatColor.GREEN + String.valueOf(updates.get()) + " player(s) affected.");
-                                }),
-                        new CommandAPICommand("reset")
-                                .withArguments(new EntitySelectorArgument.ManyPlayers("players"),
-                                        new MultiLiteralArgument("flags", Arrays.stream(ResetFlag.values()).map(Enum::name).toArray(String[]::new)))
-                                .executes((sender, args) -> {
-                                    var players = (Collection<Player>) args.get(0);
-                                    var flag = ResetFlag.valueOf((String) args.get(1));
-                                    assert players != null;
-
-                                    AtomicInteger updates = new AtomicInteger();
-                                    players.stream().filter(x -> NoxesiumUtils.getManager().isUsingNoxesium(x, NoxesiumFeature.API_V1)).forEach(player -> {
-                                        if (new ClientboundResetPacket(flag).send(player)) {
-                                            updates.getAndIncrement();
-                                        }
-                                    });
-                                    sender.sendMessage(ChatColor.GREEN + String.valueOf(updates.get()) + " player(s) affected.");
-                                })
-                )
-                .register();
+        sender.sendMessage(Component.text(updates.get() + " player(s) affected.", NamedTextColor.GREEN));
     }
 
     public void sendLoginServerRules(Player player) {
@@ -179,82 +132,7 @@ public final class NoxesiumUtils extends JavaPlugin {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    // Create builder
-                    var protocolVersion = getManager().getProtocolVersion(player);
-                    LinkedList<ClientboundServerRule<?>> rules = new LinkedList<>();
-                    if (protocolVersion >= NoxesiumFeature.ANY.getMinProtocolVersion()) {
-                        // Tridents
-                        if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.disableAutoSpinAttack")) {
-                            var value = NoxesiumUtils.getPlugin().getConfig().getBoolean("defaults.disableAutoSpinAttack", false);
-                            var rule = getManager().getServerRule(player, ServerRuleIndices.DISABLE_SPIN_ATTACK_COLLISIONS);
-                            if (rule != null) {
-                                rule.setValue(value);
-                                rules.add(rule);
-                            }
-                        }
-                        // Global Can Place On
-                        if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.globalCanPlaceOn")) {
-                            var blocks = NoxesiumUtils.getPlugin().getConfig().getStringList("defaults.globalCanPlaceOn");
-                            var rule = getManager().getServerRule(player, ServerRuleIndices.GLOBAL_CAN_PLACE_ON);
-                            if (rule != null) {
-                                rule.setValue(blocks);
-                                rules.add(rule);
-                            }
-                        }
-                        // Global Can Destroy
-                        if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.globalCanDestroy")) {
-                            var blocks = NoxesiumUtils.getPlugin().getConfig().getStringList("defaults.globalCanDestroy");
-                            var rule = getManager().getServerRule(player, ServerRuleIndices.GLOBAL_CAN_DESTROY);
-                            if (rule != null) {
-                                rule.setValue(blocks);
-                                rules.add(rule);
-                            }
-                        }
-                    }
-                    if (protocolVersion >= NoxesiumFeature.PLAYER_HEADS.getMinProtocolVersion()) {
-                        // Held Item Name Offset
-                        if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.heldItemNameOffset")) {
-                            var value = NoxesiumUtils.getPlugin().getConfig().getInt("defaults.heldItemNameOffset", 0);
-                            var rule = getManager().getServerRule(player, ServerRuleIndices.HELD_ITEM_NAME_OFFSET);
-                            if (rule != null) {
-                                rule.setValue(value);
-                                rules.add(rule);
-                            }
-                        }
-                        // Camera Locked
-                        if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.cameraLocked")) {
-                            var value = NoxesiumUtils.getPlugin().getConfig().getBoolean("defaults.cameraLocked", false);
-                            var rule = getManager().getServerRule(player, ServerRuleIndices.CAMERA_LOCKED);
-                            if (rule != null) {
-                                rule.setValue(value);
-                                rules.add(rule);
-                            }
-                        }
-                    }
-                    if (protocolVersion >= NoxesiumFeature.MUSIC_SERVER_RULE.getMinProtocolVersion()) {
-                        // Enable Custom Music
-                        if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.enableCustomMusic")) {
-                            var value = NoxesiumUtils.getPlugin().getConfig().getBoolean("defaults.enableCustomMusic", false);
-                            var rule = getManager().getServerRule(player, ServerRuleIndices.ENABLE_CUSTOM_MUSIC);
-                            if (rule != null) {
-                                rule.setValue(value);
-                                rules.add(rule);
-                            }
-                        }
-                    }
-                    if (protocolVersion >= NoxesiumFeature.BOAT_COLLISIONS_RULE.getMinProtocolVersion()) {
-                        if (NoxesiumUtils.getPlugin().getConfig().contains("defaults.disableBoatCollision")) {
-                            var value = NoxesiumUtils.getPlugin().getConfig().getBoolean("defaults.disableBoatCollision", false);
-                            var rule = getManager().getServerRule(player, ServerRuleIndices.DISABLE_BOAT_COLLISIONS);
-                            if (rule != null) {
-                                rule.setValue(value);
-                                rules.add(rule);
-                            }
-                        }
-                    }
-
-                    // Send packet
-                    new ClientboundChangeServerRulesPacket(rules).send(player);
+                    // TODO: Re-implement this
                 }
             }.runTaskLater(NoxesiumUtils.getPlugin(), 5);
         }
