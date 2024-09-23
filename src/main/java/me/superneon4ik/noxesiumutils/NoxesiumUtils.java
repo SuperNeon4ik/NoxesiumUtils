@@ -2,12 +2,11 @@ package me.superneon4ik.noxesiumutils;
 
 import com.noxcrew.noxesium.api.protocol.rule.ServerRuleIndices;
 import com.noxcrew.noxesium.paper.api.NoxesiumManager;
+import com.noxcrew.noxesium.paper.api.rule.GraphicsType;
 import com.noxcrew.noxesium.paper.api.rule.ServerRules;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.BooleanArgument;
-import dev.jorel.commandapi.arguments.EntitySelectorArgument;
-import dev.jorel.commandapi.arguments.IntegerArgument;
+import dev.jorel.commandapi.arguments.*;
 import lombok.Getter;
 import me.superneon4ik.noxesiumutils.listeners.NoxesiumBukkitListener;
 import me.superneon4ik.noxesiumutils.modules.ModrinthUpdateChecker;
@@ -15,6 +14,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.slf4j.LoggerFactory;
@@ -56,6 +56,8 @@ public final class NoxesiumUtils extends JavaPlugin {
     private void registerCommands() {
         CommandAPI.registerCommand(NoxesiumUtilsCommand.class);
 
+        List<CommandAPICommand> subcommands = new LinkedList<>();
+        
         final Map<String, Integer> booleanServerRules = new HashMap<>() {{
             put("disableSpinAttackCollisions", ServerRuleIndices.DISABLE_SPIN_ATTACK_COLLISIONS);
             put("cameraLocked", ServerRuleIndices.CAMERA_LOCKED);
@@ -76,7 +78,7 @@ public final class NoxesiumUtils extends JavaPlugin {
             put("riptideCoyoteTime", ServerRuleIndices.RIPTIDE_COYOTE_TIME);
         }};
         
-        List<CommandAPICommand> subcommands = new LinkedList<>();
+        // Anything that stores a Boolean
         booleanServerRules.forEach((String name, Integer index) -> {
             var command = new CommandAPICommand(name)
                     .withArguments(
@@ -92,6 +94,7 @@ public final class NoxesiumUtils extends JavaPlugin {
             subcommands.add(command);
         });
 
+        // Anything that stores an Int
         integerServerRules.forEach((String name, Integer index) -> {
             var command = new CommandAPICommand(name)
                     .withArguments(
@@ -106,6 +109,55 @@ public final class NoxesiumUtils extends JavaPlugin {
 
             subcommands.add(command);
         });
+
+        // handItemOverride
+        subcommands.add(
+                new CommandAPICommand("handItemOverride")
+                        .withArguments(
+                                new EntitySelectorArgument.ManyPlayers("players"),
+                                new ItemStackArgument("value")
+                        )
+                        .executes((sender, args) -> {
+                            var players = (Collection<Player>) args.get("players");
+                            var value = args.get("value");
+                            updateServerRule(sender, players, ServerRuleIndices.HAND_ITEM_OVERRIDE, value);
+                        })
+        );
+        
+        // overrideGraphicsMode
+        for (var type : GraphicsType.getEntries()) {
+            subcommands.add(
+                    new CommandAPICommand("overrideGraphicsMode")
+                            .withArguments(
+                                    new EntitySelectorArgument.ManyPlayers("players"),
+                                    new LiteralArgument(type.name().toLowerCase(Locale.ROOT))
+                            )
+                            .executes((sender, args) -> {
+                                var players = (Collection<Player>) args.get("players");
+                                updateServerRule(sender, players, ServerRuleIndices.OVERRIDE_GRAPHICS_MODE, Optional.of(type));
+                            })
+            );
+        }
+        subcommands.add(
+                new CommandAPICommand("overrideGraphicsMode")
+                        .withArguments(
+                                new EntitySelectorArgument.ManyPlayers("players"),
+                                new LiteralArgument("disable")
+                        )
+                        .executes((sender, args) -> {
+                            var players = (Collection<Player>) args.get("players");
+                            updateServerRule(sender, players, ServerRuleIndices.OVERRIDE_GRAPHICS_MODE, Optional.empty());
+                        })
+        );
+        
+        // TODO: Implement ServerRule: customCreativeItems
+        //       Currently no idea what would be the best way to do them.
+        //       I could do add/remove commands, but then it would be too hard to 
+        //       handle everyone. Probably will do it in the config and just make this a Boolean.
+        
+        // TODO: Implement ServerRule: qibBehaviors
+        //       Might either do JSON files for each behaviour, since I see
+        //       some deserialization in the Noxesium API
 
         new CommandAPICommand("noxesiumutils")
                 .withPermission("noxesiumutils.commands")
