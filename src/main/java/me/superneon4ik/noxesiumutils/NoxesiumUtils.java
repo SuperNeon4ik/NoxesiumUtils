@@ -1,7 +1,6 @@
 package me.superneon4ik.noxesiumutils;
 
 import com.noxcrew.noxesium.api.protocol.rule.ServerRuleIndices;
-import com.noxcrew.noxesium.paper.api.NoxesiumManager;
 import com.noxcrew.noxesium.paper.api.rule.GraphicsType;
 import com.noxcrew.noxesium.paper.api.rule.ServerRules;
 import dev.jorel.commandapi.CommandAPI;
@@ -14,26 +13,46 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class NoxesiumUtils extends JavaPlugin {
     @Getter private static NoxesiumUtils plugin;
     @Getter private static final ModrinthUpdateChecker updateChecker = new ModrinthUpdateChecker("noxesiumutils");
-    @Getter private static NoxesiumManager manager;
+    @Getter private static HookedNoxesiumManager manager;
     @Getter private static ServerRules serverRules;
+
+    private static final Map<String, Integer> booleanServerRules = new HashMap<>() {{
+        put("disableSpinAttackCollisions", ServerRuleIndices.DISABLE_SPIN_ATTACK_COLLISIONS);
+        put("cameraLocked", ServerRuleIndices.CAMERA_LOCKED);
+        put("disableVanillaMusic", ServerRuleIndices.DISABLE_VANILLA_MUSIC);
+        put("disableBoatCollisions", ServerRuleIndices.DISABLE_BOAT_COLLISIONS);
+        put("disableUiOptimizations", ServerRuleIndices.DISABLE_UI_OPTIMIZATIONS);
+        put("showMapInUi", ServerRuleIndices.SHOW_MAP_IN_UI);
+        put("disableDeferredChunkUpdates", ServerRuleIndices.DISABLE_DEFERRED_CHUNK_UPDATES);
+        put("disableMapUi", ServerRuleIndices.DISABLE_MAP_UI);
+
+        // TODO: Implement Noxcrew's recommendations before enabling
+        // https://github.com/Noxcrew/noxesium/blob/4b3f93fe6886eac60dbfffa6cb125e1e5a31886a/api/src/main/java/com/noxcrew/noxesium/api/protocol/rule/ServerRuleIndices.java#L85
+        put("enableSmootherClientTrident", ServerRuleIndices.ENABLE_SMOOTHER_CLIENT_TRIDENT);
+    }};
+
+    private static final Map<String, Integer> integerServerRules = new HashMap<>() {{
+        put("heldItemNameOffset", ServerRuleIndices.HELD_ITEM_NAME_OFFSET);
+        put("riptideCoyoteTime", ServerRuleIndices.RIPTIDE_COYOTE_TIME);
+    }};
 
     @Override
     public void onEnable() {
         plugin = this;
         saveDefaultConfig();
         
-        manager = new NoxesiumManager(this, LoggerFactory.getLogger("NoxesiumPaperManager"));
+        manager = new HookedNoxesiumManager(this, LoggerFactory.getLogger("NoxesiumPaperManager"));
         manager.register();
         serverRules = new ServerRules(manager);
 
@@ -57,26 +76,6 @@ public final class NoxesiumUtils extends JavaPlugin {
         CommandAPI.registerCommand(NoxesiumUtilsCommand.class);
 
         List<CommandAPICommand> subcommands = new LinkedList<>();
-        
-        final Map<String, Integer> booleanServerRules = new HashMap<>() {{
-            put("disableSpinAttackCollisions", ServerRuleIndices.DISABLE_SPIN_ATTACK_COLLISIONS);
-            put("cameraLocked", ServerRuleIndices.CAMERA_LOCKED);
-            put("disableVanillaMusic", ServerRuleIndices.DISABLE_VANILLA_MUSIC);
-            put("disableBoatCollisions", ServerRuleIndices.DISABLE_BOAT_COLLISIONS);
-            put("disableUiOptimizations", ServerRuleIndices.DISABLE_UI_OPTIMIZATIONS);
-            put("showMapInUi", ServerRuleIndices.SHOW_MAP_IN_UI);
-            put("disableDeferredChunkUpdates", ServerRuleIndices.DISABLE_DEFERRED_CHUNK_UPDATES);
-            put("disableMapUi", ServerRuleIndices.DISABLE_MAP_UI);
-
-            // TODO: Implement Noxcrew's recommendations before enabling
-            // https://github.com/Noxcrew/noxesium/blob/4b3f93fe6886eac60dbfffa6cb125e1e5a31886a/api/src/main/java/com/noxcrew/noxesium/api/protocol/rule/ServerRuleIndices.java#L85
-             put("enableSmootherClientTrident", ServerRuleIndices.ENABLE_SMOOTHER_CLIENT_TRIDENT); 
-        }};
-
-        final Map<String, Integer> integerServerRules = new HashMap<>() {{
-            put("heldItemNameOffset", ServerRuleIndices.HELD_ITEM_NAME_OFFSET);
-            put("riptideCoyoteTime", ServerRuleIndices.RIPTIDE_COYOTE_TIME);
-        }};
         
         // Anything that stores a Boolean
         booleanServerRules.forEach((String name, Integer index) -> {
@@ -165,7 +164,7 @@ public final class NoxesiumUtils extends JavaPlugin {
                 .register(this);
     }
     
-    private void updateServerRule(CommandSender sender, Collection<Player> players, Integer index, Object value) {
+    private static void updateServerRule(@Nullable CommandSender sender, Collection<Player> players, Integer index, Object value) {
         if (players == null) return;
         AtomicInteger updates = new AtomicInteger();
         players.forEach(player -> {
@@ -174,17 +173,45 @@ public final class NoxesiumUtils extends JavaPlugin {
             updates.getAndIncrement();
         });
 
-        sender.sendMessage(Component.text(updates.get() + " player(s) affected.", NamedTextColor.GREEN));
+        if (sender != null)
+            sender.sendMessage(Component.text(updates.get() + " player(s) affected.", NamedTextColor.GREEN));
     }
 
-    public void sendLoginServerRules(Player player) {
+    public static void sendLoginServerRules(Player player) {
         // Send defaults
         if (NoxesiumUtils.getPlugin().getConfig().getBoolean("sendDefaultsOnJoin", false)) {
             // Send defaults after a little time, so the client actually registers the packet.
+            var defaults = NoxesiumUtils.getPlugin().getConfig().getConfigurationSection("defaults");
+            if (defaults == null) return;
+            
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    // TODO: Re-implement this
+                    // Send present Boolean ServerRules  
+                    booleanServerRules.forEach((String name, Integer index) -> {
+                        if (!defaults.contains(name)) return;
+                        var value = defaults.getBoolean(name, false);
+                        updateServerRule(null, List.of(player), index, value);
+                    });
+
+                    // Send present Int ServerRules
+                    integerServerRules.forEach((String name, Integer index) -> {
+                        if (!defaults.contains(name)) return;
+                        var value = defaults.getInt(name, 0);
+                        updateServerRule(null, List.of(player), index, value);
+                    });
+
+                    // overrideGraphicsMode
+                    if (defaults.contains("overrideGraphicsMode")) {
+                        var overrideGraphicsModeStr = defaults.getString("overrideGraphicsMode");
+                        var overrideGraphicsModeValue = Optional.of(GraphicsType.valueOf(overrideGraphicsModeStr));
+                        updateServerRule(null, List.of(player), ServerRuleIndices.OVERRIDE_GRAPHICS_MODE, overrideGraphicsModeValue);
+                    }
+                    
+                    // TODO:
+                    //  handItemOverride
+                    //  customCreativeItems
+                    //  qibBehaviors
                 }
             }.runTaskLater(NoxesiumUtils.getPlugin(), 5);
         }
