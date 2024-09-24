@@ -46,6 +46,15 @@ public final class NoxesiumUtils extends JavaPlugin {
         put("heldItemNameOffset", ServerRuleIndices.HELD_ITEM_NAME_OFFSET);
         put("riptideCoyoteTime", ServerRuleIndices.RIPTIDE_COYOTE_TIME);
     }};
+    
+    private static final Map<String, Integer> allServerRules = new HashMap<>() {{
+        putAll(booleanServerRules); 
+        putAll(integerServerRules);
+        put("handItemOverride", ServerRuleIndices.HAND_ITEM_OVERRIDE);
+        put("overrideGraphicsMode", ServerRuleIndices.OVERRIDE_GRAPHICS_MODE);
+        put("customCreativeItems", ServerRuleIndices.CUSTOM_CREATIVE_ITEMS);
+        put("qibBehaviors", ServerRuleIndices.QIB_BEHAVIORS);
+    }};
 
     @Override
     public void onEnable() {
@@ -77,36 +86,75 @@ public final class NoxesiumUtils extends JavaPlugin {
 
         List<CommandAPICommand> subcommands = new LinkedList<>();
         
+        // Reset option for all ServerRules
+        allServerRules.forEach((String name, Integer index) -> {
+            subcommands.add(
+                    new CommandAPICommand(name)
+                            .withArguments(
+                                    new EntitySelectorArgument.ManyPlayers("players"),
+                                    new LiteralArgument("reset")
+                            )
+                            .executes((sender, args) -> {
+                                var players = (Collection<Player>) args.get("players");
+                                resetServerRule(sender, players, index);
+                            })
+            );
+        });
+        
+        // Reset all ServerRules
+        subcommands.add(
+                new CommandAPICommand("reset")
+                        .withArguments(
+                                new EntitySelectorArgument.ManyPlayers("players"),
+                                new LiteralArgument("allServerRules")
+                        )
+                        .executes((sender, args) -> {
+                            var players = (Collection<Player>) args.get("players");
+                            if (players == null) return;
+                            AtomicInteger updates = new AtomicInteger();
+                            players.forEach(player -> {
+                                allServerRules.forEach((String name, Integer index) -> {
+                                    var rule = NoxesiumUtils.getManager().getServerRule(player, index);
+                                    rule.reset();
+                                });
+                                updates.getAndIncrement();
+                            });
+
+                            if (sender != null)
+                                sender.sendMessage(Component.text(updates.get() + " player(s) affected.", NamedTextColor.GREEN));
+                        })
+        );
+        
         // Anything that stores a Boolean
         booleanServerRules.forEach((String name, Integer index) -> {
-            var command = new CommandAPICommand(name)
-                    .withArguments(
-                            new EntitySelectorArgument.ManyPlayers("players"),
-                            new BooleanArgument("value")
-                    )
-                    .executes((sender, args) -> {
-                        var players = (Collection<Player>) args.get("players");
-                        var value = args.get("value");
-                        updateServerRule(sender, players, index, value);
-                    });
-            
-            subcommands.add(command);
+            subcommands.add(
+                    new CommandAPICommand(name)
+                        .withArguments(
+                                new EntitySelectorArgument.ManyPlayers("players"),
+                                new BooleanArgument("value")
+                        )
+                        .executes((sender, args) -> {
+                            var players = (Collection<Player>) args.get("players");
+                            var value = args.get("value");
+                            updateServerRule(sender, players, index, value);
+                        })
+            );
         });
 
         // Anything that stores an Int
         integerServerRules.forEach((String name, Integer index) -> {
-            var command = new CommandAPICommand(name)
-                    .withArguments(
-                            new EntitySelectorArgument.ManyPlayers("players"),
-                            new IntegerArgument("value")
-                    )
-                    .executes((sender, args) -> {
-                        var players = (Collection<Player>) args.get("players");
-                        var value = args.get("value");
-                        updateServerRule(sender, players, index, value);                        
-                    });
-
-            subcommands.add(command);
+            subcommands.add(
+                    new CommandAPICommand(name)
+                        .withArguments(
+                                new EntitySelectorArgument.ManyPlayers("players"),
+                                new IntegerArgument("value")
+                        )
+                        .executes((sender, args) -> {
+                            var players = (Collection<Player>) args.get("players");
+                            var value = args.get("value");
+                            updateServerRule(sender, players, index, value);                        
+                        })
+            );
         });
 
         // handItemOverride
@@ -157,6 +205,8 @@ public final class NoxesiumUtils extends JavaPlugin {
         // TODO: Implement ServerRule: qibBehaviors
         //       Might either do JSON files for each behaviour, since I see
         //       some deserialization in the Noxesium API
+        
+        
 
         new CommandAPICommand("noxesiumutils")
                 .withPermission("noxesiumutils.commands")
@@ -170,6 +220,19 @@ public final class NoxesiumUtils extends JavaPlugin {
         players.forEach(player -> {
             var rule = NoxesiumUtils.getManager().getServerRule(player, index);
             rule.setValue(value);
+            updates.getAndIncrement();
+        });
+
+        if (sender != null)
+            sender.sendMessage(Component.text(updates.get() + " player(s) affected.", NamedTextColor.GREEN));
+    }
+
+    private static void resetServerRule(@Nullable CommandSender sender, Collection<Player> players, Integer index) {
+        if (players == null) return;
+        AtomicInteger updates = new AtomicInteger();
+        players.forEach(player -> {
+            var rule = NoxesiumUtils.getManager().getServerRule(player, index);
+            rule.reset();
             updates.getAndIncrement();
         });
 
