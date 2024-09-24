@@ -98,7 +98,7 @@
         <dependency>
             <groupId>com.noxcrew.noxesium</groupId>
             <artifactId>paper</artifactId>
-            <version>2.3.0</version>
+            <version>2.3.1</version>
             <classifier>dev</classifier>
         </dependency>
         <dependency>
