@@ -15,32 +15,8 @@ Communicate with the [Noxesium Mod](https://github.com/Noxcrew/noxesium) with ea
 > With **NoxesiumUtils 2.0.0** I am switching to the [com.noxcrew.noxesium.paper](https://github.com/Noxcrew/noxesium/tree/main/paper)
 > implementation, instead of my own. This makes maintaining NoxesiumUtils easier.
 
-### v2.0.0 checklist:
-- [x] Switch to `com.noxcrew.noxesium.paper.api.NoxesiumManager`
-- [x] Boolean ServerRules: 
-  - `disableSpinAttackCollisions`
-  - `cameraLocked`
-  - `disableVanillaMusic`
-  - `disableBoatCollisions`
-  - `disableUiOptimizations`
-  - `showMapInUi`
-  - `disableDeferredChunkUpdates`
-  - `disableMapUi`
-  - `enableSmootherClientTrident`
-- [x] Integer ServerRules:
-  - `heldItemNameOffset`
-  - `riptideCoyoteTime`
-- [x] `handItemOverride` rule command
-- [ ] `handItemOverride` rule default value
-- [x] `overrideGraphicsMode` rule command
-- [x] `overrideGraphicsMode` rule default value
-- [ ] `customCreativeItems` rule command
-- [ ] `customCreativeItems` rule default value
-- [ ] `qibBehaviors` rule command
-- [ ] `qibBehaviors` rule default value
-- [ ] Implement Noxcrew's recommendations for `enableSmootherClientTrident` rule
-- [x] Hook events
-- [ ] Reset ServerRules packet
+### v2.0.0 checklist
+Move to the [PR](https://github.com/SuperNeon4ik/NoxesiumUtils/pull/19)
 
 ### What is Noxesium and why does it need Utils?
 [Noxesium Mod](https://github.com/Noxcrew/noxesium) _(by Noxcrew)_ is a fabric mod with feature additions, bugfixes, and performance improvements. 
