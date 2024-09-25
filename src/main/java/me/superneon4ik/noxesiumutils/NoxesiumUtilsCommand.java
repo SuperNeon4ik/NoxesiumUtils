@@ -30,9 +30,7 @@ public class NoxesiumUtilsCommand {
         sender.sendMessage(Component.text("For help refer to ", NamedTextColor.GREEN).append(url));
         sender.sendMessage(Component.text("Checking for updates...", NamedTextColor.DARK_GRAY));
         var future = NoxesiumUtils.getUpdateChecker().checkForUpdates();
-        future.thenAccept(versionStatus -> {
-            NoxesiumUtils.getUpdateChecker().sendVersionMessage(sender, versionStatus);
-        });
+        future.thenAccept(versionStatus -> NoxesiumUtils.getUpdateChecker().sendVersionMessage(sender, versionStatus));
     }
 
     @Subcommand("check")

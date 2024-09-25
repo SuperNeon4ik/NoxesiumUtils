@@ -115,6 +115,7 @@ public final class NoxesiumUtils extends JavaPlugin {
                             players.forEach(player -> {
                                 allServerRules.forEach((String name, Integer index) -> {
                                     var rule = NoxesiumUtils.getManager().getServerRule(player, index);
+                                    if (rule == null) return;
                                     rule.reset();
                                 });
                                 updates.getAndIncrement();
@@ -219,6 +220,7 @@ public final class NoxesiumUtils extends JavaPlugin {
         AtomicInteger updates = new AtomicInteger();
         players.forEach(player -> {
             var rule = NoxesiumUtils.getManager().getServerRule(player, index);
+            if (rule == null) return;
             rule.setValue(value);
             updates.getAndIncrement();
         });
@@ -232,6 +234,7 @@ public final class NoxesiumUtils extends JavaPlugin {
         AtomicInteger updates = new AtomicInteger();
         players.forEach(player -> {
             var rule = NoxesiumUtils.getManager().getServerRule(player, index);
+            if (rule == null) return;
             rule.reset();
             updates.getAndIncrement();
         });
