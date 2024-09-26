@@ -9,5 +9,11 @@ website: https://github.com/SuperNeon4ik/NoxesiumUtils
 depend: [ CommandAPI ]
 
 permissions:
-  noxesiumutils.commands:
-    description: Access the /noxesiumutils command.
+  noxesiumutils.about:
+    description: Run /noxesiumutils.
+  noxesiumutils.check:
+    description: Run /noxesiumutils check & clientSettings.
+  noxesiumutils.serverrules:
+    description: Access ServerRule commands in /noxesiumutils.
+  noxesiumutils.entityrules:
+    description: Access EntityRule commands in /noxesiumutils.

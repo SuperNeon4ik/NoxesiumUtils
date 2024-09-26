@@ -1,6 +1,11 @@
 package me.superneon4ik.noxesiumutils;
 
+import com.noxcrew.noxesium.api.protocol.rule.EntityRuleIndices;
 import com.noxcrew.noxesium.api.protocol.rule.ServerRuleIndices;
+import com.noxcrew.noxesium.api.qib.QibDefinition;
+import com.noxcrew.noxesium.api.qib.QibEffect;
+import com.noxcrew.noxesium.paper.api.EntityRuleManager;
+import com.noxcrew.noxesium.paper.api.rule.EntityRules;
 import com.noxcrew.noxesium.paper.api.rule.GraphicsType;
 import com.noxcrew.noxesium.paper.api.rule.ServerRules;
 import dev.jorel.commandapi.CommandAPI;
@@ -12,20 +17,31 @@ import me.superneon4ik.noxesiumutils.modules.ModrinthUpdateChecker;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.awt.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 public final class NoxesiumUtils extends JavaPlugin {
     @Getter private static NoxesiumUtils plugin;
     @Getter private static final ModrinthUpdateChecker updateChecker = new ModrinthUpdateChecker("noxesiumutils");
     @Getter private static HookedNoxesiumManager manager;
+    @Getter private static EntityRuleManager entityRuleManager;
     @Getter private static ServerRules serverRules;
+    @Getter private static EntityRules entityRules;
+    @Getter private static final Map<String, QibEffect> qibEffects = new HashMap<>();
+    @Getter private static final Map<String, QibDefinition> qibDefinitions = new HashMap<>();
 
     private static final Map<String, Integer> booleanServerRules = new HashMap<>() {{
         put("disableSpinAttackCollisions", ServerRuleIndices.DISABLE_SPIN_ATTACK_COLLISIONS);
@@ -55,6 +71,13 @@ public final class NoxesiumUtils extends JavaPlugin {
         put("customCreativeItems", ServerRuleIndices.CUSTOM_CREATIVE_ITEMS);
         put("qibBehaviors", ServerRuleIndices.QIB_BEHAVIORS);
     }};
+    
+    private static final Map<String, Integer> allEntityRules = new HashMap<>() {{
+        put("disableBubbles", EntityRuleIndices.DISABLE_BUBBLES);
+        put("beamColor", EntityRuleIndices.BEAM_COLOR);
+        put("qibBehavior", EntityRuleIndices.QIB_BEHAVIOR);
+        put("interactionWidthZ", EntityRuleIndices.QIB_WIDTH_Z);
+    }};
 
     @Override
     public void onEnable() {
@@ -63,8 +86,13 @@ public final class NoxesiumUtils extends JavaPlugin {
         
         manager = new HookedNoxesiumManager(this, LoggerFactory.getLogger("NoxesiumPaperManager"));
         manager.register();
+        entityRuleManager = new EntityRuleManager(manager);
+        entityRuleManager.register();
+        
         serverRules = new ServerRules(manager);
+        entityRules = new EntityRules(manager);
 
+        loadQibEffectsAndDefinitions();
         registerCommands();
 
         // Register Bukkit listener
@@ -77,18 +105,76 @@ public final class NoxesiumUtils extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        entityRuleManager.unregister();
         manager.unregister();
+    }
+
+    private void loadQibEffectsAndDefinitions() {
+        qibEffects.clear();
+        qibDefinitions.clear();
+        
+        var path = Path.of(getDataFolder().getPath(), "qibs");
+        if (!path.toFile().exists() && !path.toFile().mkdirs()) {
+            getLogger().warning("Couldn't find '/qibs' folder.");
+            return;
+        }
+        
+        try (Stream<Path> files = Files.list(path)) {
+            var qibGson = QibDefinition.QIB_GSON;
+            files.forEach(qibFilePath -> {
+                if (Files.isDirectory(qibFilePath) || !qibFilePath.toFile().getName().endsWith(".json")) return;
+                try {
+                    var qibEffect = qibGson.fromJson(Files.readString(qibFilePath), QibEffect.class);
+                    var name = qibFilePath.toFile().getName().replace(".json", "");
+                    qibEffects.put(name, qibEffect);
+                    getLogger().info("Loaded qibEffect '%s': %s!".formatted(name, qibEffect.toString()));
+                } catch (IOException e) {
+                    getLogger().warning("Failed to read the '/qibs/%s' file.".formatted(qibFilePath.toFile().getName()));
+                }
+            });
+        }
+        catch (IOException e) {
+            getLogger().warning("Failed to read the '/qibs' folder.");
+        }
+        
+        var qibDefinitionsConfigSection = getConfig().getConfigurationSection("qibDefinitions");
+        if (qibDefinitionsConfigSection == null || qibDefinitionsConfigSection.getKeys(false).isEmpty()) {
+            getLogger().warning("No QIB definitions found.");
+            return;
+        }
+        
+        qibDefinitionsConfigSection.getKeys(false).forEach(key -> {
+            var section = qibDefinitionsConfigSection.getConfigurationSection(key);
+            if (section == null) return;
+            
+            QibEffect onEnter = null;
+            QibEffect onLeave = null;
+            QibEffect whileInside = null;
+            QibEffect onJump = null;
+            boolean triggerEnterLeaveOnSwitch = section.getBoolean("triggerEnterLeaveOnSwitch", false);
+            
+            if (section.contains("onEnter")) onEnter = qibEffects.get(section.getString("onEnter"));
+            if (section.contains("onLeave")) onLeave = qibEffects.get(section.getString("onLeave"));
+            if (section.contains("whileInside")) whileInside = qibEffects.get(section.getString("whileInside"));
+            if (section.contains("onJump")) onJump = qibEffects.get(section.getString("onJump"));
+            
+            QibDefinition qibDefinition = new QibDefinition(onEnter, onLeave, whileInside, onJump, triggerEnterLeaveOnSwitch);
+            qibDefinitions.put(key, qibDefinition);
+            
+            getLogger().info("Loaded qibDefinition '%s': %s!".formatted(key, qibDefinition.toString()));
+        });
     }
 
     @SuppressWarnings({"unsafe", "unchecked"})
     private void registerCommands() {
         CommandAPI.registerCommand(NoxesiumUtilsCommand.class);
 
-        List<CommandAPICommand> subcommands = new LinkedList<>();
+        List<CommandAPICommand> serverRulesSubcommands = new LinkedList<>();
+        List<CommandAPICommand> entityRulesSubcommands = new LinkedList<>();
         
         // Reset option for all ServerRules
         allServerRules.forEach((String name, Integer index) -> {
-            subcommands.add(
+            serverRulesSubcommands.add(
                     new CommandAPICommand(name)
                             .withArguments(
                                     new EntitySelectorArgument.ManyPlayers("players"),
@@ -100,13 +186,26 @@ public final class NoxesiumUtils extends JavaPlugin {
                             })
             );
         });
+
+        allEntityRules.forEach((String name, Integer index) -> {
+            entityRulesSubcommands.add(
+                    new CommandAPICommand(name)
+                            .withArguments(
+                                    new EntitySelectorArgument.ManyEntities("entities"),
+                                    new LiteralArgument("reset")
+                            )
+                            .executes((sender, args) -> {
+                                var entities = (Collection<Entity>) args.get("entities");
+                                resetEntityRule(sender, entities, index);
+                            })
+            );
+        });
         
         // Reset all ServerRules
-        subcommands.add(
+        serverRulesSubcommands.add(
                 new CommandAPICommand("reset")
                         .withArguments(
-                                new EntitySelectorArgument.ManyPlayers("players"),
-                                new LiteralArgument("allServerRules")
+                                new EntitySelectorArgument.ManyPlayers("players")
                         )
                         .executes((sender, args) -> {
                             var players = (Collection<Player>) args.get("players");
@@ -125,10 +224,33 @@ public final class NoxesiumUtils extends JavaPlugin {
                                 sender.sendMessage(Component.text(updates.get() + " player(s) affected.", NamedTextColor.GREEN));
                         })
         );
+
+        entityRulesSubcommands.add(
+                new CommandAPICommand("reset")
+                        .withArguments(
+                                new EntitySelectorArgument.ManyEntities("entities")
+                        )
+                        .executes((sender, args) -> {
+                            var entities = (Collection<Entity>) args.get("entities");
+                            if (entities == null) return;
+                            AtomicInteger updates = new AtomicInteger();
+                            entities.forEach(entity -> {
+                                allEntityRules.forEach((String name, Integer index) -> {
+                                    var rule = NoxesiumUtils.getEntityRuleManager().getEntityRule(entity, index);
+                                    if (rule == null) return;
+                                    rule.reset();
+                                });
+                                updates.getAndIncrement();
+                            });
+
+                            if (sender != null)
+                                sender.sendMessage(Component.text(updates.get() + " entities affected.", NamedTextColor.GREEN));
+                        })
+        );
         
         // Anything that stores a Boolean
         booleanServerRules.forEach((String name, Integer index) -> {
-            subcommands.add(
+            serverRulesSubcommands.add(
                     new CommandAPICommand(name)
                         .withArguments(
                                 new EntitySelectorArgument.ManyPlayers("players"),
@@ -144,7 +266,7 @@ public final class NoxesiumUtils extends JavaPlugin {
 
         // Anything that stores an Int
         integerServerRules.forEach((String name, Integer index) -> {
-            subcommands.add(
+            serverRulesSubcommands.add(
                     new CommandAPICommand(name)
                         .withArguments(
                                 new EntitySelectorArgument.ManyPlayers("players"),
@@ -159,7 +281,7 @@ public final class NoxesiumUtils extends JavaPlugin {
         });
 
         // handItemOverride
-        subcommands.add(
+        serverRulesSubcommands.add(
                 new CommandAPICommand("handItemOverride")
                         .withArguments(
                                 new EntitySelectorArgument.ManyPlayers("players"),
@@ -174,7 +296,7 @@ public final class NoxesiumUtils extends JavaPlugin {
         
         // overrideGraphicsMode
         for (var type : GraphicsType.getEntries()) {
-            subcommands.add(
+            serverRulesSubcommands.add(
                     new CommandAPICommand("overrideGraphicsMode")
                             .withArguments(
                                     new EntitySelectorArgument.ManyPlayers("players"),
@@ -186,17 +308,6 @@ public final class NoxesiumUtils extends JavaPlugin {
                             })
             );
         }
-        subcommands.add(
-                new CommandAPICommand("overrideGraphicsMode")
-                        .withArguments(
-                                new EntitySelectorArgument.ManyPlayers("players"),
-                                new LiteralArgument("disable")
-                        )
-                        .executes((sender, args) -> {
-                            var players = (Collection<Player>) args.get("players");
-                            updateServerRule(sender, players, ServerRuleIndices.OVERRIDE_GRAPHICS_MODE, Optional.empty());
-                        })
-        );
         
         // TODO: Implement ServerRule: customCreativeItems
         //       Currently no idea what would be the best way to do them.
@@ -206,12 +317,92 @@ public final class NoxesiumUtils extends JavaPlugin {
         // TODO: Implement ServerRule: qibBehaviors
         //       Might either do JSON files for each behaviour, since I see
         //       some deserialization in the Noxesium API
+        serverRulesSubcommands.add(
+                new CommandAPICommand("qibBehaviors")
+                        .withArguments(
+                                new EntitySelectorArgument.ManyPlayers("players"),
+                                new ListArgumentBuilder<Map.Entry<String, QibDefinition>>("definitions", ",")
+                                        .withList(qibDefinitions.entrySet())
+                                        .withMapper(Map.Entry::getKey)
+                                        .buildGreedy()
+                        )
+                        .executes((sender, args) -> {
+                            var players = (Collection<Player>) args.get("players");
+                            var effects = (Collection<Map.Entry<String, QibDefinition>>) args.get("definitions");
+                            if (effects == null) return;
+                            Map<String, QibDefinition> mappedEffects = new HashMap<>();
+                            effects.forEach(effect -> mappedEffects.put(effect.getKey(), effect.getValue()));
+                            getLogger().info("Definitions: " + effects);
+                            updateServerRule(sender, players, ServerRuleIndices.QIB_BEHAVIORS, mappedEffects);
+                        })
+        );
         
+        qibDefinitions.keySet().forEach(name -> {
+            entityRulesSubcommands.add(
+                    new CommandAPICommand("qibBehavior")
+                            .withArguments(
+                                    new EntitySelectorArgument.ManyEntities("entities"),
+                                    new LiteralArgument(name)
+                            )
+                            .executes((sender, args) -> {
+                                var entities = (Collection<Entity>) args.get("entities");
+                                updateEntityRule(sender, entities, EntityRuleIndices.QIB_BEHAVIOR, name);
+                            })
+            ); 
+        });
         
+        entityRulesSubcommands.add(
+                new CommandAPICommand("disableBubbles")
+                        .withArguments(
+                                new EntitySelectorArgument.ManyEntities("entities"),
+                                new BooleanArgument("value")
+                        )
+                        .executes((sender, args) -> {
+                            var entities = (Collection<Entity>) args.get("entities");
+                            var value = args.get("value");
+                            updateEntityRule(sender, entities, EntityRuleIndices.DISABLE_BUBBLES, value);
+                        })
+        );
+
+        entityRulesSubcommands.add(
+                new CommandAPICommand("beamColor")
+                        .withArguments(
+                                new EntitySelectorArgument.ManyEntities("entities"),
+                                new StringArgument("hex")
+                        )
+                        .executes((sender, args) -> {
+                            var entities = (Collection<Entity>) args.get("entities");
+                            var hexColor = (String) args.get("hex");
+                            if (hexColor == null) return;
+                            var color = Color.decode(hexColor);
+                            updateEntityRule(sender, entities, EntityRuleIndices.BEAM_COLOR, Optional.of(color));
+                        })
+        );
+
+        entityRulesSubcommands.add(
+                new CommandAPICommand("interactionWidthZ")
+                        .withArguments(
+                                new EntitySelectorArgument.ManyEntities("entities"),
+                                new DoubleArgument("value")
+                        )
+                        .executes((sender, args) -> {
+                            var entities = (Collection<Entity>) args.get("entities");
+                            var value = args.get("value");
+                            updateEntityRule(sender, entities, EntityRuleIndices.QIB_WIDTH_Z, value);
+                        })
+        );
+        
+        var serverRules = new CommandAPICommand("serverRules")
+                .withPermission("noxesiumutils.serverrules")
+                .withSubcommands(serverRulesSubcommands.toArray(new CommandAPICommand[0]));
+
+        var entityRules = new CommandAPICommand("entityRules")
+                .withPermission("noxesiumutils.entityrules")
+                .withSubcommands(entityRulesSubcommands.toArray(new CommandAPICommand[0]));
 
         new CommandAPICommand("noxesiumutils")
-                .withPermission("noxesiumutils.commands")
-                .withSubcommands(subcommands.toArray(new CommandAPICommand[0]))
+                .withPermission("noxesiumutils.about")
+                .withSubcommands(serverRules, entityRules)
                 .register(this);
     }
     
@@ -241,6 +432,34 @@ public final class NoxesiumUtils extends JavaPlugin {
 
         if (sender != null)
             sender.sendMessage(Component.text(updates.get() + " player(s) affected.", NamedTextColor.GREEN));
+    }
+
+    private static void updateEntityRule(@Nullable CommandSender sender, Collection<Entity> entities, Integer index, Object value) {
+        if (entities == null) return;
+        AtomicInteger updates = new AtomicInteger();
+        entities.forEach(entity -> {
+            var rule = NoxesiumUtils.getEntityRuleManager().getEntityRule(entity, index);
+            if (rule == null) return;
+            rule.setValue(value);
+            updates.getAndIncrement();
+        });
+
+        if (sender != null)
+            sender.sendMessage(Component.text(updates.get() + " entities affected.", NamedTextColor.GREEN));
+    }
+
+    private static void resetEntityRule(@Nullable CommandSender sender, Collection<Entity> entities, Integer index) {
+        if (entities == null) return;
+        AtomicInteger updates = new AtomicInteger();
+        entities.forEach(entity -> {
+            var rule = NoxesiumUtils.getEntityRuleManager().getEntityRule(entity, index);
+            if (rule == null) return;
+            rule.reset();
+            updates.getAndIncrement();
+        });
+
+        if (sender != null)
+            sender.sendMessage(Component.text(updates.get() + " entities affected.", NamedTextColor.GREEN));
     }
 
     public static void sendLoginServerRules(Player player) {

@@ -21,3 +21,9 @@ defaults:
   #overrideGraphicsMode: FAST
   #riptideCoyoteTime: 0
   #showMapInUi: false
+
+#qibDefinitions: 
+#  example:
+#    onEnter: 'example_qib_enter.json'
+#    onLeave: 'example_qib_leave.json'
+#    triggerEnterLeaveOnSwitch: false

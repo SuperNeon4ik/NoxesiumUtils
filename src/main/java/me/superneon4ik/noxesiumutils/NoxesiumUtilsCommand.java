@@ -19,9 +19,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 @Command("noxesiumutils")
-@Permission("noxesiumutils.commands")
 public class NoxesiumUtilsCommand {
     @Default
+    @Permission("noxesiumutils.about")
     public static void def(CommandSender sender) {
         var url = Component.text("https://github.com/SuperNeon4ik/NoxesiumUtils#readme", NamedTextColor.YELLOW)
                 .clickEvent(ClickEvent.openUrl("https://github.com/SuperNeon4ik/NoxesiumUtils#readme"))
@@ -34,6 +34,7 @@ public class NoxesiumUtilsCommand {
     }
 
     @Subcommand("check")
+    @Permission("noxesiumutils.check")
     public static void check(CommandSender sender, @AEntitySelectorArgument.OnePlayer Player player) {
         Integer protocolVersion = NoxesiumUtils.getManager().getProtocolVersion(player);
         if (protocolVersion == null) {
@@ -46,6 +47,7 @@ public class NoxesiumUtilsCommand {
     }
 
     @Subcommand("check")
+    @Permission("noxesiumutils.check")
     public static void check(CommandSender sender, @AEntitySelectorArgument.ManyPlayers Collection<Player> players) {
         LinkedList<Component> strings = new LinkedList<>();
         for (Player player : players) {
@@ -63,6 +65,7 @@ public class NoxesiumUtilsCommand {
     }
     
     @Subcommand("clientSettings")
+    @Permission("noxesiumutils.check")
     public static void clientSettings(CommandSender sender,
                                       @AEntitySelectorArgument.OnePlayer Player player) {
         var clientSettings = NoxesiumUtils.getManager().getClientSettings(player);
