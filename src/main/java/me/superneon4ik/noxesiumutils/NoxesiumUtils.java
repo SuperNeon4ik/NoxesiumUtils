@@ -368,7 +368,7 @@ public final class NoxesiumUtils extends JavaPlugin {
                 new CommandAPICommand("beamColor")
                         .withArguments(
                                 new EntitySelectorArgument.ManyEntities("entities"),
-                                new StringArgument("hex")
+                                new TextArgument("hex")
                         )
                         .executes((sender, args) -> {
                             var entities = (Collection<Entity>) args.get("entities");
