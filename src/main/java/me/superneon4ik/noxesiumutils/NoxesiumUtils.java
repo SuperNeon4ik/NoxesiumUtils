@@ -18,6 +18,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -346,6 +347,10 @@ public final class NoxesiumUtils extends JavaPlugin {
                             )
                             .executes((sender, args) -> {
                                 var entities = (Collection<Entity>) args.get("entities");
+                                if (entities == null) return;
+                                if (entities.stream().map(Entity::getType).noneMatch(x -> x == EntityType.INTERACTION)) {
+                                    sender.sendMessage(Component.text("WARNING: 'qibBehaviour' EntityRule is applicable only to minecraft:interaction entities.", NamedTextColor.YELLOW));
+                                }
                                 updateEntityRule(sender, entities, EntityRuleIndices.QIB_BEHAVIOR, name);
                             })
             ); 
@@ -360,6 +365,10 @@ public final class NoxesiumUtils extends JavaPlugin {
                         .executes((sender, args) -> {
                             var entities = (Collection<Entity>) args.get("entities");
                             var value = args.get("value");
+                            if (entities == null) return;
+                            if (entities.stream().map(Entity::getType).noneMatch(x -> x == EntityType.GUARDIAN || x == EntityType.ELDER_GUARDIAN)) {
+                                sender.sendMessage(Component.text("WARNING: 'disableBubbles' EntityRule is applicable only to minecraft:guardian & minecraft:elder_guardian entities.", NamedTextColor.YELLOW));
+                            }
                             updateEntityRule(sender, entities, EntityRuleIndices.DISABLE_BUBBLES, value);
                         })
         );
@@ -372,6 +381,11 @@ public final class NoxesiumUtils extends JavaPlugin {
                         )
                         .executes((sender, args) -> {
                             var entities = (Collection<Entity>) args.get("entities");
+                            if (entities == null) return;
+                            if (entities.stream().map(Entity::getType).noneMatch(x -> x == EntityType.GUARDIAN || x == EntityType.ELDER_GUARDIAN)) {
+                                sender.sendMessage(Component.text("WARNING: 'beamColor' EntityRule is applicable only to minecraft:guardian & minecraft:elder_guardian entities.", NamedTextColor.YELLOW));
+                            }
+                            
                             var hexColor = (String) args.get("hex");
                             if (hexColor == null) return;
                             var color = Color.decode(hexColor);
@@ -388,6 +402,10 @@ public final class NoxesiumUtils extends JavaPlugin {
                         .executes((sender, args) -> {
                             var entities = (Collection<Entity>) args.get("entities");
                             var value = args.get("value");
+                            if (entities == null) return;
+                            if (entities.stream().map(Entity::getType).noneMatch(x -> x == EntityType.INTERACTION)) {
+                                sender.sendMessage(Component.text("WARNING: 'qibBehaviour' EntityRule is applicable only to minecraft:interaction entities.", NamedTextColor.YELLOW));
+                            }
                             updateEntityRule(sender, entities, EntityRuleIndices.QIB_WIDTH_Z, value);
                         })
         );
