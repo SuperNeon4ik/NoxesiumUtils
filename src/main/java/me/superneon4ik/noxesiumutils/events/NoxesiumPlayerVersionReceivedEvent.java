@@ -6,11 +6,12 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+@Getter
 public class NoxesiumPlayerVersionReceivedEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
-    @Getter private final Player player;
-    @Getter private final String version;
-    @Getter private final int protocolVersion;
+    private final Player player;
+    private final String version;
+    private final int protocolVersion;
 
     public NoxesiumPlayerVersionReceivedEvent(Player player, String version, int protocolVersion) {
         this.player = player;

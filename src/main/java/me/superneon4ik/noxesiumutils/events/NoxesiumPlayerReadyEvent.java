@@ -6,9 +6,10 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+@Getter
 public class NoxesiumPlayerReadyEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
-    @Getter private final Player player;
+    private final Player player;
 
     public NoxesiumPlayerReadyEvent(Player player) {
         this.player = player;
