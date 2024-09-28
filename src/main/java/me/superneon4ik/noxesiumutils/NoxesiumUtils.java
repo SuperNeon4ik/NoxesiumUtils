@@ -5,6 +5,7 @@ import com.noxcrew.noxesium.api.protocol.rule.ServerRuleIndices;
 import com.noxcrew.noxesium.api.qib.QibDefinition;
 import com.noxcrew.noxesium.api.qib.QibEffect;
 import com.noxcrew.noxesium.paper.api.EntityRuleManager;
+import com.noxcrew.noxesium.paper.api.network.NoxesiumPackets;
 import com.noxcrew.noxesium.paper.api.rule.EntityRules;
 import com.noxcrew.noxesium.paper.api.rule.GraphicsType;
 import com.noxcrew.noxesium.paper.api.rule.ServerRules;
@@ -12,6 +13,7 @@ import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.*;
 import lombok.Getter;
+import me.superneon4ik.noxesiumutils.events.NoxesiumQibTriggeredEvent;
 import me.superneon4ik.noxesiumutils.listeners.NoxesiumBukkitListener;
 import me.superneon4ik.noxesiumutils.modules.ModrinthUpdateChecker;
 import net.kyori.adventure.text.Component;
@@ -29,8 +31,8 @@ import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -95,6 +97,11 @@ public final class NoxesiumUtils extends JavaPlugin {
 
         loadQibEffectsAndDefinitions();
         registerCommands();
+
+        NoxesiumPackets.INSTANCE.getSERVER_QIB_TRIGGERED().addListener(getManager(), (manager, event, player) -> {
+            new NoxesiumQibTriggeredEvent(player, event.getBehavior(), event.getQibType(), event.getEntityId()).callEvent();
+            return null;
+        });
 
         // Register Bukkit listener
         getServer().getPluginManager().registerEvents(new NoxesiumBukkitListener(), this);
@@ -315,9 +322,7 @@ public final class NoxesiumUtils extends JavaPlugin {
         //       I could do add/remove commands, but then it would be too hard to 
         //       handle everyone. Probably will do it in the config and just make this a Boolean.
         
-        // TODO: Implement ServerRule: qibBehaviors
-        //       Might either do JSON files for each behaviour, since I see
-        //       some deserialization in the Noxesium API
+        // Qibs
         serverRulesSubcommands.add(
                 new CommandAPICommand("qibBehaviors")
                         .withArguments(
@@ -356,6 +361,7 @@ public final class NoxesiumUtils extends JavaPlugin {
             ); 
         });
         
+        // Entity rules
         entityRulesSubcommands.add(
                 new CommandAPICommand("disableBubbles")
                         .withArguments(
