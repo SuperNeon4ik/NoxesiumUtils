@@ -18,6 +18,7 @@ defaults:
   #disableVanillaMusic: false
   #enableSmootherClientTrident: false
   #heldItemNameOffset: 0
+  #handItemOverride: 'minecraft:stick[minecraft:enchantments={levels:{"minecraft:knockback":25}}]'
   #overrideGraphicsMode: FAST
   #riptideCoyoteTime: 0
   #showMapInUi: false

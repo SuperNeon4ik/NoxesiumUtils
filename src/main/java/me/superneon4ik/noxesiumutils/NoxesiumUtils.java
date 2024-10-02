@@ -551,6 +551,7 @@ public final class NoxesiumUtils extends JavaPlugin {
             
             new BukkitRunnable() {
                 @Override
+                @SuppressWarnings("UnstableApiUsage")
                 public void run() {
                     // Send present Boolean ServerRules  
                     booleanServerRules.forEach((String name, Integer index) -> {
@@ -573,6 +574,18 @@ public final class NoxesiumUtils extends JavaPlugin {
                         updateServerRule(null, List.of(player), ServerRuleIndices.OVERRIDE_GRAPHICS_MODE, overrideGraphicsModeValue);
                     }
 
+                    // handItemOverride
+                    if (defaults.contains("handItemOverride")) {
+                        var itemString = defaults.getString("handItemOverride");
+                        try {
+                            var item = ArgumentTypes.itemStack().parse(new StringReader(itemString));
+                            updateServerRule(null, List.of(player), ServerRuleIndices.HAND_ITEM_OVERRIDE, item);
+                        } catch (CommandSyntaxException e) {
+                            getPlugin().getLogger().warning("Failed to parse handItemOverride: " + itemString);
+                            getPlugin().getLogger().warning(e.getMessage());
+                        }
+                    }
+
                     // qibBehaviors
                     if (defaults.contains("qibBehaviors")) {
                         var defaultQibBehaviorsStrings = defaults.getStringList("qibBehaviors");
@@ -585,13 +598,10 @@ public final class NoxesiumUtils extends JavaPlugin {
                         updateServerRule(null, List.of(player), ServerRuleIndices.QIB_BEHAVIORS, mappedQibBehaviors);
                     }
                     
+                    // customCreativeItems
                     if (defaults.getBoolean("customCreativeItems", false)) {
                         updateServerRule(null, List.of(player), ServerRuleIndices.CUSTOM_CREATIVE_ITEMS, customCreativeItems);
                     }
-                    
-                    // TODO:
-                    //  handItemOverride
-                    //  customCreativeItems
                 }
             }.runTaskLater(NoxesiumUtils.getPlugin(), 5);
         }
