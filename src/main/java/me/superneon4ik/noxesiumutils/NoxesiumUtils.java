@@ -342,6 +342,19 @@ public final class NoxesiumUtils extends JavaPlugin {
                             updateServerRule(sender, players, ServerRuleIndices.QIB_BEHAVIORS, mappedEffects);
                         })
         );
+        // Send all Qibs (should probably add a warning since the packet may or may not become uhh... big. erm, not ideal!)
+        serverRulesSubcommands.add(
+                new CommandAPICommand("qibBehaviors")
+                        .withArguments(
+                                new EntitySelectorArgument.ManyPlayers("players"),
+                                new LiteralArgument("*")
+                        )
+                        .executes((sender, args) -> {
+                            var players = (Collection<Player>) args.get("players");
+                            getLogger().info("Definitions: " + qibDefinitions);
+                            updateServerRule(sender, players, ServerRuleIndices.QIB_BEHAVIORS, qibDefinitions);
+                        })
+        );
         
         qibDefinitions.keySet().forEach(name -> {
             entityRulesSubcommands.add(
