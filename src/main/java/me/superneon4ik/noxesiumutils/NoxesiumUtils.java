@@ -53,6 +53,8 @@ public final class NoxesiumUtils extends JavaPlugin {
     @Getter private static final Map<String, QibEffect> qibEffects = new HashMap<>();
     @Getter private static final Map<String, QibDefinition> qibDefinitions = new HashMap<>();
     @Getter private static final List<ItemStack> customCreativeItems = new ArrayList<>();
+    
+    private static boolean extraDebugOutput = false;
 
     private static final Map<String, Integer> booleanServerRules = new HashMap<>() {{
         put("disableSpinAttackCollisions", ServerRuleIndices.DISABLE_SPIN_ATTACK_COLLISIONS);
@@ -94,6 +96,8 @@ public final class NoxesiumUtils extends JavaPlugin {
     public void onEnable() {
         plugin = this;
         saveDefaultConfig();
+        
+        extraDebugOutput = getConfig().getBoolean("extraDebugOutput", false);
         
         manager = new HookedNoxesiumManager(this, LoggerFactory.getLogger("NoxesiumPaperManager"));
         manager.register();
@@ -144,7 +148,8 @@ public final class NoxesiumUtils extends JavaPlugin {
                     var qibEffect = qibGson.fromJson(Files.readString(qibFilePath), QibEffect.class);
                     var name = qibFilePath.toFile().getName().replace(".json", "");
                     qibEffects.put(name, qibEffect);
-                    getLogger().info("Loaded qibEffect '%s': %s!".formatted(name, qibEffect.toString()));
+                    if (extraDebugOutput)
+                        getLogger().info("Loaded qibEffect '%s': %s!".formatted(name, qibEffect.toString()));
                 } catch (IOException e) {
                     getLogger().warning("Failed to read the '/qibs/%s' file.".formatted(qibFilePath.toFile().getName()));
                 }
@@ -154,9 +159,12 @@ public final class NoxesiumUtils extends JavaPlugin {
             getLogger().warning("Failed to read the '/qibs' folder.");
         }
         
+        getLogger().info("Loaded %d qibEffects!".formatted(qibEffects.size()));
+        
         var qibDefinitionsConfigSection = getConfig().getConfigurationSection("qibDefinitions");
         if (qibDefinitionsConfigSection == null || qibDefinitionsConfigSection.getKeys(false).isEmpty()) {
-            getLogger().warning("No QIB definitions found.");
+            if (extraDebugOutput)
+                getLogger().warning("No QIB definitions found.");
             return;
         }
         
@@ -178,26 +186,34 @@ public final class NoxesiumUtils extends JavaPlugin {
             QibDefinition qibDefinition = new QibDefinition(onEnter, onLeave, whileInside, onJump, triggerEnterLeaveOnSwitch);
             qibDefinitions.put(key, qibDefinition);
             
-            getLogger().info("Loaded qibDefinition '%s': %s!".formatted(key, qibDefinition.toString()));
+            if (extraDebugOutput)
+                getLogger().info("Loaded qibDefinition '%s': %s!".formatted(key, qibDefinition.toString()));
         });
+
+        getLogger().info("Loaded %d qibDefinitions!".formatted(qibDefinitions.size()));
     }
     
     @SuppressWarnings("UnstableApiUsage")
     private void loadCustomCreativeItems() {
         customCreativeItems.clear();
+        
         var customCreativeItemStrings = getConfig().getStringList("customCreativeItems");
         if (customCreativeItemStrings.isEmpty()) return;
         
         customCreativeItemStrings.forEach(itemString -> {
             try {
                 var item = ArgumentTypes.itemStack().parse(new StringReader(itemString));
-                getLogger().info("Loaded customCreativeItem: " + item);
                 customCreativeItems.add(item);
+
+                if (extraDebugOutput)
+                    getLogger().info("Loaded customCreativeItem: " + item);
             } catch (CommandSyntaxException e) {
                 getLogger().warning("Failed to parse customCreativeItem: " + itemString);
                 getLogger().warning(e.getMessage());
             }
         });
+
+        getLogger().info("Loaded %d customCreativeItems!".formatted(customCreativeItems.size()));
     }
 
     @SuppressWarnings({"unsafe", "unchecked"})
@@ -344,10 +360,7 @@ public final class NoxesiumUtils extends JavaPlugin {
             );
         }
         
-        // TODO: Implement ServerRule: customCreativeItems
-        //       Currently no idea what would be the best way to do them.
-        //       I could do add/remove commands, but then it would be too hard to 
-        //       handle everyone. Probably will do it in the config and just make this a Boolean.
+        // customCreativeItems
         serverRulesSubcommands.add(
                 new CommandAPICommand("customCreativeItems")
                         .withArguments(
