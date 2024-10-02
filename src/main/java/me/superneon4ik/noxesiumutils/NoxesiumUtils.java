@@ -1,8 +1,6 @@
 package me.superneon4ik.noxesiumutils;
 
-import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.context.CommandContextBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.noxcrew.noxesium.api.protocol.rule.EntityRuleIndices;
 import com.noxcrew.noxesium.api.protocol.rule.ServerRuleIndices;
@@ -35,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
