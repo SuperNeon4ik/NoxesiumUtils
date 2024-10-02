@@ -1,5 +1,9 @@
 package me.superneon4ik.noxesiumutils;
 
+import com.mojang.brigadier.ParseResults;
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.context.CommandContextBuilder;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.noxcrew.noxesium.api.protocol.rule.EntityRuleIndices;
 import com.noxcrew.noxesium.api.protocol.rule.ServerRuleIndices;
 import com.noxcrew.noxesium.api.qib.QibDefinition;
@@ -12,6 +16,7 @@ import com.noxcrew.noxesium.paper.api.rule.ServerRules;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.*;
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import lombok.Getter;
 import me.superneon4ik.noxesiumutils.events.NoxesiumQibTriggeredEvent;
 import me.superneon4ik.noxesiumutils.listeners.NoxesiumBukkitListener;
@@ -22,6 +27,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.slf4j.LoggerFactory;
@@ -29,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -45,6 +52,7 @@ public final class NoxesiumUtils extends JavaPlugin {
     @Getter private static EntityRules entityRules;
     @Getter private static final Map<String, QibEffect> qibEffects = new HashMap<>();
     @Getter private static final Map<String, QibDefinition> qibDefinitions = new HashMap<>();
+    @Getter private static final List<ItemStack> customCreativeItems = new ArrayList<>();
 
     private static final Map<String, Integer> booleanServerRules = new HashMap<>() {{
         put("disableSpinAttackCollisions", ServerRuleIndices.DISABLE_SPIN_ATTACK_COLLISIONS);
@@ -96,6 +104,7 @@ public final class NoxesiumUtils extends JavaPlugin {
         entityRules = new EntityRules(manager);
 
         loadQibEffectsAndDefinitions();
+        loadCustomCreativeItems();
         registerCommands();
 
         NoxesiumPackets.INSTANCE.getSERVER_QIB_TRIGGERED().addListener(getManager(), (manager, event, player) -> {
@@ -170,6 +179,24 @@ public final class NoxesiumUtils extends JavaPlugin {
             qibDefinitions.put(key, qibDefinition);
             
             getLogger().info("Loaded qibDefinition '%s': %s!".formatted(key, qibDefinition.toString()));
+        });
+    }
+    
+    @SuppressWarnings("UnstableApiUsage")
+    private void loadCustomCreativeItems() {
+        customCreativeItems.clear();
+        var customCreativeItemStrings = getConfig().getStringList("customCreativeItems");
+        if (customCreativeItemStrings.isEmpty()) return;
+        
+        customCreativeItemStrings.forEach(itemString -> {
+            try {
+                var item = ArgumentTypes.itemStack().parse(new StringReader(itemString));
+                getLogger().info("Loaded customCreativeItem: " + item);
+                customCreativeItems.add(item);
+            } catch (CommandSyntaxException e) {
+                getLogger().warning("Failed to parse customCreativeItem: " + itemString);
+                getLogger().warning(e.getMessage());
+            }
         });
     }
 
@@ -321,6 +348,22 @@ public final class NoxesiumUtils extends JavaPlugin {
         //       Currently no idea what would be the best way to do them.
         //       I could do add/remove commands, but then it would be too hard to 
         //       handle everyone. Probably will do it in the config and just make this a Boolean.
+        serverRulesSubcommands.add(
+                new CommandAPICommand("customCreativeItems")
+                        .withArguments(
+                                new EntitySelectorArgument.ManyPlayers("players"),
+                                new BooleanArgument("value")
+                        )
+                        .executes((sender, args) -> {
+                            var players = (Collection<Player>) args.get("players");
+                            var value = (Boolean) args.get("value");
+                            if (players == null || value == null) return;
+                            if (value)
+                                updateServerRule(sender, players, ServerRuleIndices.CUSTOM_CREATIVE_ITEMS, customCreativeItems);
+                            else
+                                resetServerRule(sender, players, ServerRuleIndices.CUSTOM_CREATIVE_ITEMS);
+                        })
+        );
         
         // Qibs
         serverRulesSubcommands.add(
@@ -540,6 +583,10 @@ public final class NoxesiumUtils extends JavaPlugin {
                             mappedQibBehaviors.put(id, definition);
                         });
                         updateServerRule(null, List.of(player), ServerRuleIndices.QIB_BEHAVIORS, mappedQibBehaviors);
+                    }
+                    
+                    if (defaults.getBoolean("customCreativeItems", false)) {
+                        updateServerRule(null, List.of(player), ServerRuleIndices.CUSTOM_CREATIVE_ITEMS, customCreativeItems);
                     }
                     
                     // TODO:

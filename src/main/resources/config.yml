@@ -21,6 +21,7 @@ defaults:
   #overrideGraphicsMode: FAST
   #riptideCoyoteTime: 0
   #showMapInUi: false
+  #customCreativeItems: false
   #qibBehaviors: []
 
 #qibDefinitions: 
@@ -28,3 +29,6 @@ defaults:
 #    onEnter: 'example_qib_enter.json'
 #    onLeave: 'example_qib_leave.json'
 #    triggerEnterLeaveOnSwitch: false
+
+#customCreativeItems:
+#  - 'minecraft:stick[minecraft:enchantments={levels:{"minecraft:knockback":25}}]'
