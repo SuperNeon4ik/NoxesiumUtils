@@ -21,6 +21,7 @@ defaults:
   #overrideGraphicsMode: FAST
   #riptideCoyoteTime: 0
   #showMapInUi: false
+  #qibBehaviors: []
 
 #qibDefinitions: 
 #  example:

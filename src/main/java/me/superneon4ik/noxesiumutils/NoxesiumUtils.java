@@ -529,11 +529,22 @@ public final class NoxesiumUtils extends JavaPlugin {
                         var overrideGraphicsModeValue = Optional.of(GraphicsType.valueOf(overrideGraphicsModeStr));
                         updateServerRule(null, List.of(player), ServerRuleIndices.OVERRIDE_GRAPHICS_MODE, overrideGraphicsModeValue);
                     }
+
+                    // qibBehaviors
+                    if (defaults.contains("qibBehaviors")) {
+                        var defaultQibBehaviorsStrings = defaults.getStringList("qibBehaviors");
+                        Map<String, QibDefinition> mappedQibBehaviors = new HashMap<>();
+                        defaultQibBehaviorsStrings.forEach(id -> {
+                            var definition = qibDefinitions.get(id);
+                            if (definition == null) return;
+                            mappedQibBehaviors.put(id, definition);
+                        });
+                        updateServerRule(null, List.of(player), ServerRuleIndices.QIB_BEHAVIORS, mappedQibBehaviors);
+                    }
                     
                     // TODO:
                     //  handItemOverride
                     //  customCreativeItems
-                    //  qibBehaviors
                 }
             }.runTaskLater(NoxesiumUtils.getPlugin(), 5);
         }
