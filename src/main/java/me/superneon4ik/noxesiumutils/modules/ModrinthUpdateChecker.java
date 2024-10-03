@@ -6,8 +6,11 @@ import lombok.Getter;
 import me.superneon4ik.noxesiumutils.NoxesiumUtils;
 import me.superneon4ik.noxesiumutils.enums.VersionStatus;
 import me.superneon4ik.noxesiumutils.objects.ModrinthVersion;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -103,16 +106,25 @@ public class ModrinthUpdateChecker {
 
     public void sendVersionMessage(CommandSender sender, VersionStatus versionStatus) {
         if (latestKnownVersion == null) latestKnownVersion = NoxesiumUtils.getPlugin().getDescription().getVersion();
-        sender.sendMessage(ChatColor.AQUA + "Running NoxesiumUtils v" + NoxesiumUtils.getPlugin().getDescription().getVersion());
+        sender.sendMessage(Component.text("Running NoxesiumUtils v" + NoxesiumUtils.getPlugin().getDescription().getVersion(), NamedTextColor.AQUA));
         switch (versionStatus) {
-            case NOT_CHECKED -> sender.sendMessage(ChatColor.GRAY + "Still checking...");
-            case ERROR -> sender.sendMessage(ChatColor.RED + "Failed to check for updates!");
-            case NOT_FOUND -> sender.sendMessage(ChatColor.YELLOW + "No versions found.");
-            case LATEST -> sender.sendMessage(ChatColor.GREEN + "You are running the latest version! " +
-                    ChatColor.YELLOW + "Support me: " + ChatColor.WHITE + "https://www.patreon.com/superneon4ik");
-            case OUTDATED -> sender.sendMessage(ChatColor.RED + "You are running an outdated version! The latest release is v" + latestKnownVersion +
-                    ". " + ChatColor.YELLOW + "Download here: " + ChatColor.WHITE + "https://modrinth.com/plugin/noxesiumutils");
-            case DEVELOPMENT -> sender.sendMessage(ChatColor.LIGHT_PURPLE + "You are running an unknown (development) version! Woah!");
+            case NOT_CHECKED -> sender.sendMessage(Component.text("Still checking...", NamedTextColor.GRAY));
+            case ERROR -> sender.sendMessage(Component.text("Failed to check for updates!", NamedTextColor.RED));
+            case NOT_FOUND -> sender.sendMessage(Component.text("No versions found.", NamedTextColor.YELLOW));
+            case LATEST -> {
+                var support = Component.text("Support me on Patreon!", NamedTextColor.YELLOW)
+                                .clickEvent(ClickEvent.openUrl("https://www.patreon.com/superneon4ik"))
+                                .hoverEvent(Component.text("https://www.patreon.com/superneon4ik", NamedTextColor.DARK_GRAY, TextDecoration.ITALIC));
+                sender.sendMessage(Component.text("You are running the latest version! ", NamedTextColor.GREEN).append(support));
+            }
+            case OUTDATED -> {
+                var link = Component.text("Download on Modrinth!", NamedTextColor.YELLOW)
+                        .clickEvent(ClickEvent.openUrl("https://modrinth.com/plugin/noxesiumutils"))
+                        .hoverEvent(Component.text("https://modrinth.com/plugin/noxesiumutils", NamedTextColor.DARK_GRAY, TextDecoration.ITALIC));
+                sender.sendMessage(Component.text("You are running an outdated version! The latest release is v" 
+                        + latestKnownVersion, NamedTextColor.RED).append(link));
+            }
+            case DEVELOPMENT -> sender.sendMessage(Component.text("You are running an unknown (development) version! Woah!", NamedTextColor.LIGHT_PURPLE));
         }
     }
 
