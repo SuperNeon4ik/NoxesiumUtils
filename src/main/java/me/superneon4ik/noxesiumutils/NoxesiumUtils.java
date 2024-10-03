@@ -16,6 +16,7 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.*;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import lombok.Getter;
+import me.superneon4ik.noxesiumutils.events.NoxesiumPlayerRiptideEvent;
 import me.superneon4ik.noxesiumutils.events.NoxesiumQibTriggeredEvent;
 import me.superneon4ik.noxesiumutils.listeners.NoxesiumBukkitListener;
 import me.superneon4ik.noxesiumutils.modules.ModrinthUpdateChecker;
@@ -63,7 +64,7 @@ public final class NoxesiumUtils extends JavaPlugin {
         put("disableDeferredChunkUpdates", ServerRuleIndices.DISABLE_DEFERRED_CHUNK_UPDATES);
         put("disableMapUi", ServerRuleIndices.DISABLE_MAP_UI);
 
-        // TODO: Implement Noxcrew's recommendations before enabling
+        // TODO: Implement Noxcrew's recommendations
         // https://github.com/Noxcrew/noxesium/blob/4b3f93fe6886eac60dbfffa6cb125e1e5a31886a/api/src/main/java/com/noxcrew/noxesium/api/protocol/rule/ServerRuleIndices.java#L85
         put("enableSmootherClientTrident", ServerRuleIndices.ENABLE_SMOOTHER_CLIENT_TRIDENT);
     }};
@@ -110,6 +111,11 @@ public final class NoxesiumUtils extends JavaPlugin {
 
         NoxesiumPackets.INSTANCE.getSERVER_QIB_TRIGGERED().addListener(getManager(), (manager, event, player) -> {
             new NoxesiumQibTriggeredEvent(player, event.getBehavior(), event.getQibType(), event.getEntityId()).callEvent();
+            return null;
+        });
+
+        NoxesiumPackets.INSTANCE.getSERVER_RIPTIDE().addListener(getManager(), (manager, event, player) -> {
+            new NoxesiumPlayerRiptideEvent(player, event.getSlot()).callEvent();
             return null;
         });
 
