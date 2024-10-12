@@ -39,15 +39,25 @@ It allows server owners to easily communicate with the mod via commands and can 
 ### Commands
 **Send Server Rule.** Sends a server rule to a selection of players.
 
-_More command examples coming later..._
+#### Set server rule for players
+```
+/noxesiumutils serverrule <rule> <players: selector> <value>
+/noxesiumutils serverrule <rule> <players: selector> reset
+```
+
+#### Set entity rule for entities
+```
+/noxesiumutils entityrule <rule> <entities: selector> <value>
+/noxesiumutils entityrule <rule> <entities: selector> reset
+```
 
 #### Check player's Noxesium Protocol Version.
-```html
+```
 /noxesiumutils check <player: player>
 /noxesiumutils check <players: selector>
 ```
 #### Check player's settings.
-```html
+```
 /noxesiumutils clientSettings <player: player>
 ```
 
@@ -59,6 +69,9 @@ Right now it only contains a setting to send server rules to a player on join.
 ```yaml
 # View Protocol documentation and information about the mod here:
 # https://github.com/Noxcrew/noxesium
+
+# Add some extra output for debugging purposes
+extraDebugOutput: false
 
 # If true will check the plugin's version once in a while.
 checkForUpdates: true
@@ -80,34 +93,117 @@ defaults:
     #overrideGraphicsMode: FAST
     #riptideCoyoteTime: 0
     #showMapInUi: false
+
+#qibDefinitions:
+#customCreativeItems: []
 ```
-For example, the following config will automatically send the players `disableSpinAttackCollisions = true` on join.
+
+#### On-join defaults
+For example, the following changes will make the plugin automatically send
+the players `disableSpinAttackCollisions = true` on join.
 ```yaml
-# View Protocol documentation and information about the mod here:
-# https://github.com/Noxcrew/noxesium
+sendDefaultsOnJoin: true
 
-# If true will check the plugin's version once in a while.
-checkForUpdates: true
-
-# It true will send defaults to Noxesium Players on join.
-sendDefaultsOnJoin: false
-
-# Comment out the line if you don't want to send that rule.
 defaults:
-    #cameraLocked: false
-    #disableBoatCollisions: false
-    #disableDeferredChunkUpdates: false
-    #disableMapUi: false
     disableSpinAttackCollisions: true
-    #disableUiOptimizations: false
-    #disableVanillaMusic: false
-    #enableSmootherClientTrident: false
-    #heldItemNameOffset: 0
-    #overrideGraphicsMode: FAST
-    #riptideCoyoteTime: 0
-    #showMapInUi: false
 ```
 
+#### Qib definitions
+What are Qibs? Good question. I won't explain it perfectly, 
+so please read [the comments in this file in Noxcrew/noxesium](https://github.com/Noxcrew/noxesium/blob/main/api/src/main/java/com/noxcrew/noxesium/api/qib/QibDefinition.java).
+
+The `qibDefinitions` list is a place to define the definitions which are made up of QibEffects ([see list of them here](https://github.com/Noxcrew/noxesium/blob/main/api/src/main/java/com/noxcrew/noxesium/api/qib/QibEffect.java)).
+Here's an example of a QibDefinition in the config:
+```yaml
+qibDefinitions: 
+  ding:
+    onEnter: 'play_ding'
+    onLeave: 'play_ding'
+    triggerEnterLeaveOnSwitch: false
+```
+Now scary part: **writing QibEffects**.\
+Each QibEffect is saved in its own json file which is saved in `plugins/NoxesiumUtils/qibs` folder.
+
+Example of a QibEffect which plays the ding sound (`plugins/NoxesiumUtils/qibs/play_ding.json`):
+```json
+{
+  "type": "PlaySound",
+  "effect": {
+    "namespace": "minecraft",
+    "path": "entity.experience_orb.pickup",
+    "volume": 1.0,
+    "pitch": 1.0
+  }
+}
+```
+
+_(probably very useful to some)_ A jumppad QibEffect example:
+```json
+{
+  "type": "Multiple",
+  "effect": {
+    "effects": [
+      {
+        "type": "PlaySound",
+        "effect": {
+          "namespace": "minecraft",
+          "path": "entity.experience_orb.pickup",
+          "volume": 1.0,
+          "pitch": 1.0
+        }
+      },
+      {
+        "type": "Wait",
+        "effect": {
+          "ticks": 1,
+          "effect": {
+            "type": "SetVelocityYawPitch",
+            "effect": {
+              "yaw": 0,
+              "yawRelative": true,
+              "pitch": -45,
+              "pitchRelative": false,
+              "strength": 2.0,
+              "limit": 2.5
+            }
+          }
+        }
+      }
+    ]
+  }
+}
+```
+
+After making a QibEffect you use the file name of a QibEffect as an ID in a QibDefinition section (all fields are optional):
+```yaml
+qibDefinitions: 
+  ding:
+    onEnter: 'QIB_EFFECT_ID'
+    onLeave: 'QIB_EFFECT_ID'
+    whileInside: 'QIB_EFFECT_ID'
+    onJump: 'QIB_EFFECT_ID'
+    triggerEnterLeaveOnSwitch: false
+```
+
+After that you can reload the server and apply the rule to an entity:
+```
+/noxesiumutils entityRules qibBehavior [ENTITY] ding
+```
+
+And enable the Qib for all players:
+```
+/noxesiumutils serverRules qibBehaviors @a ding
+```
+
+#### Custom creative items
+You cat enable a tab in the creative inventory menu for Noxesium players with
+a command (`/noxesiumutils serverRules customCreativeItems @a true`).
+This is the place where you define these items. Here's an example:
+```yaml
+customCreativeItems:
+  - 'minecraft:stick[minecraft:enchantments={levels:{"minecraft:knockback":25}}]'
+  - 'netherite_chestplate[trim={pattern:wild,material:emerald},custom_name=''["",{"text":"Silly name ngl","italic":false}]'',lore=[''["",{"text":"I dont !!!!!!! understand how i will implement this","italic":false}]''],enchantments={levels:{aqua_affinity:1,blast_protection:4,protection:5}},custom_model_data=2]'
+```
 
 ### For Developers
 **Adding NoxesiumUtils to your project**
@@ -116,7 +212,8 @@ You can easily add NoxesiumUtils to your project from the [Modrinth Maven Reposi
 
 > [!NOTE] 
 > Since NoxesiumUtils is now using [Noxesium/paper](https://github.com/Noxcrew/noxesium/tree/main/paper)
-> it might actually be better for you to just implement it yourself. However your can still
+> it might actually be better for you to just implement it yourself. 
+> I will attempt making NoxesiumUtils worth being a dependency in update 2.1.
 
 ### Maven:
 ```xml
