@@ -5,9 +5,6 @@ Communicate with the [Noxesium Mod](https://github.com/Noxcrew/noxesium) with ea
 ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/SuperNeon4ik/NoxesiumUtils/maven.yml?style=for-the-badge)
 ![GitHub commits since latest release (by SemVer including pre-releases)](https://img.shields.io/github/commits-since/SuperNeon4ik/NoxesiumUtils/latest?style=for-the-badge)
 
-> [!IMPORTANT]
-> This branch is still **under development**.
-
 🇺🇦 Made in Ukraine! Зроблено в Україні!\
 ❤️ Support me on [Patreon](https://patreon.com/SuperNeon4ik)
 
