@@ -3,9 +3,17 @@ author: SuperNeon4ik
 description: Communicate with Noxesium with ease.
 version: '${project.version}'
 main: me.superneon4ik.noxesiumutils.NoxesiumUtils
-api-version: 1.19
+api-version: 1.21
 website: https://github.com/SuperNeon4ik/NoxesiumUtils
 
+depend: [ CommandAPI ]
+
 permissions:
-  noxesiumutils.commands:
-    description: Access the /noxesiumutils command.
+  noxesiumutils.about:
+    description: Run /noxesiumutils.
+  noxesiumutils.check:
+    description: Run /noxesiumutils check & clientSettings.
+  noxesiumutils.serverrules:
+    description: Access ServerRule commands in /noxesiumutils.
+  noxesiumutils.entityrules:
+    description: Access EntityRule commands in /noxesiumutils.

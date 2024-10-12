@@ -1,5 +1,10 @@
 # View Protocol documentation and information about the mod here:
-# https://github.com/Noxcrew/noxesium
+# https://github.com/Noxcrew/noxesium/wiki
+# View documentation about this config in the README:
+# https://github.com/SuperNeon4ik/NoxesiumUtils
+
+# Add some extra output for debugging purposes
+extraDebugOutput: false
 
 # If true will check the plugin's version once in a while.
 checkForUpdates: true
@@ -9,10 +14,27 @@ sendDefaultsOnJoin: false
 
 # Comment out the line if you don't want to send that rule.
 defaults:
-  #disableAutoSpinAttack: false # since protocol 1
-  #globalCanPlaceOn: [] # since protocol 1
-  #globalCanDestroy: [] # since protocol 1
-  #heldItemNameOffset: 0 # since protocol 2
-  #cameraLocked: false # since protocol 2
-  #enableCustomMusic: false # since protocol 3
-  #disableBoatCollision: false # since protocol 4
+  #cameraLocked: false
+  #disableBoatCollisions: false
+  #disableDeferredChunkUpdates: false
+  #disableMapUi: false
+  #disableSpinAttackCollisions: false
+  #disableUiOptimizations: false
+  #disableVanillaMusic: false
+  #enableSmootherClientTrident: false
+  #heldItemNameOffset: 0
+  #handItemOverride: 'minecraft:stick[minecraft:enchantments={levels:{"minecraft:knockback":25}}]'
+  #overrideGraphicsMode: FAST
+  #riptideCoyoteTime: 0
+  #showMapInUi: false
+  #customCreativeItems: false
+  #qibBehaviors: []
+
+#qibDefinitions: 
+#  example:
+#    onEnter: 'example_qib_enter.json'
+#    onLeave: 'example_qib_leave.json'
+#    triggerEnterLeaveOnSwitch: false
+
+#customCreativeItems:
+#  - 'minecraft:stick[minecraft:enchantments={levels:{"minecraft:knockback":25}}]'
