@@ -3,7 +3,6 @@ package me.superneon4ik.noxesiumutils.modules;
 import com.google.gson.Gson;
 import kong.unirest.Unirest;
 import lombok.Getter;
-import me.superneon4ik.noxesiumutils.NoxesiumUtils;
 import me.superneon4ik.noxesiumutils.enums.VersionStatus;
 import me.superneon4ik.noxesiumutils.objects.ModrinthVersion;
 import net.kyori.adventure.text.Component;
@@ -11,8 +10,8 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
@@ -21,11 +20,13 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class ModrinthUpdateChecker {
+    @Getter private final JavaPlugin plugin;
     @Getter private final String slug;
     @Getter private VersionStatus latestStatus;
     private String latestKnownVersion = null;
 
-    public ModrinthUpdateChecker(String slug) {
+    public ModrinthUpdateChecker(JavaPlugin plugin, String slug) {
+        this.plugin = plugin;
         this.slug = slug;
         this.latestStatus = VersionStatus.NOT_CHECKED;
     }
@@ -40,19 +41,19 @@ public class ModrinthUpdateChecker {
                 var future = checkForUpdates();
                 future.thenAccept(versionStatus -> {
                     if (versionStatus == VersionStatus.OUTDATED && !reportedOutdatedStatus) {
-                        sendVersionMessage(Bukkit.getConsoleSender(), versionStatus);
+                        Bukkit.getConsoleSender().sendMessage(generateVersionMessage(versionStatus));
                         for (Player player : Bukkit.getOnlinePlayers()) {
-                            if (player.isOp()) sendVersionMessage(player, versionStatus);
+                            if (player.isOp()) player.sendMessage(generateVersionMessage(versionStatus));
                         }
                         reportedOutdatedStatus = true;
                     }
                     else if (firstCheck) {
-                        sendVersionMessage(Bukkit.getConsoleSender(), versionStatus);
+                        Bukkit.getConsoleSender().sendMessage(generateVersionMessage(versionStatus));
                     }
                     firstCheck = false;
                 });
             }
-        }.runTaskTimerAsynchronously(NoxesiumUtils.getPlugin(), 1, refreshTicks);
+        }.runTaskTimerAsynchronously(plugin, 1, refreshTicks);
     }
 
     public CompletableFuture<VersionStatus> checkForUpdates() {
@@ -74,13 +75,13 @@ public class ModrinthUpdateChecker {
                     .filter(v -> v.version_type.equalsIgnoreCase("release")).toList());
             availableVersions.sort(ModrinthVersion::compareDatePublishedTo);
 
-            if (availableVersions.get(0).version_number.toLowerCase().endsWith(NoxesiumUtils.getPlugin().getDescription().getVersion().toLowerCase())) {
+            if (availableVersions.getFirst().version_number.toLowerCase().endsWith(getCurrentPluginVersion())) {
                 latestStatus = VersionStatus.LATEST;
                 future.complete(VersionStatus.LATEST);
                 return;
             }
 
-            int currentVersionIndex = indexOfVersion(availableVersions, NoxesiumUtils.getPlugin().getDescription().getVersion());
+            int currentVersionIndex = indexOfVersion(availableVersions, getCurrentPluginVersion());
             if (currentVersionIndex == -1) {
                 latestStatus = VersionStatus.DEVELOPMENT;
                 future.complete(VersionStatus.DEVELOPMENT);
@@ -89,43 +90,54 @@ public class ModrinthUpdateChecker {
 
             future.complete(VersionStatus.OUTDATED);
             latestStatus = VersionStatus.OUTDATED;
-            latestKnownVersion = availableVersions.get(0).version_number;
+            latestKnownVersion = availableVersions.getFirst().version_number;
         }).exceptionally(throwable -> {
             latestStatus = VersionStatus.ERROR;
             future.complete(VersionStatus.ERROR);
-            NoxesiumUtils.getPlugin().getLogger().warning("Failed to fetch version from Modrinth.");
-            throwable.printStackTrace();
+            plugin.getLogger().warning("Failed to fetch version from Modrinth: " + throwable.getMessage());
             return null;
         });
         return future;
     }
 
-    public void sendVersionMessage(CommandSender sender) {
-        sendVersionMessage(sender, latestStatus);
+    public Component generateVersionMessage() {
+        return generateVersionMessage(latestStatus);
     }
 
-    public void sendVersionMessage(CommandSender sender, VersionStatus versionStatus) {
-        if (latestKnownVersion == null) latestKnownVersion = NoxesiumUtils.getPlugin().getDescription().getVersion();
-        sender.sendMessage(Component.text("Running NoxesiumUtils v" + NoxesiumUtils.getPlugin().getDescription().getVersion(), NamedTextColor.AQUA));
+    public Component generateVersionMessage(VersionStatus versionStatus) {
+        if (latestKnownVersion == null) latestKnownVersion = getCurrentPluginVersion();
+        var currentVersion = Component.text("Running NoxesiumUtils v" + getCurrentPluginVersion(), NamedTextColor.AQUA);
+
+        var statusMessage = Component.empty(); 
         switch (versionStatus) {
-            case NOT_CHECKED -> sender.sendMessage(Component.text("Still checking...", NamedTextColor.GRAY));
-            case ERROR -> sender.sendMessage(Component.text("Failed to check for updates!", NamedTextColor.RED));
-            case NOT_FOUND -> sender.sendMessage(Component.text("No versions found.", NamedTextColor.YELLOW));
+            case NOT_CHECKED -> statusMessage = Component.text("Still checking...", NamedTextColor.GRAY);
+            case ERROR -> statusMessage = Component.text("Failed to check for updates!", NamedTextColor.RED);
+            case NOT_FOUND -> statusMessage = Component.text("No versions found.", NamedTextColor.YELLOW);
             case LATEST -> {
                 var support = Component.text("Support me on Patreon!", NamedTextColor.YELLOW)
                                 .clickEvent(ClickEvent.openUrl("https://www.patreon.com/superneon4ik"))
                                 .hoverEvent(Component.text("https://www.patreon.com/superneon4ik", NamedTextColor.DARK_GRAY, TextDecoration.ITALIC));
-                sender.sendMessage(Component.text("You are running the latest version! ", NamedTextColor.GREEN).append(support));
+                statusMessage = Component.text("You are running the latest version! ", NamedTextColor.GREEN).append(support);
             }
             case OUTDATED -> {
                 var link = Component.text("Download on Modrinth!", NamedTextColor.YELLOW)
-                        .clickEvent(ClickEvent.openUrl("https://modrinth.com/plugin/noxesiumutils"))
-                        .hoverEvent(Component.text("https://modrinth.com/plugin/noxesiumutils", NamedTextColor.DARK_GRAY, TextDecoration.ITALIC));
-                sender.sendMessage(Component.text("You are running an outdated version! The latest release is v" 
-                        + latestKnownVersion, NamedTextColor.RED).append(link));
+                        .clickEvent(ClickEvent.openUrl("https://modrinth.com/plugin/" + slug))
+                        .hoverEvent(Component.text("https://modrinth.com/plugin/" + slug, NamedTextColor.DARK_GRAY, TextDecoration.ITALIC));
+                statusMessage = Component.text("You are running an outdated version! The latest release is v" 
+                        + latestKnownVersion, NamedTextColor.RED).append(link);
             }
-            case DEVELOPMENT -> sender.sendMessage(Component.text("You are running an unknown (development) version! Woah!", NamedTextColor.LIGHT_PURPLE));
+            case DEVELOPMENT -> statusMessage = Component.text("You are running an unknown (development) version! Woah!", NamedTextColor.LIGHT_PURPLE);
         }
+        
+        return Component.empty()
+                .append(currentVersion)
+                .append(Component.newline())
+                .append(statusMessage);
+    }
+    
+    @SuppressWarnings("deprecation")
+    private String getCurrentPluginVersion() {
+        return plugin.getDescription().getVersion().toLowerCase();
     }
 
     private static int indexOfVersion(List<ModrinthVersion> versionList, String pluginVersion) {
