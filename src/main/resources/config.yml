@@ -9,7 +9,7 @@ extraDebugOutput: false
 # If true will check the plugin's version once in a while.
 checkForUpdates: true
 
-# It true will send defaults to Noxesium Players on join.
+# If true will send defaults to Noxesium Players on join.
 sendDefaultsOnJoin: false
 
 # Comment out the line if you don't want to send that rule.
@@ -32,8 +32,8 @@ defaults:
 
 #qibDefinitions: 
 #  example:
-#    onEnter: 'example_qib_enter.json'
-#    onLeave: 'example_qib_leave.json'
+#    onEnter: 'example_qib_enter'
+#    onLeave: 'example_qib_leave'
 #    triggerEnterLeaveOnSwitch: false
 
 #customCreativeItems:
