@@ -55,6 +55,7 @@ public class ModrinthUpdateChecker {
         }.runTaskTimerAsynchronously(NoxesiumUtils.getPlugin(), 1, refreshTicks);
     }
 
+    @SuppressWarnings("deprecation")
     public CompletableFuture<VersionStatus> checkForUpdates() {
         CompletableFuture<VersionStatus> future = new CompletableFuture<>();
         String uri = "https://api.modrinth.com/v2/project/%s/version?game_versions=%%5B%%22%s%%22%%5D"
@@ -64,17 +65,18 @@ public class ModrinthUpdateChecker {
             Gson gson = new Gson();
             var data = response.getBody().getArray().toString();
             var availableVersionsArray = gson.fromJson(data, ModrinthVersion[].class);
-            if (availableVersionsArray.length == 0) {
+
+            var availableVersions = new ArrayList<>(Arrays.stream(availableVersionsArray)
+                    .filter(v -> v.version_type.equalsIgnoreCase("release")).toList());
+            availableVersions.sort(ModrinthVersion::compareDatePublishedTo);
+            
+            if (availableVersions.isEmpty()) {
                 latestStatus = VersionStatus.NOT_FOUND;
                 future.complete(VersionStatus.NOT_FOUND);
                 return;
             }
 
-            var availableVersions = new ArrayList<>(Arrays.stream(availableVersionsArray)
-                    .filter(v -> v.version_type.equalsIgnoreCase("release")).toList());
-            availableVersions.sort(ModrinthVersion::compareDatePublishedTo);
-
-            if (availableVersions.get(0).version_number.toLowerCase().endsWith(NoxesiumUtils.getPlugin().getDescription().getVersion().toLowerCase())) {
+            if (availableVersions.getFirst().version_number.toLowerCase().endsWith(NoxesiumUtils.getPlugin().getDescription().getVersion().toLowerCase())) {
                 latestStatus = VersionStatus.LATEST;
                 future.complete(VersionStatus.LATEST);
                 return;
@@ -89,7 +91,7 @@ public class ModrinthUpdateChecker {
 
             future.complete(VersionStatus.OUTDATED);
             latestStatus = VersionStatus.OUTDATED;
-            latestKnownVersion = availableVersions.get(0).version_number;
+            latestKnownVersion = availableVersions.getFirst().version_number;
         }).exceptionally(throwable -> {
             latestStatus = VersionStatus.ERROR;
             future.complete(VersionStatus.ERROR);
@@ -104,6 +106,7 @@ public class ModrinthUpdateChecker {
         sendVersionMessage(sender, latestStatus);
     }
 
+    @SuppressWarnings("deprecation")
     public void sendVersionMessage(CommandSender sender, VersionStatus versionStatus) {
         if (latestKnownVersion == null) latestKnownVersion = NoxesiumUtils.getPlugin().getDescription().getVersion();
         sender.sendMessage(Component.text("Running NoxesiumUtils v" + NoxesiumUtils.getPlugin().getDescription().getVersion(), NamedTextColor.AQUA));
