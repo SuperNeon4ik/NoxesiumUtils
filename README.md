@@ -12,6 +12,8 @@ Communicate with the [Noxesium Mod](https://github.com/Noxcrew/noxesium) with ea
 > With **NoxesiumUtils 2.0.0** I am switching to the [com.noxcrew.noxesium.paper](https://github.com/Noxcrew/noxesium/tree/main/paper)
 > implementation, instead of my own. This makes maintaining NoxesiumUtils easier.
 
+You can also join my [Discord Server](https://discord.gg/sTgnUxC3ms) if you want to ask me about how to qib _(or anything about my work basically)_!
+
 ### v2.0.0 checklist
 Move to the [PR](https://github.com/SuperNeon4ik/NoxesiumUtils/pull/19)
 
