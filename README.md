@@ -5,15 +5,14 @@ Communicate with the [Noxesium Mod](https://github.com/Noxcrew/noxesium) with ea
 ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/SuperNeon4ik/NoxesiumUtils/maven.yml?style=for-the-badge)
 ![GitHub commits since latest release (by SemVer including pre-releases)](https://img.shields.io/github/commits-since/SuperNeon4ik/NoxesiumUtils/latest?style=for-the-badge)
 
-> [!IMPORTANT]
-> This branch is still **under development**.
-
 🇺🇦 Made in Ukraine! Зроблено в Україні!\
 ❤️ Support me on [Patreon](https://patreon.com/SuperNeon4ik)
 
 > [!NOTE]
 > With **NoxesiumUtils 2.0.0** I am switching to the [com.noxcrew.noxesium.paper](https://github.com/Noxcrew/noxesium/tree/main/paper)
 > implementation, instead of my own. This makes maintaining NoxesiumUtils easier.
+
+You can also join my [Discord Server](https://discord.gg/sTgnUxC3ms) if you want to ask me about how to qib _(or anything about my work basically)_!
 
 ### v2.0.0 checklist
 Move to the [PR](https://github.com/SuperNeon4ik/NoxesiumUtils/pull/19)

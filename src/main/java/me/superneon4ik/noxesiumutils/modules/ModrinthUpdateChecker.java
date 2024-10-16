@@ -65,15 +65,16 @@ public class ModrinthUpdateChecker {
             Gson gson = new Gson();
             var data = response.getBody().getArray().toString();
             var availableVersionsArray = gson.fromJson(data, ModrinthVersion[].class);
-            if (availableVersionsArray.length == 0) {
-                latestStatus = VersionStatus.NOT_FOUND;
-                future.complete(VersionStatus.NOT_FOUND);
-                return;
-            }
 
             var availableVersions = new ArrayList<>(Arrays.stream(availableVersionsArray)
                     .filter(v -> v.version_type.equalsIgnoreCase("release")).toList());
             availableVersions.sort(ModrinthVersion::compareDatePublishedTo);
+            
+            if (availableVersions.isEmpty()) {
+                latestStatus = VersionStatus.NOT_FOUND;
+                future.complete(VersionStatus.NOT_FOUND);
+                return;
+            }
 
             if (availableVersions.getFirst().version_number.toLowerCase().endsWith(getCurrentPluginVersion())) {
                 latestStatus = VersionStatus.LATEST;
