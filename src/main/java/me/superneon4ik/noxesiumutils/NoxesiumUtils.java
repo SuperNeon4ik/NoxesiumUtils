@@ -1,6 +1,5 @@
 package me.superneon4ik.noxesiumutils;
 
-import com.noxcrew.noxesium.api.protocol.rule.ServerRuleIndices;
 import com.noxcrew.noxesium.api.qib.QibDefinition;
 import com.noxcrew.noxesium.paper.api.EntityRuleManager;
 import com.noxcrew.noxesium.paper.api.network.NoxesiumPackets;
@@ -19,24 +18,22 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.WeakHashMap;
 import java.util.logging.Logger;
 
+@Getter
 public class NoxesiumUtils {
-    @Getter
     private final JavaPlugin plugin;
-    @Getter
     private final Logger logger;
     
-    @Getter @Setter @NotNull
+    @Setter @NotNull
     private NoxesiumUtilsConfig config;    
-    @Getter 
     private HookedNoxesiumManager manager;
-    @Getter 
     private EntityRuleManager entityRuleManager;
-    @Getter 
     private ServerRules serverRules;
-    @Getter 
     private EntityRules entityRules;
     
     public NoxesiumUtils(JavaPlugin plugin, @NotNull NoxesiumUtilsConfig config, Logger logger) {
