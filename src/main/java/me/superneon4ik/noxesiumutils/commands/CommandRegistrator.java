@@ -2,6 +2,7 @@ package me.superneon4ik.noxesiumutils.commands;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.EntitySelectorArgument;
 import me.superneon4ik.noxesiumutils.NoxesiumUtils;
@@ -33,6 +34,10 @@ public class CommandRegistrator {
     }
     
     public void registerCommands() {
+        // Unregister existing commands in case of reload
+        CommandAPI.unregister("noxesiumutils", true);
+        
+        
         List<CommandAPICommand> subcommands = generateGenericSubcommands();
         List<CommandAPICommand> serverRulesSubcommands = new ServerRuleCommands(noxesiumUtils).generate();
         // TODO: Entity rules
