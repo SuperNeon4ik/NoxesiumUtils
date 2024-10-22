@@ -5,7 +5,6 @@ import com.noxcrew.noxesium.paper.api.rule.GraphicsType;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.inventory.ItemStack;
-
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;

@@ -8,7 +8,6 @@ import dev.jorel.commandapi.arguments.EntitySelectorArgument;
 import lombok.Getter;
 import lombok.Setter;
 import me.superneon4ik.noxesiumutils.NoxesiumUtils;
-import me.superneon4ik.noxesiumutils.OldNoxesiumUtilsImpl;
 import me.superneon4ik.noxesiumutils.modules.ModrinthUpdateChecker;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
@@ -81,7 +80,7 @@ public class CommandRegistrar {
                         sender.sendMessage(Component.text("Checking for updates...", NamedTextColor.DARK_GRAY));
                         var future = updateChecker.checkForUpdates();
                         future.thenAccept(versionStatus -> {
-                            var versionMessage = OldNoxesiumUtilsImpl.getUpdateChecker().generateVersionMessage(versionStatus);
+                            var versionMessage = updateChecker.generateVersionMessage(versionStatus);
                             sender.sendMessage(versionMessage);
                         });
                     }
