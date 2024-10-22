@@ -33,7 +33,6 @@ public class ServerRuleCommands {
         commands.addAll(booleanRule("showMapInUi", ServerRuleIndices.SHOW_MAP_IN_UI));
         commands.addAll(booleanRule("disableDeferredChunkUpdates", ServerRuleIndices.DISABLE_DEFERRED_CHUNK_UPDATES));
         commands.addAll(booleanRule("disableMapUi", ServerRuleIndices.DISABLE_MAP_UI));
-        commands.addAll(booleanRule("disableMapUi", ServerRuleIndices.DISABLE_MAP_UI));
 
         // TODO: Implement Noxcrew's recommendations
         // https://github.com/Noxcrew/noxesium/blob/4b3f93fe6886eac60dbfffa6cb125e1e5a31886a/api/src/main/java/com/noxcrew/noxesium/api/protocol/rule/ServerRuleIndices.java#L85

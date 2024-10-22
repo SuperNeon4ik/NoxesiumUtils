@@ -40,8 +40,7 @@ public class CommandRegistrator {
         
         List<CommandAPICommand> subcommands = generateGenericSubcommands();
         List<CommandAPICommand> serverRulesSubcommands = new ServerRuleCommands(noxesiumUtils).generate();
-        // TODO: Entity rules
-//        List<CommandAPICommand> entityRulesSubcommands = generateEntityRulesSubcommands();
+        List<CommandAPICommand> entityRulesSubcommands = new EntityRuleCommands(noxesiumUtils).generate();
         
         // Add server rule subcommands to the list
         subcommands.add(
@@ -51,11 +50,11 @@ public class CommandRegistrator {
         );
 
         // Add entity rule subcommands to the list
-//        subcommands.add(
-//                new CommandAPICommand("entityRules")
-//                        .withPermission("noxesiumutils.entityrules")
-//                        .withSubcommands(entityRulesSubcommands.toArray(new CommandAPICommand[0]))
-//        );
+        subcommands.add(
+                new CommandAPICommand("entityRules")
+                        .withPermission("noxesiumutils.entityrules")
+                        .withSubcommands(entityRulesSubcommands.toArray(new CommandAPICommand[0]))
+        );
 
         new CommandAPICommand("noxesiumutils")
                 .withPermission("noxesiumutils.about")
