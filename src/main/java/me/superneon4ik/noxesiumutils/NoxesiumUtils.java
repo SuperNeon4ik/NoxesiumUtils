@@ -12,7 +12,7 @@ import me.superneon4ik.noxesiumutils.config.RuleIndex;
 import me.superneon4ik.noxesiumutils.config.ServerRuleDefaults;
 import me.superneon4ik.noxesiumutils.events.NoxesiumPlayerRiptideEvent;
 import me.superneon4ik.noxesiumutils.events.NoxesiumQibTriggeredEvent;
-import me.superneon4ik.noxesiumutils.listeners.NoxesiumPlayerReadyEventListener;
+import me.superneon4ik.noxesiumutils.listeners.NoxesiumPlayerRegisteredListener;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -51,8 +51,8 @@ public class NoxesiumUtils {
         serverRules = new ServerRules(manager);
         entityRules = new EntityRules(manager);
         
-        // Register PlayerJoinEvent Bukkit listener (for default server rules on join)
-        plugin.getServer().getPluginManager().registerEvents(new NoxesiumPlayerReadyEventListener(this), plugin);
+        // Register NoxesiumPlayerRegisteredEvent Bukkit listener (for default server rules on join)
+        plugin.getServer().getPluginManager().registerEvents(new NoxesiumPlayerRegisteredListener(this), plugin);
         
         // Hook into packets to introduce events for them
         NoxesiumPackets.INSTANCE.getSERVER_QIB_TRIGGERED().addListener(getManager(), (manager, event, player) -> {

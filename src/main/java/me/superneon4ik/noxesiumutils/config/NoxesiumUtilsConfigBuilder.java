@@ -86,31 +86,36 @@ public class NoxesiumUtilsConfigBuilder {
                     try {
                         field.setAccessible(true);
                         if (field.getType().equals(Boolean.class)) {
-                            var value = (Boolean) config.getBoolean(fieldName);
+                            var value = (Boolean) defaultsConfigSection.getBoolean(fieldName);
                             field.set(defaults, value);
-                        } else if (field.getType().equals(Integer.class)) {
-                            var value = (Integer) config.getInt(fieldName);
+                        } 
+                        else if (field.getType().equals(Integer.class)) {
+                            var value = (Integer) defaultsConfigSection.getInt(fieldName);
                             field.set(defaults, value);
-                        } else if (field.getType().equals(ItemStack.class)) {
-                            var value = config.getString(fieldName);
+                        } 
+                        else if (field.getType().equals(ItemStack.class)) {
+                            var value = defaultsConfigSection.getString(fieldName);
                             var item = ArgumentTypes.itemStack().parse(new StringReader(value));
                             field.set(defaults, item);
-                        } else if (field.getType().equals(GraphicsType.class)) {
-                            var value = config.getString(fieldName);
+                        } 
+                        else if (field.getType().equals(GraphicsType.class)) {
+                            var value = defaultsConfigSection.getString(fieldName);
                             field.set(defaults, GraphicsType.valueOf(value));
-                        } else if (field.getType().equals(List.class)) {
+                        } 
+                        else if (field.getType().equals(List.class)) {
                             if (field.getGenericType() instanceof ParameterizedType parameterizedType) {
                                 var actualType = parameterizedType.getActualTypeArguments()[0];
                                 if (actualType.equals(String.class)) {
                                     // List<String>
-                                    var value = config.getStringList(fieldName);
+                                    var value = defaultsConfigSection.getStringList(fieldName);
                                     field.set(defaults, value);
                                 } else {
                                     if (logger != null)
                                         logger.warning("Found an incompatible generic type of " + actualType.getTypeName() + " for " + fieldName);
                                 }
                             }
-                        } else {
+                        } 
+                        else {
                             if (logger != null)
                                 logger.warning("Found an incompatible type of " + field.getType().getName() + " for " + fieldName);
                         }

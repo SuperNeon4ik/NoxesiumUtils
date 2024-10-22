@@ -23,4 +23,17 @@ public class NoxesiumUtilsConfig {
     
     @NotNull private Map<String, QibEffect> qibEffects = new WeakHashMap<>();
     @NotNull private Map<String, QibDefinition> qibDefinitions = new WeakHashMap<>();
+
+    @Override
+    public String toString() {
+        return "NoxesiumUtilsConfig{" +
+                "extraDebugOutput=" + extraDebugOutput +
+                ", checkForUpdates=" + checkForUpdates +
+                ", sendDefaultsOnJoin=" + sendDefaultsOnJoin +
+                ", defaults=" + defaults +
+                ", customCreativeItems=" + customCreativeItems +
+                ", qibEffects=" + qibEffects +
+                ", qibDefinitions=" + qibDefinitions +
+                '}';
+    }
 }
