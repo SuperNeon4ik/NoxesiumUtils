@@ -29,13 +29,20 @@ public class CommandRegistrar {
     private final NoxesiumUtils noxesiumUtils;
     @Nullable private final ModrinthUpdateChecker updateChecker;
     
-    @Getter @Setter
-    private List<CommandAPICommand> additionalCommands = Collections.emptyList();
+    private final List<CommandAPICommand> additionalCommands = new LinkedList<>();
     
     public CommandRegistrar(JavaPlugin plugin, NoxesiumUtils noxesiumUtils, @Nullable ModrinthUpdateChecker updateChecker) {
         this.plugin = plugin;
         this.noxesiumUtils = noxesiumUtils;
         this.updateChecker = updateChecker;
+    }
+    
+    public void addAdditionalCommand(CommandAPICommand command) {
+        additionalCommands.add(command);
+    }
+
+    public void addAdditionalCommands(List<CommandAPICommand> commands) {
+        additionalCommands.addAll(commands);
     }
     
     public void registerCommands() {

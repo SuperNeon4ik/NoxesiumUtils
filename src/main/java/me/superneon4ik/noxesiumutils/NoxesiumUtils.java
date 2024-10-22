@@ -16,6 +16,7 @@ import me.superneon4ik.noxesiumutils.listeners.NoxesiumPlayerRegisteredListener;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
@@ -31,12 +32,13 @@ public class NoxesiumUtils {
     
     @Setter @NotNull
     private NoxesiumUtilsConfig config;    
+    
     private HookedNoxesiumManager manager;
     private EntityRuleManager entityRuleManager;
     private ServerRules serverRules;
     private EntityRules entityRules;
     
-    public NoxesiumUtils(JavaPlugin plugin, @NotNull NoxesiumUtilsConfig config, Logger logger) {
+    public NoxesiumUtils(@NotNull JavaPlugin plugin, @NotNull NoxesiumUtilsConfig config, @Nullable Logger logger) {
         this.plugin = plugin;
         this.config = config;
         this.logger = logger;
@@ -88,7 +90,8 @@ public class NoxesiumUtils {
                     manager.setServerRule(player, index, value);
                 }
             } catch (Exception e) {
-                logger.warning("Couldn't read field '" + fieldName + "' while sending default server rules to " + player.getName() + ": " + e.getMessage());
+                if (logger != null) 
+                    logger.warning("Couldn't read field '" + fieldName + "' while sending default server rules to " + player.getName() + ": " + e.getMessage());
             }
         }
     }
