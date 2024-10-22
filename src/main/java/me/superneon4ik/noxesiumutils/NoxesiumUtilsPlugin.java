@@ -27,13 +27,15 @@ public class NoxesiumUtilsPlugin extends JavaPlugin {
         noxesiumUtils = new NoxesiumUtils(this, config, getLogger());
         noxesiumUtils.register();
 
-        new CommandRegistrar(this, noxesiumUtils, updateChecker).registerCommands();
-
         // Register update checker
         updateChecker = new ModrinthUpdateChecker(this, "noxesiumutils");
         if (config.isCheckForUpdates())
             updateChecker.beginChecking(5 * 60 * 20); // every 5 minutes
         
+        // Register commands
+        new CommandRegistrar(this, noxesiumUtils, updateChecker).registerCommands();
+        
+        // Register events
         getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(updateChecker), this);
     }
 
