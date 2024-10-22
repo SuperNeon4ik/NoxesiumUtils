@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.EntitySelectorArgument;
+import lombok.Getter;
+import lombok.Setter;
 import me.superneon4ik.noxesiumutils.NoxesiumUtils;
 import me.superneon4ik.noxesiumutils.OldNoxesiumUtilsImpl;
 import me.superneon4ik.noxesiumutils.modules.ModrinthUpdateChecker;
@@ -18,16 +20,20 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 @SuppressWarnings("unchecked")
-public class CommandRegistrator {
+public class CommandRegistrar {
     private final JavaPlugin plugin;
     private final NoxesiumUtils noxesiumUtils;
     @Nullable private final ModrinthUpdateChecker updateChecker;
     
-    public CommandRegistrator(JavaPlugin plugin, NoxesiumUtils noxesiumUtils, @Nullable ModrinthUpdateChecker updateChecker) {
+    @Getter @Setter
+    private List<CommandAPICommand> additionalCommands = Collections.emptyList();
+    
+    public CommandRegistrar(JavaPlugin plugin, NoxesiumUtils noxesiumUtils, @Nullable ModrinthUpdateChecker updateChecker) {
         this.plugin = plugin;
         this.noxesiumUtils = noxesiumUtils;
         this.updateChecker = updateChecker;
@@ -37,7 +43,7 @@ public class CommandRegistrator {
         // Unregister existing commands in case of reload
         CommandAPI.unregister("noxesiumutils", true);
         
-        
+        // Generate the commands
         List<CommandAPICommand> subcommands = generateGenericSubcommands();
         List<CommandAPICommand> serverRulesSubcommands = new ServerRuleCommands(noxesiumUtils).generate();
         List<CommandAPICommand> entityRulesSubcommands = new EntityRuleCommands(noxesiumUtils).generate();
@@ -55,7 +61,13 @@ public class CommandRegistrator {
                         .withPermission("noxesiumutils.entityrules")
                         .withSubcommands(entityRulesSubcommands.toArray(new CommandAPICommand[0]))
         );
+        
+        // Add additional custom commands if defined
+        if (additionalCommands != null && !additionalCommands.isEmpty()) {
+            subcommands.addAll(additionalCommands);
+        }
 
+        // Register the commands
         new CommandAPICommand("noxesiumutils")
                 .withPermission("noxesiumutils.about")
                 .withSubcommands(subcommands.toArray(new CommandAPICommand[0]))

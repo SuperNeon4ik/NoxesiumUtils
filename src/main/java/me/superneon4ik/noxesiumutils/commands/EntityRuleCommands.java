@@ -31,14 +31,14 @@ public class EntityRuleCommands {
         List<CommandAPICommand> commands = new LinkedList<>();
         
         commands.addAll(booleanRule("disableBubbles", EntityRuleIndices.DISABLE_BUBBLES));
-        commands.addAll(booleanRule("beamColor", EntityRuleIndices.BEAM_COLOR));
+        commands.addAll(colorRule("beamColor", EntityRuleIndices.BEAM_COLOR));
         commands.addAll(integerRule("interactionWidthZ", EntityRuleIndices.QIB_WIDTH_Z));
         commands.addAll(qibBehaviorRule("qibBehavior", EntityRuleIndices.QIB_BEHAVIOR));
         
         return commands;
     }
 
-    private CommandAPICommand resetRuleCommand(String name, int index) {
+    public CommandAPICommand resetRuleCommand(String name, int index) {
         return new CommandAPICommand(name)
                 .withArguments(
                         new EntitySelectorArgument.ManyEntities("entities"),
@@ -50,7 +50,7 @@ public class EntityRuleCommands {
                 });
     }
 
-    private List<CommandAPICommand> argumentRule(String name, int index, Argument<?> argument) {
+    public List<CommandAPICommand> argumentRule(String name, int index, Argument<?> argument) {
         return List.of(
                 new CommandAPICommand(name)
                         .withArguments(
@@ -66,15 +66,15 @@ public class EntityRuleCommands {
         );
     }
 
-    private List<CommandAPICommand> booleanRule(String name, int index) {
+    public List<CommandAPICommand> booleanRule(String name, int index) {
         return argumentRule(name, index, new BooleanArgument("value"));
     }
 
-    private List<CommandAPICommand> integerRule(String name, int index) {
+    public List<CommandAPICommand> integerRule(String name, int index) {
         return argumentRule(name, index, new BooleanArgument("value"));
     }
-    
-    private List<CommandAPICommand> colorRule(String name, int index) {
+
+    public List<CommandAPICommand> colorRule(String name, int index) {
         return List.of(
                 new CommandAPICommand(name)
                         .withArguments(
@@ -100,8 +100,8 @@ public class EntityRuleCommands {
                         })      
         );
     }
-    
-    private List<CommandAPICommand> qibBehaviorRule(String name, int index) {
+
+    public List<CommandAPICommand> qibBehaviorRule(String name, int index) {
         return List.of(
                 new CommandAPICommand(name)
                     .withArguments(
@@ -123,7 +123,7 @@ public class EntityRuleCommands {
     
     // ---
 
-    private void updateEntityRule(@Nullable CommandSender sender, Collection<Entity> entities, Integer index, Object value) {
+    public void updateEntityRule(@Nullable CommandSender sender, Collection<Entity> entities, Integer index, Object value) {
         if (entities == null) return;
         AtomicInteger updates = new AtomicInteger();
         entities.forEach(entity -> {
@@ -137,7 +137,7 @@ public class EntityRuleCommands {
             sender.sendMessage(Component.text(updates.get() + " entities affected.", NamedTextColor.GREEN));
     }
 
-    private void resetEntityRule(@Nullable CommandSender sender, Collection<Entity> entities, Integer index) {
+    public void resetEntityRule(@Nullable CommandSender sender, Collection<Entity> entities, Integer index) {
         if (entities == null) return;
         AtomicInteger updates = new AtomicInteger();
         entities.forEach(entity -> {

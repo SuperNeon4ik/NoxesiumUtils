@@ -47,12 +47,12 @@ public class ServerRuleCommands {
                 noxesiumUtils.getConfig().getCustomCreativeItems()));
         
         commands.addAll(graphicsTypeCommand("overrideGraphicsMode", ServerRuleIndices.OVERRIDE_GRAPHICS_MODE));
-        commands.addAll(qibBehaviorCommand("qibBehaviors", ServerRuleIndices.QIB_BEHAVIORS));
+        commands.addAll(qibBehaviorListCommand("qibBehaviors", ServerRuleIndices.QIB_BEHAVIORS));
         
         return commands;
     }
-    
-    private CommandAPICommand resetRuleCommand(String name, int index) {
+
+    public CommandAPICommand resetRuleCommand(String name, int index) {
         return new CommandAPICommand(name)
                 .withArguments(
                         new EntitySelectorArgument.ManyPlayers("players"),
@@ -63,8 +63,8 @@ public class ServerRuleCommands {
                     resetServerRule(sender, players, index);
                 });
     }
-    
-    private List<CommandAPICommand> argumentRule(String name, int index, Argument<?> argument) {
+
+    public List<CommandAPICommand> argumentRule(String name, int index, Argument<?> argument) {
         return List.of(
                 new CommandAPICommand(name)
                         .withArguments(
@@ -79,20 +79,20 @@ public class ServerRuleCommands {
                 resetRuleCommand(name, index)
         );
     }
-    
-    private List<CommandAPICommand> booleanRule(String name, int index) {
+
+    public List<CommandAPICommand> booleanRule(String name, int index) {
         return argumentRule(name, index, new BooleanArgument("value"));
     }
 
-    private List<CommandAPICommand> integerRule(String name, int index) {
+    public List<CommandAPICommand> integerRule(String name, int index) {
         return argumentRule(name, index, new BooleanArgument("value"));
     }
-    
-    private List<CommandAPICommand> itemStackRule(String name, int index) {
+
+    public List<CommandAPICommand> itemStackRule(String name, int index) {
         return argumentRule(name, index, new ItemStackArgument("value"));
     }
-    
-    private List<CommandAPICommand> valueToggleCommand(String name, int index, Object value) {
+
+    public List<CommandAPICommand> valueToggleCommand(String name, int index, Object value) {
         return List.of(
                 new CommandAPICommand(name)
                         .withArguments(
@@ -110,8 +110,8 @@ public class ServerRuleCommands {
                 resetRuleCommand(name, index)
         );
     }
-    
-    private List<CommandAPICommand> graphicsTypeCommand(String name, int index) {
+
+    public List<CommandAPICommand> graphicsTypeCommand(String name, int index) {
         List<CommandAPICommand> commands = new LinkedList<>();
         for (GraphicsType type : GraphicsType.values()) {
             commands.add(
@@ -130,8 +130,8 @@ public class ServerRuleCommands {
         commands.add(resetRuleCommand(name, index));
         return commands;
     }
-    
-    private List<CommandAPICommand> qibBehaviorCommand(String name, int index) {
+
+    public List<CommandAPICommand> qibBehaviorListCommand(String name, int index) {
         return List.of(
                 new CommandAPICommand("qibBehaviors")
                         .withArguments(

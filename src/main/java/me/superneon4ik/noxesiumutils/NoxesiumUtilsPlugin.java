@@ -1,7 +1,7 @@
 package me.superneon4ik.noxesiumutils;
 
 import lombok.Getter;
-import me.superneon4ik.noxesiumutils.commands.CommandRegistrator;
+import me.superneon4ik.noxesiumutils.commands.CommandRegistrar;
 import me.superneon4ik.noxesiumutils.config.NoxesiumUtilsConfigBuilder;
 import me.superneon4ik.noxesiumutils.listeners.PlayerJoinEventListener;
 import me.superneon4ik.noxesiumutils.modules.ModrinthUpdateChecker;
@@ -27,7 +27,7 @@ public class NoxesiumUtilsPlugin extends JavaPlugin {
         noxesiumUtils = new NoxesiumUtils(this, config, getLogger());
         noxesiumUtils.register();
 
-        new CommandRegistrator(this, noxesiumUtils, updateChecker).registerCommands();
+        new CommandRegistrar(this, noxesiumUtils, updateChecker).registerCommands();
 
         // Register update checker
         updateChecker = new ModrinthUpdateChecker(this, "noxesiumutils");
