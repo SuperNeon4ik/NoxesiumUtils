@@ -13,6 +13,8 @@ permissions:
     description: Run /noxesiumutils.
   noxesiumutils.check:
     description: Run /noxesiumutils check & clientSettings.
+  noxesiumutils.reload:
+    description: Run the reload config command
   noxesiumutils.serverrules:
     description: Access ServerRule commands in /noxesiumutils.
   noxesiumutils.entityrules:

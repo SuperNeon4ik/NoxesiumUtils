@@ -5,8 +5,6 @@ import com.google.gson.GsonBuilder;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.EntitySelectorArgument;
-import lombok.Getter;
-import lombok.Setter;
 import me.superneon4ik.noxesiumutils.NoxesiumUtils;
 import me.superneon4ik.noxesiumutils.modules.ModrinthUpdateChecker;
 import net.kyori.adventure.text.Component;
@@ -19,7 +17,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -69,12 +66,13 @@ public class CommandRegistrar {
         );
         
         // Add additional custom commands if defined
-        if (additionalCommands != null && !additionalCommands.isEmpty()) {
+        if (!additionalCommands.isEmpty()) {
             subcommands.addAll(additionalCommands);
         }
 
         // Register the commands
         new CommandAPICommand("noxesiumutils")
+                .withAliases("noxutils")
                 .withPermission("noxesiumutils.about")
                 .withSubcommands(subcommands.toArray(new CommandAPICommand[0]))
                 .executes(((sender, args) -> {
