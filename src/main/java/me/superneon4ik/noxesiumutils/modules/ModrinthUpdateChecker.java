@@ -58,6 +58,11 @@ public class ModrinthUpdateChecker {
 
     public CompletableFuture<VersionStatus> checkForUpdates() {
         CompletableFuture<VersionStatus> future = new CompletableFuture<>();
+        if (getCurrentPluginVersion().endsWith("-dev")) {
+            future.complete(VersionStatus.DEVELOPMENT);
+            return future;
+        }
+        
         String uri = "https://api.modrinth.com/v2/project/%s/version?game_versions=%%5B%%22%s%%22%%5D"
                 .formatted(slug, Bukkit.getServer().getMinecraftVersion());
         var futureResponse = Unirest.get(uri).asJsonAsync();
