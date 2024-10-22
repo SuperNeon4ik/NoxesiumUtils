@@ -66,11 +66,6 @@ public class NoxesiumUtilsConfigBuilder {
     @SuppressWarnings("UnstableApiUsage")
     private void loadDefaults(NoxesiumUtilsConfig noxesiumUtilsConfig) {
         if (config == null) return;
-        
-        // Load root settings
-        noxesiumUtilsConfig.setExtraDebugOutput(config.getBoolean("extraDebugOutput", false));
-        noxesiumUtilsConfig.setCheckForUpdates(config.getBoolean("checkForUpdates", true));
-        noxesiumUtilsConfig.setSendDefaultsOnJoin(config.getBoolean("sendDefaultsOnJoin", false));
 
         // Load `defaults`
         var defaultsConfigSection = config.getConfigurationSection("defaults");

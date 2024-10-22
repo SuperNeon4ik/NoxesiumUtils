@@ -27,8 +27,9 @@ public class NoxesiumUtilsPlugin extends JavaPlugin {
                 .build();
         noxesiumUtils = new NoxesiumUtils(this, config, getLogger());
         noxesiumUtils.register();
-        
-        getLogger().info("Loaded config: " + config);
+
+        if (config.isExtraDebugOutput())
+            getLogger().info("Loaded config: " + config);
 
         // Register update checker
         updateChecker = new ModrinthUpdateChecker(this, "noxesiumutils");
