@@ -101,6 +101,10 @@ public class EntityRuleCommands {
     }
 
     public List<CommandAPICommand> qibBehaviorRule(String name, int index) {
+        if (noxesiumUtils.getConfig().getQibDefinitions().isEmpty()) {
+            return List.of(resetRuleCommand(name, index));
+        }
+        
         return List.of(
                 new CommandAPICommand(name)
                     .withArguments(
