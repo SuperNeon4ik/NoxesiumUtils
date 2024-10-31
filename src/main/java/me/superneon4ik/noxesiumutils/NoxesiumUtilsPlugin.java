@@ -1,5 +1,6 @@
 package me.superneon4ik.noxesiumutils;
 
+import com.noxcrew.noxesium.api.qib.QibDefinition;
 import dev.jorel.commandapi.CommandAPICommand;
 import lombok.Getter;
 import me.superneon4ik.noxesiumutils.commands.CommandRegistrar;
@@ -12,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.nio.file.Path;
+import java.util.*;
 
 public class NoxesiumUtilsPlugin extends JavaPlugin {
     @Getter private static NoxesiumUtilsPlugin instance;
@@ -68,16 +70,40 @@ public class NoxesiumUtilsPlugin extends JavaPlugin {
                 new CommandAPICommand("reload")
                         .withPermission("noxesiumutils.reload")
                         .executes(((sender, args) -> {
+                            // Reload the config
                             reloadConfig();
+                            var oldConfig = noxesiumUtils.getConfig();
                             var config = buildConfig();
                             noxesiumUtils.setConfig(config);
                             registerCommands(); // Reload available commands
                             
                             sender.sendRichMessage("<green>Reloaded configuration file!</green>");
 
-                            // TODO: Resend updated Qibs
+                            // Send updated qibs
+                            var oldQibs = oldConfig.getQibDefinitions();
+                            var newQibs = config.getQibDefinitions();
+
+                            List<String> changedQibs = newQibs.keySet().stream()
+                                    .filter(oldQibs::containsKey)
+                                    .filter(x -> !oldQibs.get(x).equals(newQibs.get(x)))
+                                    .toList();
+
+                            Bukkit.getOnlinePlayers().forEach(player -> {
+                                var qibRule = noxesiumUtils.getManager().getServerRule(player, noxesiumUtils.getServerRules().getQibBehaviors());
+                                if (qibRule == null) return;
+                                var qibs = qibRule.getValue();
+                                for (String qibId : changedQibs) {
+                                    if (qibs.containsKey(qibId)) {
+                                        qibs.put(qibId, newQibs.get(qibId));
+
+                                        if (config.isExtraDebugOutput())
+                                            getLogger().info("Reloading qib " + qibId + " for " + player.getName());
+                                    }
+                                }
+                            });
 
                             if (config.isSendDefaultsOnReload()) {
+                                // Send defaults to online players
                                 Bukkit.getOnlinePlayers().forEach(noxesiumUtils::sendDefaultServerRules);
                                 sender.sendRichMessage("<green>Sent default server rules!</green>");
                             }
