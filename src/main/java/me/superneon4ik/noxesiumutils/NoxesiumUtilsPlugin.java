@@ -7,6 +7,7 @@ import me.superneon4ik.noxesiumutils.commands.CommandRegistrar;
 import me.superneon4ik.noxesiumutils.config.NoxesiumUtilsConfig;
 import me.superneon4ik.noxesiumutils.config.NoxesiumUtilsConfigBuilder;
 import me.superneon4ik.noxesiumutils.listeners.PlayerJoinEventListener;
+import me.superneon4ik.noxesiumutils.listeners.ReloadCommandListener;
 import me.superneon4ik.noxesiumutils.modules.ModrinthUpdateChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -92,14 +93,24 @@ public class NoxesiumUtilsPlugin extends JavaPlugin {
                                 var qibRule = noxesiumUtils.getManager().getServerRule(player, noxesiumUtils.getServerRules().getQibBehaviors());
                                 if (qibRule == null) return;
                                 var qibs = qibRule.getValue();
+                                boolean hasChanged = false;
                                 for (String qibId : changedQibs) {
                                     if (qibs.containsKey(qibId)) {
                                         qibs.put(qibId, newQibs.get(qibId));
+                                        hasChanged = true;
 
                                         if (config.isExtraDebugOutput())
                                             getLogger().info("Reloading qib " + qibId + " for " + player.getName());
                                     }
                                 }
+
+                                if (!hasChanged) return;
+
+                                // We reset the rule first because Noxesium checks if the
+                                // map is the same before applying, which is always false,
+                                // because of some HashMap memery ig.
+                                qibRule.reset();
+                                qibRule.setValue(qibs);
                             });
 
                             if (config.isSendDefaultsOnReload()) {
@@ -115,5 +126,6 @@ public class NoxesiumUtilsPlugin extends JavaPlugin {
     
     private void registerEvents() {
         getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(updateChecker), this);
+        getServer().getPluginManager().registerEvents(new ReloadCommandListener(), this);
     }
 }
