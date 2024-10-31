@@ -84,7 +84,10 @@ public class EntityRuleCommands {
                             var entities = (Collection<Entity>) args.get("entities");
                             if (entities == null) return;
                             if (entities.stream().map(Entity::getType).noneMatch(x -> x == EntityType.GUARDIAN || x == EntityType.ELDER_GUARDIAN)) {
-                                sender.sendMessage(Component.text("WARNING: 'beamColor' EntityRule is applicable only to minecraft:guardian & minecraft:elder_guardian entities.", NamedTextColor.YELLOW));
+                                sender.sendRichMessage(
+                                        "<yellow><bold>WARNING:</bold> 'beamColor' EntityRule is applicable only to " +
+                                        "minecraft:guardian & minecraft:elder_guardian entities."
+                                );
                             }
 
                             var hexColor = (String) args.get("hex");
@@ -116,7 +119,10 @@ public class EntityRuleCommands {
                         var qibName = (String) args.get("value");
                         if (entities == null) return;
                         if (entities.stream().map(Entity::getType).noneMatch(x -> x == EntityType.INTERACTION)) {
-                            sender.sendMessage(Component.text("WARNING: 'qibBehaviour' EntityRule is applicable only to minecraft:interaction entities.", NamedTextColor.YELLOW));
+                            sender.sendRichMessage(
+                                    "<yellow><bold>WARNING:</bold> 'qibBehaviour' EntityRule is applicable " +
+                                    "only to minecraft:interaction entities."
+                            );
                         }
                         updateEntityRule(sender, entities, index, qibName);
                     }),
