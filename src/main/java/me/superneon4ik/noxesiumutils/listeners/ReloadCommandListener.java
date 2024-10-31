@@ -12,8 +12,8 @@ public class ReloadCommandListener implements Listener {
         if (event.getMessage().equalsIgnoreCase("/reload confirm")) {
             // Send a warning
             event.getPlayer().sendRichMessage(
-                    "<yellow><bold>WARNING:</bold> NoxesiumUtils doesn't support reloads and players, " +
-                    "who are using Noxesium, will have to rejoin to register correctly."
+                    "<yellow><bold>WARNING:</bold> NoxesiumUtils doesn't support reloads, " +
+                    "and players who are using Noxesium will have to rejoin to register correctly."
             );
         }
     }

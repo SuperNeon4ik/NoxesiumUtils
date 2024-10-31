@@ -31,7 +31,7 @@ import java.util.List;
  * registrar.registerCommands();
  * }</pre>
  *
- * Reload command in not built-in to the registrar.
+ * The reload command is not built into the registrar.
  * You can refer to {@code NoxesiumUtilsPlugin#registerCommands()} for
  * an example on how to implement the reload command.
  */
