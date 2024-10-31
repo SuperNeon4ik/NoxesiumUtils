@@ -1,7 +1,7 @@
 # View Protocol documentation and information about the mod here:
 # https://github.com/Noxcrew/noxesium/wiki
-# View documentation about this config in the README:
-# https://github.com/SuperNeon4ik/NoxesiumUtils
+# View documentation about this config in the wiki:
+# https://github.com/SuperNeon4ik/NoxesiumUtils/wiki
 
 # Add some extra output for debugging purposes
 extraDebugOutput: false
@@ -11,6 +11,9 @@ checkForUpdates: true
 
 # If true will send defaults to Noxesium Players on join.
 sendDefaultsOnJoin: false
+
+# If true will send defaults to Noxesium Players on config reload.
+sendDefaultsOnReload: false
 
 # Comment out the line if you don't want to send that rule.
 defaults:

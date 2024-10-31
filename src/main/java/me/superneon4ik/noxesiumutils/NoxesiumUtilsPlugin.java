@@ -7,6 +7,8 @@ import me.superneon4ik.noxesiumutils.config.NoxesiumUtilsConfig;
 import me.superneon4ik.noxesiumutils.config.NoxesiumUtilsConfigBuilder;
 import me.superneon4ik.noxesiumutils.listeners.PlayerJoinEventListener;
 import me.superneon4ik.noxesiumutils.modules.ModrinthUpdateChecker;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.nio.file.Path;
@@ -71,11 +73,14 @@ public class NoxesiumUtilsPlugin extends JavaPlugin {
                             noxesiumUtils.setConfig(config);
                             registerCommands(); // Reload available commands
                             
-                            // TODO: 
-                            //  - Resend updated Qibs
-                            //  - If a config value is set - send defaults to everyone on the server
-                            
                             sender.sendRichMessage("<green>Reloaded configuration file!</green>");
+
+                            // TODO: Resend updated Qibs
+
+                            if (config.isSendDefaultsOnReload()) {
+                                Bukkit.getOnlinePlayers().forEach(noxesiumUtils::sendDefaultServerRules);
+                                sender.sendRichMessage("<green>Sent default server rules!</green>");
+                            }
                         }))
         );
         
