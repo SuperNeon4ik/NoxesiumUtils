@@ -40,6 +40,8 @@ public class NoxesiumUtilsPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         noxesiumUtils.unregister();
+        updateChecker = null;
+        noxesiumUtils = null;
         instance = null;
     }
     

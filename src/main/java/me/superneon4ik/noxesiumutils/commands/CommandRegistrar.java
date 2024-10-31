@@ -20,6 +20,21 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Registers {@code /noxesiumutils} commands for the plugin.
+ * <p>
+ * If your plugin depends on NoxesiumUtils you shouldn't use this.
+ * However, if you shade NoxesiumUtils into your plugin, and you want
+ * the commands you can simply register them:
+ * <pre>{@code
+ * var registrar = new CommandRegistrar(this, noxesiumUtils, updateChecker);
+ * registrar.registerCommands();
+ * }</pre>
+ *
+ * Reload command in not built-in to the registrar.
+ * You can refer to {@code NoxesiumUtilsPlugin#registerCommands()} for
+ * an example on how to implement the reload command.
+ */
 @SuppressWarnings("unchecked")
 public class CommandRegistrar {
     private final JavaPlugin plugin;

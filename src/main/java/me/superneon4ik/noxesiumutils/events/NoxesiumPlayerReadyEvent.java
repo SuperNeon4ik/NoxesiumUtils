@@ -6,6 +6,10 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Called when player becomes read to start receiving packets.
+ * Called before {@link NoxesiumPlayerRegisteredEvent}.
+ */
 @Getter
 public class NoxesiumPlayerReadyEvent extends Event {
     private static final HandlerList handlers = new HandlerList();

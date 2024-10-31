@@ -11,6 +11,10 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
+/**
+ * This is just {@link NoxesiumManager}, but it calls Bukkit
+ * events on actions.
+ */
 public class HookedNoxesiumManager extends NoxesiumManager {
     public HookedNoxesiumManager(@NotNull Plugin plugin, @NotNull Logger logger) {
         super(plugin, logger);

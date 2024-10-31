@@ -25,6 +25,19 @@ import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.logging.Logger;
 
+/**
+ * If your plugin depends on NoxesiumUtils use the instance from
+ * {@link NoxesiumUtilsPlugin#getNoxesiumUtils()}.
+ * <p>
+ * If you're shading NoxesiumUtils you need to create your own instance
+ * of this class in your plugin.<br>
+ * Something like this:
+ * <pre>{@code
+ * var config = new NoxesiumUtilsConfigBuilder().build();
+ * var noxesiumUtils = new NoxesiumUtils(plugin, config, plugin.getLogger());
+ * noxesiumUtils.register();
+ * }</pre>
+ */
 @Getter
 public class NoxesiumUtils {
     private final JavaPlugin plugin;

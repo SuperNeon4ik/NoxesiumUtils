@@ -7,6 +7,9 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Called when a player triggers a Qib.
+ */
 @Getter
 public class NoxesiumQibTriggeredEvent extends Event {
     private static final HandlerList handlers = new HandlerList();

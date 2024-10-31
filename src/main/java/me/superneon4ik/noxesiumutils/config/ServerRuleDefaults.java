@@ -43,7 +43,7 @@ public class ServerRuleDefaults {
     public ItemStack handItemOverride = null;
     
     @RuleIndex(index = ServerRuleIndices.OVERRIDE_GRAPHICS_MODE) @Nullable
-    public GraphicsType overrideGraphicsMode = null; // should be Optional<GraphicsType> when sending
+    public GraphicsType overrideGraphicsMode = null; // should be converted to Optional<GraphicsType> when sending
     
     @RuleIndex(index = ServerRuleIndices.RIPTIDE_COYOTE_TIME) @Nullable
     public Integer riptideCoyoteTime = null;
@@ -52,10 +52,10 @@ public class ServerRuleDefaults {
     public Boolean showMapInUi = null;
     
     @RuleIndex(index = ServerRuleIndices.CUSTOM_CREATIVE_ITEMS) @Nullable
-    public Boolean customCreativeItems = null; // should be List<ItemStack> when sending
+    public Boolean customCreativeItems = null; // should be converted to List<ItemStack> when sending
     
     @RuleIndex(index = ServerRuleIndices.QIB_BEHAVIORS) @Nullable
-    public List<String> qibBehaviors = null; // should be Map<String, QibBehavior> when sending
+    public List<String> qibBehaviors = null; // should be converted to Map<String, QibBehavior> when sending
 
     @Override
     public String toString() {

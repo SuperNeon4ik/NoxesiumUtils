@@ -20,6 +20,19 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+/**
+ * This is used to simplify loading configs.
+ * You will probably want to use this if you're shading
+ * NoxesiumUtils. For example:
+ * <pre>{@code
+ * var qibEffectsFolder = Path.of(plugin.getDataFolder().getPath(), "qibs").toFile();
+ * var config = new NoxesiumUtilsConfigBuilder()
+ *                 .withConfig(plugin.getConfig())
+ *                 .withQibFolder(qibEffectsFolder)
+ *                 .withLogger(plugin.getLogger())
+ *                 .build();
+ * }</pre>
+ */
 public class NoxesiumUtilsConfigBuilder {
     @Nullable private FileConfiguration config = null;
     @Nullable private File qibEffectsFolder = null;
