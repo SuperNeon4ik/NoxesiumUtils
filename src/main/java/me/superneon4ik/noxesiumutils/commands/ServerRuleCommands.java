@@ -48,8 +48,36 @@ public class ServerRuleCommands {
         
         commands.addAll(graphicsTypeCommand("overrideGraphicsMode", ServerRuleIndices.OVERRIDE_GRAPHICS_MODE));
         commands.addAll(qibBehaviorListCommand("qibBehaviors", ServerRuleIndices.QIB_BEHAVIORS));
-        
+
+        commands.add(generateResetCommand());
+
         return commands;
+    }
+
+    private CommandAPICommand generateResetCommand() {
+        return new CommandAPICommand("reset")
+                .withArguments(
+                        new EntitySelectorArgument.ManyPlayers("players")
+                )
+                .executes((sender, args) -> {
+                    var players = (Collection<Player>) args.get("players");
+                    assert players != null;
+
+                    AtomicInteger updates = new AtomicInteger();
+                    players.forEach(player -> {
+                        boolean hasChanged = false;
+                        for (Integer idx : noxesiumUtils.getManager().getServerRules().getContents().keySet()) {
+                            if (noxesiumUtils.getManager().resetServerRule(player, idx))
+                                hasChanged = true;
+                        }
+
+                        if (hasChanged)
+                            updates.incrementAndGet();
+                    });
+
+                    if (sender != null)
+                        sender.sendMessage(Component.text(updates.get() + " player(s) affected.", NamedTextColor.GREEN));
+                });
     }
 
     public CommandAPICommand resetRuleCommand(String name, int index) {

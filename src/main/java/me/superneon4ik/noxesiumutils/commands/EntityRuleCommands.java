@@ -9,6 +9,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -33,8 +34,38 @@ public class EntityRuleCommands {
         commands.addAll(colorRule("beamColor", EntityRuleIndices.BEAM_COLOR));
         commands.addAll(integerRule("interactionWidthZ", EntityRuleIndices.QIB_WIDTH_Z));
         commands.addAll(qibBehaviorRule("qibBehavior", EntityRuleIndices.QIB_BEHAVIOR));
-        
+
+        commands.add(generateResetCommand());
+
         return commands;
+    }
+
+    private CommandAPICommand generateResetCommand() {
+        return new CommandAPICommand("reset")
+                .withArguments(
+                        new EntitySelectorArgument.ManyEntities("entities")
+                )
+                .executes((sender, args) -> {
+                    var entities = (Collection<Entity>) args.get("entities");
+                    if (entities == null) return;
+
+                    AtomicInteger updates = new AtomicInteger();
+                    entities.forEach(entity -> {
+                        boolean hasChanged = false;
+                        for (Integer idx : noxesiumUtils.getManager().getEntityRules().getContents().keySet()) {
+                            var rule = noxesiumUtils.getEntityRuleManager().getEntityRule(entity, idx);
+                            if (rule == null) continue;
+                            rule.reset();
+                            hasChanged = true;
+                        }
+
+                        if (hasChanged)
+                            updates.incrementAndGet();
+                    });
+
+                    if (sender != null)
+                        sender.sendMessage(Component.text(updates.get() + " player(s) affected.", NamedTextColor.GREEN));
+                });
     }
 
     public CommandAPICommand resetRuleCommand(String name, int index) {
@@ -44,8 +75,8 @@ public class EntityRuleCommands {
                         new LiteralArgument("reset")
                 )
                 .executes((sender, args) -> {
-                    var players = (Collection<Entity>) args.get("entities");
-                    resetEntityRule(sender, players, index);
+                    var entities = (Collection<Entity>) args.get("entities");
+                    resetEntityRule(sender, entities, index);
                 });
     }
 
@@ -57,9 +88,9 @@ public class EntityRuleCommands {
                                 argument
                         )
                         .executes((sender, args) -> {
-                            var players = (Collection<Entity>) args.get("entities");
+                            var entities = (Collection<Entity>) args.get("entities");
                             var value = args.get("value");
-                            updateEntityRule(sender, players, index, value);
+                            updateEntityRule(sender, entities, index, value);
                         }),
                 resetRuleCommand(name, index)
         );
