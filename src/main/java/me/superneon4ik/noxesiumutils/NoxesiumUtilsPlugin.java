@@ -89,6 +89,9 @@ public class NoxesiumUtilsPlugin extends JavaPlugin {
                                     .filter(x -> !oldQibs.get(x).equals(newQibs.get(x)))
                                     .toList();
 
+                            if (config.isExtraDebugOutput() && !changedQibs.isEmpty())
+                                getLogger().info("Qibs to be updated for online players: " + String.join(", ", changedQibs));
+
                             Bukkit.getOnlinePlayers().forEach(player -> {
                                 var qibRule = noxesiumUtils.getManager().getServerRule(player, noxesiumUtils.getServerRules().getQibBehaviors());
                                 if (qibRule == null) return;
@@ -98,9 +101,6 @@ public class NoxesiumUtilsPlugin extends JavaPlugin {
                                     if (qibs.containsKey(qibId)) {
                                         qibs.put(qibId, newQibs.get(qibId));
                                         hasChanged = true;
-
-                                        if (config.isExtraDebugOutput())
-                                            getLogger().info("Reloading qib " + qibId + " for " + player.getName());
                                     }
                                 }
 
