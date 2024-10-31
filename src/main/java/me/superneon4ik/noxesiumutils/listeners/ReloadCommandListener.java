@@ -9,7 +9,8 @@ public class ReloadCommandListener implements Listener {
     public void onCommand(PlayerCommandPreprocessEvent event) {
         if (!event.getPlayer().isOp()) return;
 
-        if (event.getMessage().equalsIgnoreCase("/reload confirm")) {
+        if (event.getMessage().equalsIgnoreCase("/reload confirm") ||
+            event.getMessage().equalsIgnoreCase("/rl confirm")) {
             // Send a warning
             event.getPlayer().sendRichMessage(
                     "<yellow><bold>WARNING:</bold> NoxesiumUtils doesn't support reloads, " +
