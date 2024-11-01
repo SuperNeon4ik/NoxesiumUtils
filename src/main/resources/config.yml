@@ -10,7 +10,7 @@ extraDebugOutput: false
 checkForUpdates: true
 
 # If true will send defaults to Noxesium Players on join.
-sendDefaultsOnJoin: false
+sendDefaultsOnJoin: true
 
 # If true will send defaults to Noxesium Players on config reload.
 sendDefaultsOnReload: false
