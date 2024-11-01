@@ -67,7 +67,7 @@ public class CommandRegistrar {
     
     /**
      * Registers all the {@code /noxesiumutils} commands.
-     * Also tried to unregister existing commands, so it
+     * Also tries to unregister existing commands, so it
      * can be used to reload commands, however Paper will
      * sometimes throw an exception in an async thread,
      * which doesn't break anything, but is annoying.
