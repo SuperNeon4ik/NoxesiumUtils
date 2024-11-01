@@ -49,14 +49,29 @@ public class CommandRegistrar {
         this.updateChecker = updateChecker;
     }
     
+    /**
+     * Add an additional command that should be registered
+     * to {@code /noxesiumutils} (as subcommands)
+     */
     public void addAdditionalCommand(CommandAPICommand command) {
         additionalCommands.add(command);
     }
 
+    /**
+     * Add a list of additional commands that should be registered
+     * to {@code /noxesiumutils} (as subcommands)
+     */
     public void addAdditionalCommands(List<CommandAPICommand> commands) {
         additionalCommands.addAll(commands);
     }
     
+    /**
+     * Registers all the {@code /noxesiumutils} commands.
+     * Also tried to unregister existing commands, so it
+     * can be used to reload commands, however Paper will
+     * sometimes throw an exception in an async thread,
+     * which doesn't break anything, but is annoying.
+     */
     public void registerCommands() {
         // Unregister existing commands in case of reload
         CommandAPI.unregister("noxesiumutils", true);

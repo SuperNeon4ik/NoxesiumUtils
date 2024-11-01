@@ -23,6 +23,9 @@ public class ServerRuleCommands {
         this.noxesiumUtils = noxesiumUtils;
     }
     
+    /**
+     * Generate all needed server rule commands
+     */
     public List<CommandAPICommand> generate() {
         List<CommandAPICommand> commands = new LinkedList<>();
         commands.addAll(booleanRule("disableSpinAttackCollisions", ServerRuleIndices.DISABLE_SPIN_ATTACK_COLLISIONS));
@@ -80,6 +83,12 @@ public class ServerRuleCommands {
                 });
     }
 
+    /**
+     * Generate a {@code /noxutils serverRules ... reset} command,
+     * that resets the rule to the default value.
+     * @param name The name of the rule/command (should be lowerCamelCase)
+     * @param index The index of the rule (see {@link ServerRuleIndices})
+     */
     public CommandAPICommand resetRuleCommand(String name, int index) {
         return new CommandAPICommand(name)
                 .withArguments(
@@ -92,6 +101,11 @@ public class ServerRuleCommands {
                 });
     }
 
+    /**
+     * Command that sets the rule's value to the value
+     * returned by the provided CommandAPI Argument.
+     * Also adds a {@link ServerRuleCommands#resetRuleCommand()}
+     */
     public List<CommandAPICommand> argumentRule(String name, int index, Argument<?> argument) {
         return List.of(
                 new CommandAPICommand(name)
