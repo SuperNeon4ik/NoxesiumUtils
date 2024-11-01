@@ -92,7 +92,7 @@ public class EntityRuleCommands {
     /**
      * Command that sets the rule's value to the value
      * returned by the provided CommandAPI Argument.
-     * Also adds a {@link EntityRuleCommands#resetRuleCommand()}
+     * Also adds a {@link EntityRuleCommands#resetRuleCommand(String, int)} 
      */
     public List<CommandAPICommand> argumentRule(String name, int index, Argument<?> argument) {
         return List.of(

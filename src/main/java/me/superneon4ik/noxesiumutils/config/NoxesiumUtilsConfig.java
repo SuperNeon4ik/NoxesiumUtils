@@ -16,14 +16,24 @@ import java.util.WeakHashMap;
 @Setter
 public class NoxesiumUtilsConfig {
     private boolean extraDebugOutput = false;
+
     private boolean checkForUpdates = true;
-    private boolean sendDefaultsOnJoin = false;
+
+    private boolean sendDefaultsOnJoin = true;
+
     private boolean sendDefaultsOnReload = false;
-    @NotNull private ServerRuleDefaults defaults = new ServerRuleDefaults();
-    @NotNull private List<ItemStack> customCreativeItems = new ArrayList<>();
+
+    @NotNull
+    private ServerRuleDefaults defaults = new ServerRuleDefaults();
+
+    @NotNull
+    private List<ItemStack> customCreativeItems = new ArrayList<>();
     
-    @NotNull private Map<String, QibEffect> qibEffects = new WeakHashMap<>();
-    @NotNull private Map<String, QibDefinition> qibDefinitions = new WeakHashMap<>();
+    @NotNull
+    private Map<String, QibEffect> qibEffects = new WeakHashMap<>();
+
+    @NotNull
+    private Map<String, QibDefinition> qibDefinitions = new WeakHashMap<>();
 
     @Override
     public String toString() {

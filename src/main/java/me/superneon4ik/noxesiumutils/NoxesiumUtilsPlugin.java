@@ -36,7 +36,7 @@ public class NoxesiumUtilsPlugin extends JavaPlugin {
         // Register update checker
         updateChecker = new ModrinthUpdateChecker(this, "noxesiumutils");
         if (config.isCheckForUpdates())
-            updateChecker.beginChecking(5 * 60 * 20); // every 5 minutes
+            updateChecker.beginChecking(60 * 60 * 20); // every 1 hour
         
         registerCommands();
         registerEvents();

@@ -104,7 +104,7 @@ public class ServerRuleCommands {
     /**
      * Command that sets the rule's value to the value
      * returned by the provided CommandAPI Argument.
-     * Also adds a {@link ServerRuleCommands#resetRuleCommand()}
+     * Also adds a {@link ServerRuleCommands#resetRuleCommand(String, int)}
      */
     public List<CommandAPICommand> argumentRule(String name, int index, Argument<?> argument) {
         return List.of(

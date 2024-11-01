@@ -31,6 +31,11 @@ public class ModrinthUpdateChecker {
         this.latestStatus = VersionStatus.NOT_CHECKED;
     }
 
+    /**
+     * Run this once in {@code onEnable} to start
+     * checking this plugin's version against Modrinth.
+     * @param refreshTicks The delay between refreshes in Minecraft ticks.
+     */
     public void beginChecking(int refreshTicks) {
         new BukkitRunnable() {
             boolean firstCheck = true;
@@ -56,6 +61,10 @@ public class ModrinthUpdateChecker {
         }.runTaskTimerAsynchronously(plugin, 1, refreshTicks);
     }
 
+    /**
+     * Asynchronously checks for updates for this plugin against Modrinth
+     * for the server's Minecraft version.
+     */
     public CompletableFuture<VersionStatus> checkForUpdates() {
         CompletableFuture<VersionStatus> future = new CompletableFuture<>();
         if (getCurrentPluginVersion().endsWith("-dev")) {
@@ -106,10 +115,22 @@ public class ModrinthUpdateChecker {
         return future;
     }
 
+    /**
+     * Generate a version message based on the latest VersionStatus.<br>
+     * Used in the {@code /noxesiumutils} command for output.
+     * You most definitely don't need this.
+     * @see ModrinthUpdateChecker#getLatestStatus()
+     */
     public Component generateVersionMessage() {
         return generateVersionMessage(latestStatus);
     }
 
+    /**
+     * Generate a version message.<br>
+     * Used in the {@code /noxesiumutils} command for output.
+     * You most definitely don't need this.
+     * @param versionStatus The version status to use.
+     */
     public Component generateVersionMessage(VersionStatus versionStatus) {
         if (latestKnownVersion == null) latestKnownVersion = getCurrentPluginVersion();
         var currentVersion = Component.text("Running NoxesiumUtils v" + getCurrentPluginVersion(), NamedTextColor.AQUA);

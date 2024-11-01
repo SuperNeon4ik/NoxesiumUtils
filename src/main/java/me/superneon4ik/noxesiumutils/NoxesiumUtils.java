@@ -56,7 +56,13 @@ public class NoxesiumUtils {
         this.config = config;
         this.logger = logger;
     }
-    
+
+    /**
+     * Register all the needed managers and listeners.
+     * Run this once in {@code onEnable()} before use.
+     * <p>
+     * This also registers all the {@link me.superneon4ik.noxesiumutils.events} events.
+     */
     public void register() {
         manager = new HookedNoxesiumManager(getPlugin(), LoggerFactory.getLogger("NoxesiumPaperManager"));
         manager.register();
@@ -80,12 +86,20 @@ public class NoxesiumUtils {
             return null;
         });
     }
-    
+
+    /**
+     * Please run this in {@code onDisable} plsplspls 🙏
+     */
     public void unregister() {
         entityRuleManager.unregister();
         manager.unregister();
     }
-    
+
+    /**
+     * Send the default server rules from the NoxesiumUtils
+     * config to the player.
+     * @param player Player to apply the rules for
+     */
     public void sendDefaultServerRules(Player player) {
         var clazz = ServerRuleDefaults.class;
         var defaults = getConfig().getDefaults();
@@ -109,6 +123,14 @@ public class NoxesiumUtils {
         }
     }
 
+    /**
+     * Since the {@link ServerRuleDefaults} uses data types used for the config,
+     * and not sending the data we need to convert data types for some
+     * fields before sending them.
+     * @param fieldName Name of the server rule field in {@link ServerRuleDefaults}
+     * @param value The value of the field
+     * @return The converted value, that we can send to the player
+     */
     private Object getServerRuleValue(String fieldName, Object value) {
         switch (fieldName) {
             case "overrideGraphicsMode" -> value = Optional.of(value);

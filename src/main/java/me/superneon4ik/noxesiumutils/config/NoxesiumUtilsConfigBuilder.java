@@ -39,22 +39,55 @@ public class NoxesiumUtilsConfigBuilder {
     @Nullable private Logger logger = null;
     
     public NoxesiumUtilsConfigBuilder() {}
-    
+
+    /**
+     * Use the .yml config file to load the values from.
+     * <p>
+     * See <a href="https://github.com/SuperNeon4ik/NoxesiumUtils/blob/master/src/main/resources/config.yml">
+     *     the default config file</a> for format.
+     */
     public NoxesiumUtilsConfigBuilder withConfig(FileConfiguration config) {
         this.config = config;
         return this;
     }
-    
+
+    /**
+     * Use the provided folder to load QibEffects from.
+     * Folder should have .json files with their names as
+     * IDs for the QibEffects.
+     * <p>
+     * We will try to create the directory if it don't
+     * exist when building the config.
+     * @see QibEffect
+     */
     public NoxesiumUtilsConfigBuilder withQibFolder(File qibEffectsFolder) {
         this.qibEffectsFolder = qibEffectsFolder;
         return this;
     }
-    
+
+    /**
+     * Add an optional logger to output information
+     * on the loaded items (some information will only
+     * show up when the {@code extraDebugOutput} config
+     * setting is set to {@code true})
+     */
     public NoxesiumUtilsConfigBuilder withLogger(Logger logger) {
         this.logger = logger;
         return this;
     }
-    
+
+    /**
+     * Builds the config.
+     * <p>
+     * If the Qib folder is not provided the
+     * QibEffects & QibDefinitions will not load,
+     * and you will have to add them manually to the config.
+     * <p>
+     * If the config file is not provided this is only
+     * going to build the default config, however
+     * will load QibEffects (not definitions) if provided.
+     * @return The ready-for-use config object.
+     */
     public NoxesiumUtilsConfig build() {
         var noxesiumUtilsConfig = new NoxesiumUtilsConfig();
 
@@ -162,6 +195,12 @@ public class NoxesiumUtilsConfigBuilder {
     
     private void loadQibEffects(NoxesiumUtilsConfig noxesiumUtilsConfig) {
         if (qibEffectsFolder == null) return;
+
+        if (qibEffectsFolder.exists() && !qibEffectsFolder.isDirectory()) {
+            if (logger != null)
+                logger.warning("The qibs folder provided is not a directory.");
+            return;
+        }
 
         if (!qibEffectsFolder.exists() && !qibEffectsFolder.mkdirs()) {
             if (logger != null) 
