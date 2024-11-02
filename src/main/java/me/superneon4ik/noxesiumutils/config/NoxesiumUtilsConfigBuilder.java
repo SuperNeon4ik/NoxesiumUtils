@@ -56,7 +56,7 @@ public class NoxesiumUtilsConfigBuilder {
      * Folder should have .json files with their names as
      * IDs for the QibEffects.
      * <p>
-     * We will try to create the directory if it don't
+     * We will try to create the directory if it doesn't
      * exist when building the config.
      * @see QibEffect
      */
@@ -80,12 +80,13 @@ public class NoxesiumUtilsConfigBuilder {
      * Builds the config.
      * <p>
      * If the Qib folder is not provided the
-     * QibEffects & QibDefinitions will not load,
+     * QibEffects and QibDefinitions will not load,
      * and you will have to add them manually to the config.
      * <p>
      * If the config file is not provided this is only
-     * going to build the default config, however
-     * will load QibEffects (not definitions) if provided.
+     * going to build the default config, however it
+     * will still load QibEffects (not definitions) if provided.
+     *
      * @return The ready-for-use config object.
      */
     public NoxesiumUtilsConfig build() {

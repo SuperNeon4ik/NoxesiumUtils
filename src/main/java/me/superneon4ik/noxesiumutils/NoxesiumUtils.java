@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 
 /**
  * If your plugin depends on NoxesiumUtils use the instance from
- * {@link NoxesiumUtilsPlugin#getNoxesiumUtils()}.
+ * {@code NoxesiumUtilsPlugin#getNoxesiumUtils()}.
  * <p>
  * If you're shading NoxesiumUtils you need to create your own instance
  * of this class in your plugin.<br>
@@ -124,9 +124,8 @@ public class NoxesiumUtils {
     }
 
     /**
-     * Since the {@link ServerRuleDefaults} uses data types used for the config,
-     * and not sending the data we need to convert data types for some
-     * fields before sending them.
+     * Since the {@link ServerRuleDefaults} uses different data types for some fields
+     * compared to what Noxesium expects we need to convert them before sending to players.
      * @param fieldName Name of the server rule field in {@link ServerRuleDefaults}
      * @param value The value of the field
      * @return The converted value, that we can send to the player

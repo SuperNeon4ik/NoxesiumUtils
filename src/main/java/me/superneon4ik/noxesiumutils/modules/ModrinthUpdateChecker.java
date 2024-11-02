@@ -32,8 +32,7 @@ public class ModrinthUpdateChecker {
     }
 
     /**
-     * Run this once in {@code onEnable} to start
-     * checking this plugin's version against Modrinth.
+     * Run this once in {@code onEnable} to start checking for updates.
      * @param refreshTicks The delay between refreshes in Minecraft ticks.
      */
     public void beginChecking(int refreshTicks) {
@@ -62,8 +61,9 @@ public class ModrinthUpdateChecker {
     }
 
     /**
-     * Asynchronously checks for updates for this plugin against Modrinth
-     * for the server's Minecraft version.
+     * Asynchronously fetches the latest available version of the plugin
+     * on Modrinth for the current server's version and compares it against
+     * the installed plugin's version.
      */
     public CompletableFuture<VersionStatus> checkForUpdates() {
         CompletableFuture<VersionStatus> future = new CompletableFuture<>();
@@ -119,7 +119,6 @@ public class ModrinthUpdateChecker {
      * Generate a version message based on the latest VersionStatus.<br>
      * Used in the {@code /noxesiumutils} command for output.
      * You most definitely don't need this.
-     * @see ModrinthUpdateChecker#getLatestStatus()
      */
     public Component generateVersionMessage() {
         return generateVersionMessage(latestStatus);
