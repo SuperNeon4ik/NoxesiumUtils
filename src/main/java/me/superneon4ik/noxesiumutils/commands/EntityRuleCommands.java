@@ -34,6 +34,7 @@ public class EntityRuleCommands {
         
         commands.addAll(booleanRule("disableBubbles", EntityRuleIndices.DISABLE_BUBBLES));
         commands.addAll(colorRule("beamColor", EntityRuleIndices.BEAM_COLOR));
+        commands.addAll(colorRule("beamColorFade", EntityRuleIndices.BEAM_COLOR_FADE));
         commands.addAll(integerRule("interactionWidthZ", EntityRuleIndices.QIB_WIDTH_Z));
         commands.addAll(qibBehaviorRule("qibBehavior", EntityRuleIndices.QIB_BEHAVIOR));
 
@@ -127,10 +128,11 @@ public class EntityRuleCommands {
                         .executes((sender, args) -> {
                             var entities = (Collection<Entity>) args.get("entities");
                             if (entities == null) return;
-                            if (entities.stream().map(Entity::getType).noneMatch(x -> x == EntityType.GUARDIAN || x == EntityType.ELDER_GUARDIAN)) {
+                            if (entities.stream().map(Entity::getType)
+                                    .noneMatch(x -> List.of(EntityType.GUARDIAN, EntityType.ELDER_GUARDIAN, EntityType.END_CRYSTAL).contains(x))) {
                                 sender.sendRichMessage(
                                         "<yellow><bold>WARNING:</bold> 'beamColor' EntityRule is applicable only to " +
-                                        "minecraft:guardian & minecraft:elder_guardian entities."
+                                        "minecraft:guardian, minecraft:elder_guardian and minecraft:end_crystal entities."
                                 );
                             }
 
