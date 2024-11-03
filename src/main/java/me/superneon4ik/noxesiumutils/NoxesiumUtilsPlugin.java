@@ -1,6 +1,5 @@
 package me.superneon4ik.noxesiumutils;
 
-import com.noxcrew.noxesium.api.qib.QibDefinition;
 import dev.jorel.commandapi.CommandAPICommand;
 import lombok.Getter;
 import me.superneon4ik.noxesiumutils.commands.CommandRegistrar;
@@ -10,11 +9,10 @@ import me.superneon4ik.noxesiumutils.listeners.PlayerJoinEventListener;
 import me.superneon4ik.noxesiumutils.listeners.ReloadCommandListener;
 import me.superneon4ik.noxesiumutils.modules.ModrinthUpdateChecker;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
 
 public class NoxesiumUtilsPlugin extends JavaPlugin {
     @Getter private static NoxesiumUtilsPlugin instance;
