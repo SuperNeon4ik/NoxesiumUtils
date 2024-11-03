@@ -147,7 +147,7 @@ public class CommandRegistrar {
                         .withPermission("noxesiumutils.check")
                         .withArguments(new EntitySelectorArgument.ManyPlayers("players"))
                         .executes((sender, args) -> {
-                            Collection<Player> players = (Collection<Player>) args.get("player");
+                            Collection<Player> players = (Collection<Player>) args.get("players");
                             LinkedList<Component> strings = new LinkedList<>();
                             assert players != null;
                             for (Player player : players) {
