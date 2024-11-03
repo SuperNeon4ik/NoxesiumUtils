@@ -7,6 +7,10 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Called on the join sequence, when the client
+ * sends its settings.
+ */
 @Getter
 public class NoxesiumPlayerSettingsReceivedEvent extends Event {
     private static final HandlerList handlers = new HandlerList();

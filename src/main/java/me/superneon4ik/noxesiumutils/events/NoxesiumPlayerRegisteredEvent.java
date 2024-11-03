@@ -6,6 +6,11 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Called when the player is registered in NoxesiumUtils.
+ * Called after {@link NoxesiumPlayerReadyEvent}.
+ * This is where the server should send default server rules, etc.
+ */
 @Getter
 public class NoxesiumPlayerRegisteredEvent extends Event {
     private static final HandlerList handlers = new HandlerList();

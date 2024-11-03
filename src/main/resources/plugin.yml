@@ -2,7 +2,7 @@ name: NoxesiumUtils
 author: SuperNeon4ik
 description: Communicate with Noxesium with ease.
 version: '${project.version}'
-main: me.superneon4ik.noxesiumutils.NoxesiumUtils
+main: me.superneon4ik.noxesiumutils.NoxesiumUtilsPlugin
 api-version: 1.21
 website: https://github.com/SuperNeon4ik/NoxesiumUtils
 
@@ -13,6 +13,8 @@ permissions:
     description: Run /noxesiumutils.
   noxesiumutils.check:
     description: Run /noxesiumutils check & clientSettings.
+  noxesiumutils.reload:
+    description: Run the reload config command
   noxesiumutils.serverrules:
     description: Access ServerRule commands in /noxesiumutils.
   noxesiumutils.entityrules:
