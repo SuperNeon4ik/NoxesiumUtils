@@ -96,6 +96,7 @@ $RECYCLE.BIN/
 *.lnk
 
 target/
+build/
 
 pom.xml.tag
 pom.xml.releaseBackup
@@ -111,3 +112,5 @@ buildNumber.properties
 
 # Common working directory
 run/
+
+.gradle/

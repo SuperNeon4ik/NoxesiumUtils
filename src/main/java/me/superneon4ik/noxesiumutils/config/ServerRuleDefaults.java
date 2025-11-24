@@ -27,9 +27,6 @@ public class ServerRuleDefaults {
     @RuleIndex(index = ServerRuleIndices.DISABLE_SPIN_ATTACK_COLLISIONS) @Nullable
     public Boolean disableSpinAttackCollisions = null;
     
-    @RuleIndex(index = ServerRuleIndices.DISABLE_UI_OPTIMIZATIONS) @Nullable
-    public Boolean disableUiOptimizations = null;
-    
     @RuleIndex(index = ServerRuleIndices.DISABLE_VANILLA_MUSIC) @Nullable
     public Boolean disableVanillaMusic = null;
     
@@ -65,7 +62,6 @@ public class ServerRuleDefaults {
                 ", disableMapUi=" + disableMapUi +
                 ", disableBoatCollisions=" + disableBoatCollisions +
                 ", disableSpinAttackCollisions=" + disableSpinAttackCollisions +
-                ", disableUiOptimizations=" + disableUiOptimizations +
                 ", disableVanillaMusic=" + disableVanillaMusic +
                 ", enableSmootherClientTrident=" + enableSmootherClientTrident +
                 ", heldItemNameOffset=" + heldItemNameOffset +

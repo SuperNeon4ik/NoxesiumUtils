@@ -32,7 +32,6 @@ public class ServerRuleCommands {
         commands.addAll(booleanRule("cameraLocked", ServerRuleIndices.CAMERA_LOCKED));
         commands.addAll(booleanRule("disableVanillaMusic", ServerRuleIndices.DISABLE_VANILLA_MUSIC));
         commands.addAll(booleanRule("disableBoatCollisions", ServerRuleIndices.DISABLE_BOAT_COLLISIONS));
-        commands.addAll(booleanRule("disableUiOptimizations", ServerRuleIndices.DISABLE_UI_OPTIMIZATIONS));
         commands.addAll(booleanRule("showMapInUi", ServerRuleIndices.SHOW_MAP_IN_UI));
         commands.addAll(booleanRule("disableDeferredChunkUpdates", ServerRuleIndices.DISABLE_DEFERRED_CHUNK_UPDATES));
         commands.addAll(booleanRule("disableMapUi", ServerRuleIndices.DISABLE_MAP_UI));
