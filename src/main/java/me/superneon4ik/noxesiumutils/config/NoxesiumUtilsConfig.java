@@ -7,10 +7,10 @@ import lombok.Setter;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 @Getter
 @Setter
@@ -27,13 +27,13 @@ public class NoxesiumUtilsConfig {
     private ServerRuleDefaults defaults = new ServerRuleDefaults();
 
     @NotNull
-    private List<ItemStack> customCreativeItems = new ArrayList<>();
+    private List<ItemStack> customCreativeItems = new LinkedList<>();
     
     @NotNull
-    private Map<String, QibEffect> qibEffects = new WeakHashMap<>();
+    private Map<String, QibEffect> qibEffects = new HashMap<>();
 
     @NotNull
-    private Map<String, QibDefinition> qibDefinitions = new WeakHashMap<>();
+    private Map<String, QibDefinition> qibDefinitions = new HashMap<>();
 
     @Override
     public String toString() {

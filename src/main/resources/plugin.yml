@@ -1,12 +1,10 @@
 name: NoxesiumUtils
 author: SuperNeon4ik
 description: Communicate with Noxesium with ease.
-version: '${project.version}'
+version: '${version}'
 main: me.superneon4ik.noxesiumutils.NoxesiumUtilsPlugin
 api-version: 1.21
 website: https://github.com/SuperNeon4ik/NoxesiumUtils
-
-depend: [ CommandAPI ]
 
 permissions:
   noxesiumutils.about:

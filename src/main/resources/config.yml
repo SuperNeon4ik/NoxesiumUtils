@@ -23,14 +23,15 @@ defaults:
   #disableDeferredChunkUpdates: false
   #disableMapUi: false
   #disableSpinAttackCollisions: false
-  #disableUiOptimizations: false
   #disableVanillaMusic: false
   #enableSmootherClientTrident: false
   #heldItemNameOffset: 0
   #handItemOverride: 'minecraft:stick[minecraft:enchantments={levels:{"minecraft:knockback":25}}]'
   #overrideGraphicsMode: FAST
   #riptideCoyoteTime: 0
+  #riptidePreCharging: false
   #showMapInUi: false
+  #restrictDebugOptions: []
   #customCreativeItems: false
   #qibBehaviors: []
 

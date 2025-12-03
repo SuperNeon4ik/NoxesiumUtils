@@ -1,9 +1,19 @@
 package me.superneon4ik.noxesiumutils.commands;
 
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.noxcrew.noxesium.api.protocol.rule.EntityRuleIndices;
-import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.*;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
+import io.papermc.paper.command.brigadier.argument.resolvers.ArgumentResolver;
+import io.papermc.paper.command.brigadier.argument.resolvers.selector.EntitySelectorArgumentResolver;
 import me.superneon4ik.noxesiumutils.NoxesiumUtils;
+import me.superneon4ik.noxesiumutils.commands.arguments.QibDefinitionArgument;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
@@ -18,7 +28,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@SuppressWarnings("unchecked")
 public class EntityRuleCommands {
     private final NoxesiumUtils noxesiumUtils;
 
@@ -29,153 +38,149 @@ public class EntityRuleCommands {
     /**
      * Generate all needed entity rule commands
      */
-    public List<CommandAPICommand> generate() {
-        List<CommandAPICommand> commands = new LinkedList<>();
-        
-        commands.addAll(booleanRule("disableBubbles", EntityRuleIndices.DISABLE_BUBBLES));
-        commands.addAll(colorRule("beamColor", EntityRuleIndices.BEAM_COLOR));
-        commands.addAll(colorRule("beamColorFade", EntityRuleIndices.BEAM_COLOR_FADE));
-        commands.addAll(integerRule("interactionWidthZ", EntityRuleIndices.QIB_WIDTH_Z));
-        commands.addAll(qibBehaviorRule("qibBehavior", EntityRuleIndices.QIB_BEHAVIOR));
+    public List<LiteralArgumentBuilder<CommandSourceStack>> generate() {
+        List<LiteralArgumentBuilder<CommandSourceStack>> commands = new LinkedList<>();
+
+        commands.add(booleanRule("disableBubbles", EntityRuleIndices.DISABLE_BUBBLES));
+        commands.add(colorRule("beamColor", EntityRuleIndices.BEAM_COLOR));
+        commands.add(colorRule("beamColorFade", EntityRuleIndices.BEAM_COLOR_FADE));
+        commands.add(colorRule("customGlowColor", EntityRuleIndices.CUSTOM_GLOW_COLOR));
+        commands.add(integerRule("interactionWidthZ", EntityRuleIndices.QIB_WIDTH_Z));
+        commands.add(qibBehaviorRule("qibBehavior", EntityRuleIndices.QIB_BEHAVIOR));
 
         commands.add(generateResetCommand());
 
         return commands;
     }
 
-    private CommandAPICommand generateResetCommand() {
-        return new CommandAPICommand("reset")
-                .withArguments(
-                        new EntitySelectorArgument.ManyEntities("entities")
-                )
-                .executes((sender, args) -> {
-                    var entities = (Collection<Entity>) args.get("entities");
-                    if (entities == null) return;
+    private LiteralArgumentBuilder<CommandSourceStack> generateResetCommand() {
+        return Commands.literal("reset")
+                .then(
+                        Commands.argument("entities", ArgumentTypes.entities())
+                                .executes(ctx -> {
+                                    final var entitySelectorArgumentResolver = ctx.getArgument("entities", EntitySelectorArgumentResolver.class);
+                                    final var entities = entitySelectorArgumentResolver.resolve(ctx.getSource());
 
-                    AtomicInteger updates = new AtomicInteger();
-                    entities.forEach(entity -> {
-                        boolean hasChanged = false;
-                        for (Integer idx : noxesiumUtils.getManager().getEntityRules().getContents().keySet()) {
-                            var rule = noxesiumUtils.getEntityRuleManager().getEntityRule(entity, idx);
-                            if (rule == null) continue;
-                            rule.reset();
-                            hasChanged = true;
-                        }
+                                    AtomicInteger updates = new AtomicInteger();
+                                    entities.forEach(entity -> {
+                                        boolean hasChanged = false;
+                                        for (Integer idx : noxesiumUtils.getManager().getEntityRules().getContents().keySet()) {
+                                            var rule = noxesiumUtils.getEntityRuleManager().getEntityRule(entity, idx);
+                                            if (rule == null) continue;
+                                            rule.reset();
+                                            hasChanged = true;
+                                        }
 
-                        if (hasChanged)
-                            updates.incrementAndGet();
-                    });
+                                        if (hasChanged)
+                                            updates.incrementAndGet();
+                                    });
 
-                    if (sender != null)
-                        sender.sendMessage(Component.text(updates.get() + " player(s) affected.", NamedTextColor.GREEN));
-                });
+                                    ctx.getSource().getSender().sendMessage(Component.text(updates.get() + " player(s) affected.", NamedTextColor.GREEN));
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                );
     }
 
-    /**
-     * Generate a {@code /noxutils entityRules ... reset} command,
-     * that resets the rule to the default value.
-     * @param name The name of the rule/command (should be lowerCamelCase)
-     * @param index The index of the rule (see {@link EntityRuleIndices})
-     */
-    public CommandAPICommand resetRuleCommand(String name, int index) {
-        return new CommandAPICommand(name)
-                .withArguments(
-                        new EntitySelectorArgument.ManyEntities("entities"),
-                        new LiteralArgument("reset")
-                )
-                .executes((sender, args) -> {
-                    var entities = (Collection<Entity>) args.get("entities");
-                    resetEntityRule(sender, entities, index);
+    public LiteralArgumentBuilder<CommandSourceStack> resetCommand(int index) {
+        return Commands.literal("reset")
+                .executes(ctx -> {
+                    final var entitySelectorArgumentResolver = ctx.getArgument("entities", EntitySelectorArgumentResolver.class);
+                    final var entities = entitySelectorArgumentResolver.resolve(ctx.getSource());
+                    resetEntityRule(ctx.getSource().getSender(), entities, index);
+                    return Command.SINGLE_SUCCESS;
                 });
     }
 
     /**
      * Command that sets the rule's value to the value
      * returned by the provided CommandAPI Argument.
-     * Also adds a {@link EntityRuleCommands#resetRuleCommand(String, int)} 
+     * Also adds a {@link EntityRuleCommands#resetCommand(int)}
      */
-    public List<CommandAPICommand> argumentRule(String name, int index, Argument<?> argument) {
-        return List.of(
-                new CommandAPICommand(name)
-                        .withArguments(
-                                new EntitySelectorArgument.ManyEntities("entities"),
-                                argument
-                        )
-                        .executes((sender, args) -> {
-                            var entities = (Collection<Entity>) args.get("entities");
-                            var value = args.get("value");
-                            updateEntityRule(sender, entities, index, value);
-                        }),
-                resetRuleCommand(name, index)
-        );
+    public LiteralArgumentBuilder<CommandSourceStack> argumentRule(String name, int index, ArgumentType<?> argument) {
+        return Commands.literal(name)
+                .then(Commands.argument("entities", ArgumentTypes.entities())
+                        .then(Commands.argument("value", argument)
+                                .executes(ctx -> {
+                                    final var entitySelectorArgumentResolver = ctx.getArgument("entities", EntitySelectorArgumentResolver.class);
+                                    final var entities = entitySelectorArgumentResolver.resolve(ctx.getSource());
+
+                                    Object value;
+                                    var valueTypeOrResolver = ctx.getArgument("value", Object.class);
+                                    if (valueTypeOrResolver instanceof ArgumentResolver<?> resolver) {
+                                        value = resolver.resolve(ctx.getSource());
+                                    }
+                                    else {
+                                        value = valueTypeOrResolver;
+                                    }
+
+                                    updateEntityRule(ctx.getSource().getSender(), entities, index, value);
+                                    return Command.SINGLE_SUCCESS;
+                                }))
+                        .then(resetCommand(index)));
     }
 
-    public List<CommandAPICommand> booleanRule(String name, int index) {
-        return argumentRule(name, index, new BooleanArgument("value"));
+    public LiteralArgumentBuilder<CommandSourceStack> booleanRule(String name, int index) {
+        return argumentRule(name, index, BoolArgumentType.bool());
     }
 
-    public List<CommandAPICommand> integerRule(String name, int index) {
-        return argumentRule(name, index, new BooleanArgument("value"));
+    public LiteralArgumentBuilder<CommandSourceStack> integerRule(String name, int index) {
+        return argumentRule(name, index, IntegerArgumentType.integer());
     }
 
-    public List<CommandAPICommand> colorRule(String name, int index) {
-        return List.of(
-                new CommandAPICommand(name)
-                        .withArguments(
-                                new EntitySelectorArgument.ManyEntities("entities"),
-                                new GreedyStringArgument("hex")
-                        )
-                        .executes((sender, args) -> {
-                            var entities = (Collection<Entity>) args.get("entities");
-                            if (entities == null) return;
-                            if (entities.stream().map(Entity::getType)
-                                    .noneMatch(x -> List.of(EntityType.GUARDIAN, EntityType.ELDER_GUARDIAN, EntityType.END_CRYSTAL).contains(x))) {
-                                sender.sendRichMessage(
-                                        "<yellow><bold>WARNING:</bold> 'beamColor' EntityRule is applicable only to " +
-                                        "minecraft:guardian, minecraft:elder_guardian and minecraft:end_crystal entities."
-                                );
-                            }
+    public LiteralArgumentBuilder<CommandSourceStack> colorRule(String name, int index) {
+        return Commands.literal(name)
+                .then(Commands.argument("entities", ArgumentTypes.entities())
+                        .then(Commands.argument("hex", StringArgumentType.greedyString())
+                                .executes(ctx -> {
+                                    final var entitySelectorArgumentResolver = ctx.getArgument("entities", EntitySelectorArgumentResolver.class);
+                                    final var entities = entitySelectorArgumentResolver.resolve(ctx.getSource());
 
-                            var hexColor = (String) args.get("hex");
-                            if (hexColor == null) return;
-                            try {
-                                var color = Color.decode(hexColor);
-                                updateEntityRule(sender, entities, index, Optional.of(color));
-                            }
-                            catch (NumberFormatException e) {
-                                sender.sendMessage(Component.text("Invalid hex color '" + hexColor + "'.", NamedTextColor.RED));
-                            }
-                        })      
-        );
+                                    if ((name.equals("beamColor") || name.equals("beamColorFade")) &&
+                                            entities.stream().map(Entity::getType)
+                                                .noneMatch(x -> List.of(EntityType.GUARDIAN, EntityType.ELDER_GUARDIAN, EntityType.END_CRYSTAL).contains(x))) {
+                                        ctx.getSource().getSender().sendRichMessage(
+                                                "<yellow><bold>WARNING:</bold> 'beamColor' EntityRule is applicable only to " +
+                                                        "minecraft:guardian, minecraft:elder_guardian and minecraft:end_crystal entities."
+                                        );
+                                    }
+
+                                    var hexColor = ctx.getArgument("hex", String.class);
+
+                                    try {
+                                        var color = Color.decode(hexColor);
+                                        updateEntityRule(ctx.getSource().getSender(), entities, index, Optional.of(color));
+                                        return Command.SINGLE_SUCCESS;
+                                    }
+                                    catch (NumberFormatException e) {
+                                        ctx.getSource().getSender().sendMessage(Component.text("Invalid hex color '" + hexColor + "'.", NamedTextColor.RED));
+                                        return -1;
+                                    }
+                                }))
+                        .then(resetCommand(index)));
     }
 
-    public List<CommandAPICommand> qibBehaviorRule(String name, int index) {
-        if (noxesiumUtils.getConfig().getQibDefinitions().isEmpty()) {
-            return List.of(resetRuleCommand(name, index));
-        }
-        
-        return List.of(
-                new CommandAPICommand(name)
-                    .withArguments(
-                            new EntitySelectorArgument.ManyEntities("entities"),
-                            new MultiLiteralArgument("value", noxesiumUtils.getConfig().getQibDefinitions().keySet().toArray(new String[0]))
-                    )
-                    .executes((sender, args) -> {
-                        var entities = (Collection<Entity>) args.get("entities");
-                        var qibName = (String) args.get("value");
-                        if (entities == null) return;
-                        if (entities.stream().map(Entity::getType).noneMatch(x -> x == EntityType.INTERACTION)) {
-                            sender.sendRichMessage(
-                                    "<yellow><bold>WARNING:</bold> 'qibBehaviour' EntityRule is applicable " +
-                                    "only to minecraft:interaction entities."
-                            );
-                        }
-                        updateEntityRule(sender, entities, index, qibName);
-                    }),
-                resetRuleCommand(name, index)
-        );
-    } 
-    
+    public LiteralArgumentBuilder<CommandSourceStack> qibBehaviorRule(String name, int index) {
+        return Commands.literal(name)
+                .then(Commands.argument("entities", ArgumentTypes.entities())
+                        .then(Commands.argument("definition", new QibDefinitionArgument(noxesiumUtils))
+                                .executes(ctx -> {
+                                    final var entitySelectorArgumentResolver = ctx.getArgument("entities", EntitySelectorArgumentResolver.class);
+                                    final var entities = entitySelectorArgumentResolver.resolve(ctx.getSource());
+                                    final var qibName = ctx.getArgument("definition", String.class);
+
+                                    if (entities.stream().map(Entity::getType).noneMatch(x -> x == EntityType.INTERACTION)) {
+                                        ctx.getSource().getSender().sendRichMessage(
+                                                "<yellow><bold>WARNING:</bold> 'qibBehaviour' EntityRule is applicable " +
+                                                        "only to minecraft:interaction entities."
+                                        );
+                                    }
+
+                                    updateEntityRule(ctx.getSource().getSender(), entities, index, qibName);
+                                    return Command.SINGLE_SUCCESS;
+                                }))
+                        .then(resetCommand(index)));
+    }
+
     // ---
 
     public void updateEntityRule(@Nullable CommandSender sender, Collection<Entity> entities, Integer index, Object value) {

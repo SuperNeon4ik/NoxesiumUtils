@@ -27,9 +27,6 @@ public class ServerRuleDefaults {
     @RuleIndex(index = ServerRuleIndices.DISABLE_SPIN_ATTACK_COLLISIONS) @Nullable
     public Boolean disableSpinAttackCollisions = null;
     
-    @RuleIndex(index = ServerRuleIndices.DISABLE_UI_OPTIMIZATIONS) @Nullable
-    public Boolean disableUiOptimizations = null;
-    
     @RuleIndex(index = ServerRuleIndices.DISABLE_VANILLA_MUSIC) @Nullable
     public Boolean disableVanillaMusic = null;
     
@@ -47,9 +44,15 @@ public class ServerRuleDefaults {
     
     @RuleIndex(index = ServerRuleIndices.RIPTIDE_COYOTE_TIME) @Nullable
     public Integer riptideCoyoteTime = null;
+
+    @RuleIndex(index = ServerRuleIndices.RIPTIDE_PRE_CHARGING) @Nullable
+    public Integer riptidePreCharging = null;
     
     @RuleIndex(index = ServerRuleIndices.SHOW_MAP_IN_UI) @Nullable
     public Boolean showMapInUi = null;
+
+    @RuleIndex(index = ServerRuleIndices.RESTRICT_DEBUG_OPTIONS) @Nullable
+    public List<Integer> restrictDebugOptions = null;
     
     @RuleIndex(index = ServerRuleIndices.CUSTOM_CREATIVE_ITEMS) @Nullable
     public Boolean customCreativeItems = null; // should be converted to List<ItemStack> when sending
@@ -65,14 +68,15 @@ public class ServerRuleDefaults {
                 ", disableMapUi=" + disableMapUi +
                 ", disableBoatCollisions=" + disableBoatCollisions +
                 ", disableSpinAttackCollisions=" + disableSpinAttackCollisions +
-                ", disableUiOptimizations=" + disableUiOptimizations +
                 ", disableVanillaMusic=" + disableVanillaMusic +
                 ", enableSmootherClientTrident=" + enableSmootherClientTrident +
                 ", heldItemNameOffset=" + heldItemNameOffset +
                 ", handItemOverride=" + handItemOverride +
                 ", overrideGraphicsMode=" + overrideGraphicsMode +
                 ", riptideCoyoteTime=" + riptideCoyoteTime +
+                ", riptidePreCharging=" + riptidePreCharging +
                 ", showMapInUi=" + showMapInUi +
+                ", restrictDebugOptions=" + restrictDebugOptions +
                 ", customCreativeItems=" + customCreativeItems +
                 ", qibBehaviors=" + qibBehaviors +
                 '}';
