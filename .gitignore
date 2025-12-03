@@ -114,3 +114,4 @@ buildNumber.properties
 run/
 
 .gradle/
+!gradle/wrapper/gradle-wrapper.jar
