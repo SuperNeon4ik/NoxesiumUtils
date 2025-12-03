@@ -110,7 +110,6 @@ public class NoxesiumUtilsConfigBuilder {
         noxesiumUtilsConfig.setSendDefaultsOnJoin(config.getBoolean("sendDefaultsOnJoin", false));
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     private void loadDefaults(NoxesiumUtilsConfig noxesiumUtilsConfig) {
         if (config == null) return;
 
@@ -172,7 +171,6 @@ public class NoxesiumUtilsConfigBuilder {
         }
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     private void loadCustomCreativeItems(NoxesiumUtilsConfig noxesiumUtilsConfig) {
         if (config == null) return;
         

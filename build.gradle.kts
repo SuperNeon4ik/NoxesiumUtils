@@ -38,7 +38,6 @@ dependencies {
     shadow(libs.org.json.json)
 
     compileOnly(libs.org.jetbrains.annotations)
-    compileOnly(libs.dev.jorel.commandapi.bukkit.core)
     compileOnly(libs.io.papermc.paper.paper.api)
     compileOnly(libs.org.projectlombok.lombok)
 
@@ -77,9 +76,5 @@ tasks.processResources {
 tasks {
     runServer {
         minecraftVersion("1.21.8")
-
-        downloadPlugins {
-            github("CommandAPI", "CommandAPI", "10.1.2", "CommandAPI-10.1.2-Mojang-Mapped.jar")
-        }
     }
 }
